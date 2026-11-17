@@ -30,13 +30,13 @@ EDL = [
  # the catalogue
  ("rec74", "catalogue", 217.2, 219.78),    # So let's start by cataloging every single thing we can imagine.   (the second try)
  ("rec74", "catalogue", 220.88, 224.74),   # Add numbers, features, labels. We list everything we know about those objects.
- ("rec74", "catalogue", 232.18, 236.8),    # We can even include things like the rainbow or radio waves.   (the third start)
- ("rec74", "sort", 244.62, 253.8),         # And then we sort and categorize them. Some will float in water, some sink, some are round, some are not, some are in between.
+ ("rec74", "catalogue", 232.18, 236.8, {"s": 233.85}),    # We can even include things like the rainbow or radio waves.   (the fourth start: its start given, the three before it restart)
+ ("rec74", "sort", 244.62, 253.8, {"s": 247.55}),         # And then we sort and categorize them.   (from the third "and then": its start given) Some will float in water, some sink, some are round, some are not, some are in between.
  ("rec74", "sort", 254.66, 258.3),         # Some objects are alive, some are not, and surprisingly, some also are in between.
  ("rec74", "sort", 259.56, 262.7),         # We can categorize them as heavy or light, big or small.
- ("rec74", "chart", 264.64, 281.78),       # There are two numbers that we apply to almost everything, mass and size. The ones that don't have mass will have energy level and wavelength, which turns out to be the same thing. But the numbers are wildly different, so the only way to organize them is a log chart, where each square is 10x the last one.
+ ("rec74", "chart", 264.64, 281.78, {"e": 282.05}),       # There are two numbers that we apply to almost everything, mass and size. The ones that don't have mass will have energy level and wavelength, which turns out to be the same thing. But the numbers are wildly different, so the only way to organize them is a log chart, where each square is 10x the last one.
  # the dance of the forces
- ("rec74", "bands", 283.62, 288.14),       # If you do that, you'll notice that most things will fall in bands.
+ ("rec74", "bands", 283.62, 288.14, {"s": 285.4}),       # If you do that, you'll notice that most things will fall in bands.   (the second "if you do that": "If you do that, you know," before it)
  ("rec74", "bands", 290.54, 294.36),       # And it seems there is something special about this particular diagonal. What is it?
  ("rec74", "dance", 294.56, 303.42),       # What is happening is that everything in our universe is a delicate dance between four fundamental forces. Well, sometimes it can be a violent tug of war also.
  ("rec74", "em", 306.42, 311.9),           # Electrons repel other electrons and are attracted to protons, so they find a good equilibrium point between them.   (the second try)
@@ -54,27 +54,27 @@ EDL = [
  ("rec74", "column", 482.8, 491.16),       # That's why super-Jupiter planets don't get bigger, they just get denser. That is, until this bifurcation here happens. What is that?   (the second try)
  # the strong force and fusion
  ("rec74", "strong", 493.78, 504.72, {"cut": [(494.75, 496.12)]}),      # Turns out, if you add even more mass, then something magical happens, because a new force comes into play. The strong force, as the name implies, is the strongest of all forces.   (a hesitation between "add" and "even" cut)
- ("rec74", "strong", 506.46, 508.52),      # But it also has an even more limited range.
+ ("rec74", "strong", 506.46, 508.52, {"e": 508.95}),      # But it also has an even more limited range.   (its end given: a restart, "but it also has even a more", follows)
  ("rec74", "strong", 513.66, 523.08),      # For some massive objects, their gravity will be so strong that it will push those cores together that the strong force can now capture them and make one single nucleus.
  ("rec74", "fusion", 565.94, 574.5),       # And when that happens, a large amount of energy will be released, creating an outwards pressure that counterbalances the force of gravity.   (the last of four tries)
- ("rec74", "fusion", 590.88, 591.14),      # That's fusion.   (the third of three)
+ ("rec74", "fusion", 590.88, 591.14, {"s": 590.75}),      # That's fusion.   (the third of three)
  ("rec74", "fusion", 594.96, 606.06),      # And it changes the delicate dance between gravity and electromagnetism and the strong force, creating this new stable equilibrium diagonal here, which is called the main sequence, where stars will live most of their lives.
  ("rec74", "fusion", 607.92, 613.12),      # But that equilibrium is only kept by the fusion of hydrogen, and once it runs out, that goes haywire.
  # how stars end, and the weak force (the author's last version, from 11:00: small stars, then the massive ones; the
  # earlier "When that happens, a catastrophic core collapse…" tries, 10:15-10:51, left out)
  ("rec74", "end", 669.34, 679.46, {"s": 672.85}),   # Small stars will remain with a nucleus made of oxygen and helium, and their outer layers will expand into nebulae.   (from its restart: "Small stars will just remain with the nucleus," before it)
- ("rec74", "end", 697.3, 705.04),          # More massive stars will undergo a catastrophic core collapse called a supernova.   (the third try)
- ("rec74", "end", 711.96, 722.8),          # Their outer layers will spread out, and a new player force will enter into play. It's the weak force. It's what decides what the nucleus even is.   (the second try)
+ ("rec74", "end", 697.3, 705.04, {"s": 700.55}),          # More massive stars will undergo a catastrophic core collapse called a supernova.   (the third "more massive stars", its start given)
+ ("rec74", "end", 711.96, 722.8, {"s": 714.15}),          # Their outer layers will spread out, and a new player force will enter into play. It's the weak force. It's what decides what the nucleus even is.   (the second "their outer layers", its start given)
  ("rec74", "neutron", 738.96, 742.1),      # If you squeeze a proton and an electron hard enough,   (the fourth try's start…)
- ("rec74", "neutron", 747.64, 748.52, {"gap": 0.3}),   # it will create a neutron.   (…and the fifth's end: the fourth ends "it will create a mess", the fifth says "a proton and a few electrons")
+ ("rec74", "neutron", 747.64, 748.52, {"gap": 0.3, "e": 748.95}),   # it will create a neutron.   (…and the fifth's end: the fourth ends "it will create a mess", the fifth says "a proton and a few electrons")
  ("rec74", "neutron", 784.26, 791.56),     # And neutrons, unlike protons and electrons, do not repel each other, so they will just stay put, held by the force of gravity.
  ("rec74", "neutron", 794.68, 800.16),   # This forms a neutron star, which is really just a very single big atomic nucleus.   (the slip "a very single" kept: no clean cut between the words; to re-record)
  ("rec74", "neutron", 804.22, 809.54),     # A bunch of neutrons held together not by the strong force, but purely by the force of gravity.
  # the black-hole line (the long cut hands over to short-04a-black-hole-slope after "Nothing can exist above it")
  ("rec74", "blackholes", 819.38, 823.82),  # And if you add even more mass, a stranger thing will happen.
- ("rec74", "blackholes", 825.44, 833.84),  # So far our objects have all been around bands, scattered around the density of water, the column of super-Jupiter planets.
- ("rec74", "blackholes", 834.34, 841.4, {"s": 837.1}),   # All living stars are around this rightward slope.   (the second try, from its start: "All living stars are around right," before it)
- ("rec74", "blackholes", 847.82, 858.7),   # This is the region where stars go to die. On the left is a cemetery of dead stars, white dwarfs, neutron stars, and the strangest of all, black holes.
+ ("rec74", "blackholes", 825.44, 833.84, {"s": 827.85}),  # So far our objects have all been around bands, scattered around the density of water, the column of super-Jupiter planets.   (the second "so far", its start given)
+ ("rec74", "blackholes", 834.34, 841.4, {"s": 838.85, "e": 841.65}),   # All living stars are around this rightward slope.   (the third "all living stars", its start given)
+ ("rec74", "blackholes", 847.82, 858.7, {"cut": [(855.5, 856.55)]}),   # This is the region where stars go to die. On the left is a cemetery of dead stars, white dwarfs, neutron stars, and the strangest of all, black holes.   (the restart "and the strange," cut)
  ("rec74", "line", 869.92, 872.74),        # And unlike everything else, black holes are not scattered around.   (the second try)
  ("rec74", "line", 878.06, 881.12),        # Every single black hole lives exactly on this line.   (the second "every single black hole")
  ("rec74", "line", 882.0, 894.94),         # And this line is very special because it actually represents the first limit we meet on our chart of everything. Because for every object you can see, there's a size in which if you squeeze them hard enough, they will become a black hole.

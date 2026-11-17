@@ -155,3 +155,4 @@
 # 2026-11-17: long video 2's new opening and forces (rec74, a first draft): the new long cut and the new forces Short, whole
 long-02b-space
 short-l2b-dance-of-the-forces
+# 2026-11-17, afternoon: rec74 re-cut (restarts and stray tails out, the author's notes): new audio, so both render whole (queued above)

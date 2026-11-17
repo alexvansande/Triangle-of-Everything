@@ -7,48 +7,48 @@ rec74,map,22.36,24.75,199.27,201.65,"From the big bang to the hit death of the u
 rec74,map,25.10,27.49,209.89,212.29,A unified history all in a single chart.
 rec74,catalogue,28.59,31.49,217.43,220.33,So let's start by cataloging every single thing we can imagine.
 rec74,catalogue,32.04,36.47,220.73,225.16,"Add numbers, feature labels. We list everything we know about those objects."
-rec74,catalogue,37.02,41.80,232.55,237.52,we can even include things like the rainbow or radio waves.
-rec74,sort,42.90,52.12,244.95,254.41,"And then we sort and categorize them. Some will float in water, some sink, some are round, some are not, some are in between."
-rec74,sort,52.67,56.97,254.52,258.82,"Some objects are alive, some are not, and surprisingly, some also are in between."
-rec74,sort,57.52,61.19,259.61,263.28,"We can categorize them as heavy or light, big or small."
-rec74,chart,62.29,79.72,264.42,282.25,"There are two numbers that we apply to almost everything, mass and size. The ones that don't have mass will have energy level and wavelength, which turns out to be the same thing. But the numbers are wildly different, so the only way to organize them is a log chart, where each square is 10x of the last one."
-rec74,bands,80.82,85.58,283.69,288.71,"If you do that, you'll notice that most things will fall in bands."
-rec74,bands,86.13,90.32,290.56,294.75,And it seems there is something special about this particular diagonal. What is it?
-rec74,dance,91.42,100.18,295.28,304.04,"What is happening is that everything in our universe is a delicate dance between four fundamental forces. Well, sometimes it can be a violent tug of war also."
-rec74,em,101.28,107.46,306.20,312.38,"Electrons repel other electrons or are attracted to protons, so they find a good equilibrium point between that."
-rec74,em,108.01,112.84,312.73,317.56,"These are the chemical bonds keeping most things around you together, from a stick to a building."
-rec74,em,113.39,116.70,318.07,321.38,These bonds are all variations of the electromagnetic force.
-rec74,em,117.25,122.92,349.14,354.81,It prevents things from getting too close to each other. But gravity works trying to push matter together.
-rec74,diagonal,124.02,140.10,355.81,371.89,"Make something too big, and it will crush under its own weight. Try to squeeze it too hard, and electrons themselves will push it outwards. The resulting line, this diagonal, is actually the density of atoms, and everything made of ordinary matter will fall somewhere along the hair."
-rec74,gravity,141.20,146.56,382.21,387.57,"Gravity is very weak compared to electromagnetism, but it works at much larger distances."
-rec74,gravity,147.11,160.98,402.35,416.65,"The more massive something is, the more gravity has an effect on it, and the less chemical bonds can keep it together. That's why it's hard to build very tall buildings, and why at some point everything in our list becomes round."
-rec74,gravity,161.53,164.73,417.05,420.25,Gravity shapes everything from this point onwards.
-rec74,column,165.83,170.01,427.08,431.26,"Get massive enough, and gravity starts to matter even at atomic scale."
-rec74,column,170.56,181.88,431.48,446.45,"Notice how giant planets beyond Jupiter do not fall on our diagonal line anymore. Rather, they just go up on a column. That's because their core is not made of ordinary matter."
-rec74,column,182.43,196.41,447.50,461.64,"These planets are massive, and there's so much pressure in their core that it's able to win over the repulsion of the electrons. The atoms get stripped out of the outer electron layers, and it becomes a lot of loose nucleus in a sea of electrons."
-rec74,column,196.96,205.85,482.74,491.62,"That's why super -Jupiter planets don't get bigger, they just get denser. That is, until this bifurcation here happens. What is that?"
-rec74,strong,206.95,217.15,493.70,505.41,"Turns out, if you add even more mass, then something magical happens, because a new force comes into play. The strong force, as the name implies, is the strongest of all forces."
-rec74,strong,217.70,221.11,506.19,509.60,But it also has an even more limited range.
-rec74,strong,221.66,231.67,513.59,523.83,"For some massive objects, their gravity will be so strong that it will push those core together that the strong force can now capture them and make one single nucleus."
-rec74,fusion,232.77,241.11,566.08,575.14,"And when that happens, a large amount of energy will be released, creating an outwards pressure that counterbalances the force of gravity."
-rec74,fusion,241.66,242.61,590.76,591.72,That's fusion.
-rec74,fusion,243.16,255.01,594.87,606.71,"And it changes the delicate dance between gravity and natural magnetism of the strong force, creating this new stable equilibrium diagonal here, which is called the main sequence, where stars who live most of their lives."
-rec74,fusion,255.56,261.94,607.57,613.95,"But that equilibrium is only kept by the fusion of hydrogen, and once it runs out, that goes haywire."
-rec74,end,263.04,270.44,672.85,680.25,"Small stars will just remain with a nucleo made of oxygen and helium, and their outer layers will expand into nebulous."
-rec74,end,270.99,279.46,697.45,705.92,More massive stars will undergo a catastrophic core collapse called the supernova.
-rec74,end,280.01,290.80,712.62,723.41,"Their outer layers will spread out, and a new player force will enter into play. It's the weak force. It's what decides what the nucleus even is."
-rec74,neutron,291.90,295.24,739.12,742.63,"If you squeeze a proton on an electron hard enough,"
-rec74,neutron,295.54,297.04,747.62,749.12,it will create a neutron.
-rec74,neutron,297.59,305.43,784.32,792.17,"And neutrons, unlike protons on electrons, do not repel each other, so they will just stay put, held by the force of gravity."
-rec74,neutron,305.98,312.28,794.72,801.02,"This forms a neutron star, which is really just a very single big atomic nucleus."
-rec74,neutron,312.83,318.53,804.53,810.23,"A bunch of neutrons held together not by the strong force, but purely by the force of gravity."
-rec74,blackholes,319.63,324.75,819.07,824.44,"And if you add even more mass, a stranger thing will happen."
-rec74,blackholes,325.30,334.19,825.39,834.61,"So far our objects have all been around bands, scattered around the density of water, the column of super -recipital planets."
-rec74,blackholes,334.74,339.25,837.10,841.83,"All living stars are around this white dwarf's slope,"
-rec74,blackholes,339.80,351.33,847.82,859.35,"This is the region where stars go to die. On the left is a cemetery of dead stars. White dwarfs, neutron stars, and the strangest of all, black holes."
-rec74,line,352.43,356.09,869.75,873.41,"and unlike everything else, black holes are not scattered around."
-rec74,line,356.64,360.19,878.07,881.62,"every single black hole, lives exactly on this line."
-rec74,line,360.74,374.22,881.89,895.38,"And this line is very special because it actually represents the first limit we meet on our short of everything. Because for every object you can see, there's a size in which if you squeeze them hard enough, they will become a black hole."
-rec74,line,374.77,378.78,905.47,909.48,"black holes never cross this line, therefore nothing will."
-rec74,line,379.33,385.76,909.89,916.32,"So this line, called the Schwarzschild radius, represents the upper limit in which anything can be."
-rec74,line,386.31,388.87,921.58,924.13,Nothing can exist above it.
+rec74,catalogue,37.02,40.69,233.85,237.52,we can even include things like the rainbow or radio waves.
+rec74,sort,41.79,48.65,247.55,254.41,"And then we sort and categorize them. Some will float in water, some sink, some are round, some are not, some are in between."
+rec74,sort,49.20,53.50,254.52,258.82,"Some objects are alive, some are not, and surprisingly, some also are in between."
+rec74,sort,54.05,57.72,259.61,263.28,"We can categorize them as heavy or light, big or small."
+rec74,chart,58.82,76.04,264.42,282.05,"There are two numbers that we apply to almost everything, mass and size. The ones that don't have mass will have energy level and wavelength, which turns out to be the same thing. But the numbers are wildly different, so the only way to organize them is a log chart, where each square is 10x of the last one."
+rec74,bands,77.14,80.46,285.40,288.71,"If you do that, you'll notice that most things will fall in bands."
+rec74,bands,81.01,85.20,290.56,294.75,And it seems there is something special about this particular diagonal. What is it?
+rec74,dance,86.30,95.06,295.28,304.04,"What is happening is that everything in our universe is a delicate dance between four fundamental forces. Well, sometimes it can be a violent tug of war also."
+rec74,em,96.16,102.34,306.20,312.38,"Electrons repel other electrons or are attracted to protons, so they find a good equilibrium point between that."
+rec74,em,102.89,107.72,312.73,317.56,"These are the chemical bonds keeping most things around you together, from a stick to a building."
+rec74,em,108.27,111.58,318.07,321.38,These bonds are all variations of the electromagnetic force.
+rec74,em,112.13,117.79,349.14,354.81,It prevents things from getting too close to each other. But gravity works trying to push matter together.
+rec74,diagonal,118.89,134.98,355.81,371.89,"Make something too big, and it will crush under its own weight. Try to squeeze it too hard, and electrons themselves will push it outwards. The resulting line, this diagonal, is actually the density of atoms, and everything made of ordinary matter will fall somewhere along the hair."
+rec74,gravity,136.08,141.44,382.21,387.57,"Gravity is very weak compared to electromagnetism, but it works at much larger distances."
+rec74,gravity,141.99,155.85,402.35,416.65,"The more massive something is, the more gravity has an effect on it, and the less chemical bonds can keep it together. That's why it's hard to build very tall buildings, and why at some point everything in our list becomes round."
+rec74,gravity,156.40,159.61,417.05,420.25,Gravity shapes everything from this point onwards.
+rec74,column,160.71,164.89,427.08,431.26,"Get massive enough, and gravity starts to matter even at atomic scale."
+rec74,column,165.44,176.75,431.48,446.45,"Notice how giant planets beyond Jupiter do not fall on our diagonal line anymore. Rather, they just go up on a column. That's because their core is not made of ordinary matter."
+rec74,column,177.30,191.29,447.50,461.64,"These planets are massive, and there's so much pressure in their core that it's able to win over the repulsion of the electrons. The atoms get stripped out of the outer electron layers, and it becomes a lot of loose nucleus in a sea of electrons."
+rec74,column,191.84,200.72,482.74,491.62,"That's why super -Jupiter planets don't get bigger, they just get denser. That is, until this bifurcation here happens. What is that?"
+rec74,strong,201.82,212.03,493.70,505.41,"Turns out, if you add even more mass, then something magical happens, because a new force comes into play. The strong force, as the name implies, is the strongest of all forces."
+rec74,strong,212.58,215.33,506.19,508.95,But it also has an even more limited range.
+rec74,strong,215.88,225.89,513.59,523.83,"For some massive objects, their gravity will be so strong that it will push those core together that the strong force can now capture them and make one single nucleus."
+rec74,fusion,226.99,235.33,566.08,575.14,"And when that happens, a large amount of energy will be released, creating an outwards pressure that counterbalances the force of gravity."
+rec74,fusion,235.88,236.85,590.75,591.72,That's fusion.
+rec74,fusion,237.40,249.24,594.87,606.71,"And it changes the delicate dance between gravity and natural magnetism of the strong force, creating this new stable equilibrium diagonal here, which is called the main sequence, where stars who live most of their lives."
+rec74,fusion,249.79,256.17,607.57,613.95,"But that equilibrium is only kept by the fusion of hydrogen, and once it runs out, that goes haywire."
+rec74,end,257.27,264.67,672.85,680.25,"Small stars will just remain with a nucleo made of oxygen and helium, and their outer layers will expand into nebulous."
+rec74,end,265.22,270.59,700.55,705.92,More massive stars will undergo a catastrophic core collapse called the supernova.
+rec74,end,271.14,280.40,714.15,723.41,"Their outer layers will spread out, and a new player force will enter into play. It's the weak force. It's what decides what the nucleus even is."
+rec74,neutron,281.50,284.84,739.12,742.63,"If you squeeze a proton on an electron hard enough,"
+rec74,neutron,285.14,286.47,747.62,748.95,it will create a neutron.
+rec74,neutron,287.02,294.87,784.32,792.17,"And neutrons, unlike protons on electrons, do not repel each other, so they will just stay put, held by the force of gravity."
+rec74,neutron,295.42,301.72,794.72,801.02,"This forms a neutron star, which is really just a very single big atomic nucleus."
+rec74,neutron,302.27,307.97,804.53,810.23,"A bunch of neutrons held together not by the strong force, but purely by the force of gravity."
+rec74,blackholes,309.07,314.18,819.07,824.44,"And if you add even more mass, a stranger thing will happen."
+rec74,blackholes,314.73,321.49,827.85,834.61,"So far our objects have all been around bands, scattered around the density of water, the column of super -recipital planets."
+rec74,blackholes,322.04,324.84,838.85,841.65,"All living stars are around this white dwarf's slope,"
+rec74,blackholes,325.39,335.87,847.82,859.35,"This is the region where stars go to die. On the left is a cemetery of dead stars. White dwarfs, neutron stars, and the strangest of all, black holes."
+rec74,line,336.97,340.63,869.75,873.41,"and unlike everything else, black holes are not scattered around."
+rec74,line,341.18,344.73,878.07,881.62,"every single black hole, lives exactly on this line."
+rec74,line,345.28,358.76,881.89,895.38,"And this line is very special because it actually represents the first limit we meet on our short of everything. Because for every object you can see, there's a size in which if you squeeze them hard enough, they will become a black hole."
+rec74,line,359.31,363.32,905.47,909.48,"black holes never cross this line, therefore nothing will."
+rec74,line,363.87,370.30,909.89,916.32,"So this line, called the Schwarzschild radius, represents the upper limit in which anything can be."
+rec74,line,370.85,373.40,921.58,924.13,Nothing can exist above it.

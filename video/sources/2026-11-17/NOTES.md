@@ -26,9 +26,9 @@ the doubtful stretches re-heard with medium.en, which the cut list's comments fo
 
 | Video | Take | Plays | Made from |
 |---|---|---|---|
-| Long video 2's new opening, to the Schwarzschild line | `long-02b-opening` | 6:29 | `video/long-02b-opening/edl.py`, 53 clips, all rec74 |
-| Long video 2, the new draft | `long-02b-space` (a cut) | 17:55 + 3 s credits | `video/cuts/long-02b-space.json`: the opening, then the Shorts as the script runs |
-| The dance of the forces, the new Short | `short-l2b-dance-of-the-forces` (a cut) | 2:56 + 3 s credits | `video/cuts/short-l2b-dance-of-the-forces.json`, from the opening |
+| Long video 2's new opening, to the Schwarzschild line | `long-02b-opening` | 6:14 | `video/long-02b-opening/edl.py`, 53 clips, all rec74 |
+| Long video 2, the new draft | `long-02b-space` (a cut) | 17:40 + 3 s credits | `video/cuts/long-02b-space.json`: the opening, then the Shorts as the script runs |
+| The dance of the forces, the new Short | `short-l2b-dance-of-the-forces` (a cut) | 2:50 + 3 s credits | `video/cuts/short-l2b-dance-of-the-forces.json`, from the opening |
 
 Treatment as rec73: `enhance.py --plain`, natural speed, the breaths out of the pauses (`debreath.py`), the room in the gaps.
 
@@ -44,6 +44,16 @@ Treatment as rec73: `enhance.py --plain`, natural speed, the breaths out of the 
 - Caption fixes on the words: "along the hair" → here; "natural magnetism" → electromagnetism; "super-ejecture" →
   super-Jupiter; "nucleon" → nucleus; "nebulas" → nebulae; "white dwarf's slope" → rightward slope (what medium.en hears
   on the raw take).
+
+### The second pass (the author, 2026-11-17: "lots of repeated words and lost phrases")
+Each clip of the edit transcribed on its own, with a prompt that keeps fillers and restarts (the long-form pass had
+smoothed them over), found restarts the first cut kept: "we can even include, we can even include", "and then, and then
+we, and then we sort", "if you do that, you know, if you do that", "more massive star, more massive stars, more massive
+stars", "their outer layers will spread. Their outer layers…", "so far our objects have been… so far", "all living stars
+are, all living stars are", "and the strange, and the strangest", and tails ("…10x of the last one, you", "…limited range,
+and in…", "…a neutron. One"). Each clip now starts at the last restart's first word and ends at its own last word, found
+on the waveform (the start and end given in the cut list); "That's fusion" had lost its "That's" to the silence snap
+(its start given). The edit transcribes clean clip by clip; 6:14 now.
 
 ### Fact check
 - **Right:** a log chart of mass and size for every kind of thing; light placed by its energy (as mass, E = mc²) and its
