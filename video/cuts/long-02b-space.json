@@ -1,0 +1,15 @@
+{
+  "title": "The Triangle of Everything: space",
+  "blurb": "A map of every single thing, sorted by mass and size; the dance of the forces up the diagonal, from chemical bonds to the neutron star; the black-hole line and the smallest black holes; out to the largest structures, the cosmic event horizon and the furthest light we can see (the new opening, recorded 2026-11-17).",
+  "stage": "landscape",
+  "gap": 0.6,
+  "segments": [
+    { "take": "long-02b-opening" },
+    { "take": "short-04a-black-hole-slope", "from": "And black holes don't actually have a size", "to": "tiny black holes" },
+    { "take": "short-04b-smallest-black-holes", "from": "For any given mass", "to": "lucky few survivors" },
+    { "take": "short-05a-emptier", "from": "the more we go to the right", "to": "meets the speed of light" },
+    { "take": "short-05b-hubble-sphere", "from": "See, the speed of light", "to": "sits outside our triangle, the observable universe" },
+    { "take": "short-05d-observable-universe" }
+  ],
+  "_note": "A draft (the author, 2026-11-17: 'this first recording will be a draft'): the new opening and the forces (long-02b-opening, rec74) up to the Schwarzschild limit, then the Shorts already cut, as the script doc 'Long 2: Space Triangle — script' runs: the Black Hole Slope from its horizon line, the Smallest Black Holes, the Largest Structures (without its Short opening; the script's new lead-in, 'But let's talk about galaxies again', is still to record), the Cosmic Event Horizon (without its Short opening) and the Furthest Light whole. The script's 'But I'm not even sure you can call that a single object. Let's explore that.' isn't recorded yet. Replaces long-02-space when the author is happy with it."
+}

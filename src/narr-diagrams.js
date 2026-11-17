@@ -699,6 +699,13 @@ export function drawSqueeze(ctx, W, H, o, t, pixelRatio) {
   if (o.exact && sim.S.t + SQUEEZE_DT <= want + 1e-9 && !(sim.mark && sim.S.t - sim.mark.t < 0.1)) sim.mark = { t: sim.S.t, snap: sim.save() };
   for (let n = 0; sim.S.t + SQUEEZE_DT <= want + 1e-9 && (o.exact || n < 60); n++) sim.step(SQUEEZE_DT);
   sim.draw(ctx, W, H, pixelRatio);
+  // optional titles over the run ({ labels: [[text, colour], …] }), one after another from the top, each fading in a
+  // second after the one before (long-02b-opening's bonds: "electrons repel electrons", "electrons and protons attract")
+  if (o.labels) ctx.setTransform(1, 0, 0, 1, 0, 0);   // the run draws under its own transform
+  (o.labels || []).forEach(([s, col], i) => {
+    const f = smooth((t - o.start - 0.8 - i * 1.6) / 0.7); if (f <= 0) return;
+    ctx.globalAlpha = f; text(ctx, s, W / 2, H * (0.1 + i * 0.065), Math.min(W, H) * 0.045, col); ctx.globalAlpha = 1;
+  });
 }
 
 // ---------- our universe and an alien's: the edge, two horizons, and the observable universe (the author's design,

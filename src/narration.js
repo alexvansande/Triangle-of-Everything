@@ -25,6 +25,7 @@ import { blackHoleFilter } from "./black-hole-palette.js";
 import * as d3 from "d3";
 import { iconUrls } from "./assets.js";
 import { drawHorizons, drawCenter, drawOwn, drawCosmos, drawCrush, drawFuse, drawWeak, drawDeut, drawSqueeze, drawEdge, drawObservable, edgePending, diagramsPending } from "./narr-diagrams.js";
+import { drawCatalogue, cataloguePending } from "./narr-catalogue.js";
 import {
   EVENT_HORIZON_LOG_R, HUBBLE_LOG_R, PLANCK_LOG_R, PLANCK_LOG_M, schwarzschildM, comptonM,
   densityLineM, DENSITY_SPHERE_C, SCHWARZSCHILD_C, COMPTON_C,
@@ -2265,11 +2266,11 @@ export async function startNarration(app) {
   // the phases of the crush and fusion diagrams: the time of each cue carrying { crush: { phase } } / { fuse: { phase } }
   // (the first one, without a phase, is "start"), so the drawing runs on the take's clock whatever cue is live
   const phaseTimes = (key) => Object.fromEntries(cues.filter(c => c.hl?.some(q => q[key])).map(c => [c.hl.find(q => q[key])[key].phase || "start", c.time]));
-  const CRUSH_T = phaseTimes("crush"), FUSE_T = phaseTimes("fuse"), WEAK_T = phaseTimes("weak"), DEUT_T = phaseTimes("deut"), EDGE_T = phaseTimes("edge"), OBS_T = phaseTimes("obs");
+  const CATALOGUE_T = phaseTimes("catalogue"), CRUSH_T = phaseTimes("crush"), FUSE_T = phaseTimes("fuse"), WEAK_T = phaseTimes("weak"), DEUT_T = phaseTimes("deut"), EDGE_T = phaseTimes("edge"), OBS_T = phaseTimes("obs");
   const DIAGRAM_KINDS = { own: cues.some(c => c.hl?.some(q => q.own)), center: cues.some(c => c.hl?.some(q => q.center)), cosmos: cues.some(c => c.hl?.some(q => q.cosmos)),
-    particles: cues.some(c => c.hl?.some(q => q.crush || q.fuse || q.weak || q.deut || q.squeeze)), edge: cues.some(c => c.hl?.some(q => q.edge || q.obs)) };
+    particles: cues.some(c => c.hl?.some(q => q.crush || q.fuse || q.weak || q.deut || q.squeeze)), edge: cues.some(c => c.hl?.some(q => q.edge || q.obs)), catalogue: cues.some(c => c.hl?.some(q => q.catalogue)) };
   function drawDiagram(live, t) {
-    const cv = layer.querySelector("#narr-diagram"), h = live.filter(q => q.horizons || q.center || q.own || q.cosmos || q.crush || q.fuse || q.weak || q.deut || q.squeeze || q.edge || q.obs).sort((a, b) => b.t0 - a.t0)[0];   // the newest: an older one may still be live for its fade
+    const cv = layer.querySelector("#narr-diagram"), h = live.filter(q => q.horizons || q.center || q.own || q.cosmos || q.crush || q.fuse || q.weak || q.deut || q.squeeze || q.edge || q.obs || q.catalogue).sort((a, b) => b.t0 - a.t0)[0];   // the newest: an older one may still be live for its fade
     if (!h) { cv.hidden = true; return; }
     cv.hidden = false;
     const dpr = Math.min(2, devicePixelRatio || 1), W = Math.round(layer.clientWidth * dpr), H = Math.round(layer.clientHeight * dpr);
@@ -2288,6 +2289,7 @@ export async function startNarration(app) {
     else if (h.obs) drawObservable(ctx, W, H, { ...h.obs, ...OBS_T }, t);
     else if (h.edge) drawEdge(ctx, W, H, { ...h.edge, ...EDGE_T }, t);
     else if (h.squeeze) drawSqueeze(ctx, W, H, { ...h.squeeze, start: h.t0, exact: RENDER }, t, dpr);
+    else if (h.catalogue) drawCatalogue(ctx, W, H, { ...CATALOGUE_T }, t);
   }
   /** Expansion as a picture gaining pixels: { pixels: { steps: [s, …], cell?, seed? } }, on its
    *  own over a black screen (no chart behind) and full screen, so no border is seen growing (the
@@ -3059,7 +3061,7 @@ export async function startNarration(app) {
     now: () => curT,     // the take's time on screen (the live Hopf pictures animate by it)
     settle(t) { const { view } = camera(t); app.setCamera(view, false); app.bgNoiseSettle(); overlay(); },
     camera: (t) => camera(t).view,
-    pending: () => (window.__cmbIconPending || 0) + diagramsPending(DIAGRAM_KINDS) + (DIAGRAM_KINDS.edge ? edgePending() : 0) + app.tilesPending() + app.iconsPending() + (app.dustReady() ? 0 : 1) +
+    pending: () => (window.__cmbIconPending || 0) + diagramsPending(DIAGRAM_KINDS) + (DIAGRAM_KINDS.catalogue ? cataloguePending() : 0) + (DIAGRAM_KINDS.edge ? edgePending() : 0) + app.tilesPending() + app.iconsPending() + (app.dustReady() ? 0 : 1) +
       [...photoImgs.values()].filter(im => !im.complete).length +
       [...photoBox.querySelectorAll("img")].filter(im => !im.complete).length +
       [...photoBox.querySelectorAll("video"), ...layer.querySelectorAll("#narr-clips video")].filter(v => v.seeking || v.readyState < 2).length +

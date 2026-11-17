@@ -15,3 +15,5 @@ long-02-intro
 long-02-middle
 # A piece, not a video: long video 2's end (rec56, 2026-11-05), the last segment of long-02-space
 long-02-end
+# A piece, not a video: long video 2's new opening (rec74, 2026-11-17), the first segment of long-02b-space and the source of short-l2b-dance-of-the-forces
+long-02b-opening

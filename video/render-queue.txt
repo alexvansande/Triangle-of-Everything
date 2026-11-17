@@ -152,3 +152,6 @@
 # filtered to the pixel's size (they sparkled, a different light every frame) and the Deep Field galaxy that passes the
 # camera at 1:40 fixed in the field, so the orbit carries it away instead of holding it in the middle: picture only, in
 # the zoom's working folder (/Users/avsa/Dev/Triangle, earth-scene.js and deep-field.js, uncommitted) — rendered whole by hand (the author, 2026-11-14: "start a full render")
+# 2026-11-17: long video 2's new opening and forces (rec74, a first draft): the new long cut and the new forces Short, whole
+long-02b-space
+short-l2b-dance-of-the-forces

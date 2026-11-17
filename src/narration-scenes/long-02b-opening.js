@@ -1,0 +1,156 @@
+// =============================================================
+// Scene: long-02b-opening — the new opening of long video 2 (space), the author's first draft of the new script (rec74,
+// 2026-11-17; video/long-02b-opening/, the script: the claude.ai doc "Long 2: Space Triangle — script"). The catalogue of
+// everything on black (src/narr-catalogue.js, the author's notes in the script): the chart's pictures floating in 3D,
+// the camera darting to each thing named, glowing lines between the ones of a kind, labels, then sorted (floats / sinks,
+// round, alive, heavier, bigger) and laid out by size and mass on a log grid. Then the chart: everything from far away,
+// the bands and the diagonal; the dance of the forces, the electric bonds (a few atoms settling, the Squeeze Lab's
+// mode 1 without the squeeze), gravity pushing in, the pan up to the round worlds, the giant planets' column and the
+// atoms crushed, the split, the strong force and fusion, the main sequence, the fuel running out, how stars end and the
+// weak force, the neutron star; then the black-hole line up to the Schwarzschild limit, where the long cut
+// (video/cuts/long-02b-space.json) hands over to the Black Hole Slope. The forces Short (short-l2b-dance-of-the-forces)
+// is cut from this take. The chart's shots are the forces Short's (short-l2-dance-of-the-forces.js) and the Black Hole
+// Slope's (short-04a-black-hole-slope.js), keyed to this take's words, so the pictures match across the series.
+// =============================================================
+// Field reference: docs/narration.md, "Scene fields". Rules: video/plans/visual-rules.md.
+
+const WATER = { line: "water" };
+const ON_LINE = (m) => (m - 0.62) / 3;
+// marks a little ahead of the camera on the pan up the diagonal (visual-rules.md, "Marks during a glide")
+const force = (m, dir, color) => ({ arrow: true, solid: true, width: 4, color, from: { r: ON_LINE(m) + dir * 1.5, m }, to: { r: ON_LINE(m) + dir * 0.2, m } });
+const GRAV_AT = (m) => [force(m + 0.9, 1, "#ffab40"), force(m - 0.9, 1, "#ffab40"), { text: "gravity\npushes in", at: [ON_LINE(m) + 0.85, m], size: 22, color: "#ffab40" }];
+const EM_AT = (m) => [force(m + 0.9, -1, "#4fc3f7"), force(m - 0.9, -1, "#4fc3f7"), { text: "electro-\nmagnetism\npushes out", at: [ON_LINE(m) - 1.05, m], size: 22, color: "#4fc3f7" }];
+const UP = (m, span = 4.6) => ({ r: ON_LINE(m), m, span, glide: true });
+const COLUMN = { trend: [[9.84, 29.9], [9.84, 32.4]], color: "#ffd54f" };
+const G = (r, m, span = 1.7) => ({ r, m, span });
+const BD = [{ obj: "Y Brown Dwarf", label: false }, { obj: "T Brown Dwarf", label: false }];
+const FORK = [
+  { arrow: true, from: { obj: "L Brown Dwarf" }, to: { obj: "Sun" }, color: "#ffd54f" },
+  { obj: "White Dwarf", label: "dead stars' cores", place: "right", delay: 0.8 },
+];
+const MS = { line: "mainsequence", label: "main sequence" };
+const CAT = (phase) => ({ catalogue: { phase }, instant: true });
+// the black-hole line (the Black Hole Slope's)
+const BH = (m) => ({ r: m - 27.83, m, mark: true });
+const SCHW = { line: "schwarzschild" };
+const KNOWN = { dust: "blackhole", sweep: 1.6 };
+const LOW = { path: "stellar-low-mass" }, HIGH = { path: "stellar-high-mass" };
+const CYCLE = [LOW, HIGH, { path: ["nebula-to-nursery", "remnant-to-nursery"] }];
+const WD = { obj: "White Dwarf", label: false }, NS = { obj: "PSR J0030+0451", label: false }, SBH = { obj: "Stellar BH", label: false };
+// a few atoms finding their distance: the Squeeze Lab's mode 1 with a roomy box that doesn't shrink and nothing popping,
+// its arrows on (the author's note in the script: "electrons repel electrons", "electrons and protons attract")
+const BONDS = { squeeze: { mode: 1, from: 0, P: { count: 34, startBox: 1.12, endBox: 1.12, shrinkTime: 999, threshold: 9, centreFirst: 0, initSpeed: 140, arrowTime: 9, arrowsIn: false },
+  labels: [["electrons repel electrons", "#4fc3f7"], ["electrons and protons attract", "#b39ddb"]] } };
+
+export default {
+  title: "The Triangle of Everything: space (the new opening)",
+  blurb: "A map of every single thing: the catalogue, sorted and laid out by mass and size; then the dance of the forces up the diagonal, from chemical bonds to the neutron star, and the black-hole line.",
+  start: { r: 6, m: 15, span: 30 },
+  iconBoost: { from: 21.2, k: 0.6, slugs: { "laniakea-galaxy-supercluster": 0.55 } },
+  icons: "all",
+  forceIcons: ["Sun", "L Brown Dwarf", "T Brown Dwarf", "Y Brown Dwarf"],
+  captionFixes: { hair: "here", nucleon: "nucleus", nebulas: "nebulae" },
+
+  backing: "Immersed",
+  sound: [
+    { at: "something magical happens", fx: "ignite", offset: 0.3 },
+    { at: "goes haywire", fx: "boom", offset: 0.2 },
+    { at: "become a black hole", fx: "drop", atEnd: true, offset: -0.3 },
+  ],
+
+  cues: [
+    // ── A map of every single thing: the catalogue on black ──
+    { t: 0, hl: [{ catalogue: { phase: "start" } }] },
+    { at: "every star", hl: [CAT("sun")] },
+    { at: "every planet", hl: [CAT("earth")] },
+    { at: "galaxy", hl: [CAT("milky-way")] },
+    { at: "animal", hl: [CAT("elephant")] },
+    { at: "rock", hl: [CAT("big-rock-okotoks")] },
+    { at: "car", hl: [CAT("benz-patent-motorwagen")] },
+    { at: "microbe", hl: [CAT("bacteria")] },
+    { at: "atom", hl: [CAT("hydrogen")] },
+    { at: "how they connect", hl: [CAT("links")] },
+    { at: "add numbers", hl: [CAT("labels")] },
+    { at: "rainbow", hl: [CAT("light")] },
+    { at: "float in water", hl: [CAT("float")] },
+    { at: "some are round", hl: [CAT("round")] },
+    { at: "are alive", hl: [CAT("alive")] },
+    { at: "heavy or light", hl: [CAT("heavy")] },
+    { at: "big or small", hl: [CAT("big")] },
+    { at: "mass and size", hl: [CAT("chart")] },
+    { at: "each square", hl: [CAT("grid")] },
+
+    // ── The chart: everything from far away, then the bands and the diagonal ──
+    { at: "you'll notice", cam: { r: 5.5, m: 14, span: 30 }, dur: 0.05, clear: true, hl: [] },
+    { at: "fall in bands", cam: { r: 3.6, m: 10, span: 18 }, dur: 6, ease: "gentle", hl: [WATER, { ...COLUMN, delay: 1.2 }] },
+    { at: "particular diagonal", cam: { r: 2.6, m: 8.6, span: 9 }, dur: 4, ease: "gentle", hl: [{ line: "water", label: "the diagonal" }] },
+    // the four forces: on the human, the tug of war marked on the line
+    { at: "delicate dance", cam: { obj: "Human", span: 4.6 }, dur: 3, ease: "gentle", clear: true, hl: [WATER, { obj: "Human" }] },
+    { at: "tug of war", hl: [WATER, ...GRAV_AT(3.6), ...EM_AT(6.2)] },
+    // the chemical bonds: a few atoms on black, settling at their distance
+    { at: "electrons repel", hold: 12, hl: [BONDS] },
+    { at: "chemical bonds", cam: { obj: "Human", span: 6 }, clear: true, hl: [WATER, { obj: "Human", label: "held by chemical bonds" }, { obj: "Eiffel Tower", delay: 0.5 }] },
+    { at: "variations of the electromagnetic", hl: [WATER, ...EM_AT(6.2)] },
+    { at: "gravity works", hl: [WATER, ...EM_AT(6.2), ...GRAV_AT(3.6)] },
+    // one pan up the line (visual-rules.md: one pan, one direction), the rings ahead of the camera
+    { at: "make something too big", cam: UP(6), clear: true, hl: [WATER, { ellipse: [ON_LINE(7.5) + 1.2, 7.5, 0.6, 0.6], rot: 0, label: false, color: "#ffab40" },
+      { arrow: true, solid: true, width: 4, color: "#ffab40", from: { r: ON_LINE(7.5) + 1.2, m: 7.5 }, to: { r: ON_LINE(7.5) + 0.1, m: 7.5 }, delay: 0.4 },
+      { text: "crushes under\nits own weight", at: [ON_LINE(7.5) + 1.25, 8.6], size: 22, color: "#ffab40", delay: 0.5 }] },
+    { at: "squeeze it too hard", cam: UP(10), clear: true, hl: [WATER, { ellipse: [ON_LINE(12.5) - 1.2, 12.5, 0.6, 0.6], rot: 0, label: false, color: "#4fc3f7" },
+      { arrow: true, solid: true, width: 4, color: "#4fc3f7", from: { r: ON_LINE(12.5) - 1.2, m: 12.5 }, to: { r: ON_LINE(12.5) - 0.1, m: 12.5 }, delay: 0.4 },
+      { text: "its atoms\npush back", at: [ON_LINE(12.5) - 1.2, 11.4], size: 22, color: "#4fc3f7", delay: 0.5 }] },
+    { at: "density of atoms", cam: UP(16), clear: true, hl: [{ line: "water", label: "the density of atoms" }] },
+    { at: "gravity is very weak", cam: UP(19), hl: [WATER, ...GRAV_AT(20.5)] },
+    { at: "very tall buildings", cam: UP(22), hl: [WATER, { obj: "Burj Khalifa", label: "the tallest building" }] },
+    // "we are just panning up now, seeing the round moons" (the author's note)
+    { at: "becomes round", cam: { r: 8.1, m: 25.0, span: 4.6, glide: true }, hl: [{ obj: "Ceres", label: "round", place: "left" }, { obj: "Pluto", label: false, delay: 0.3 }, { obj: "Moon", label: false, delay: 0.6 }] },
+    { at: "gravity shapes everything", cam: { r: 8.6, m: 27.0, span: 4.6, glide: true }, hl: [{ obj: "Earth", label: "shaped by gravity" }, { obj: "Moon", label: false }] },
+    // the giant planets' column
+    { at: "atomic scale", cam: G(9.85, 30.9, 2.4), dur: 2.5, clear: true, hl: [{ obj: "Jupiter", label: "Jupiter", place: "left" }] },
+    { at: "go up on a column", hl: [{ obj: "Jupiter", label: false, place: "left" }, ...BD, COLUMN] },
+    { at: "not made of ordinary matter", hl: [{ obj: "Jupiter", label: "not ordinary matter inside", place: "left" }, ...BD, { ...COLUMN, draw: 0.01 }] },
+    // the atoms crushed: the Squeeze Lab's mode 1 ("show that sim of the degenerate matter forming")
+    { at: "these planets are massive", hold: 14, hl: [{ squeeze: { mode: 1, from: 13.2 } }] },
+    { at: "don't get bigger", cam: G(9.85, 31.4, 2.6), clear: true, hl: [{ obj: "Jupiter", label: false, place: "left" }, ...BD, { ...COLUMN, draw: 0.01 }] },
+    // "show the super jupiters and brown dwarf branching"
+    { at: "bifurcation", cam: { r: 9.9, m: 33.0, span: 3.8 }, dur: 3, drift: 0.02, hl: [{ obj: "L Brown Dwarf", label: false }, ...FORK] },
+    // the strong force: the brown dwarfs and Proxima, then the fusion diagram
+    { at: "even more mass", cam: { r: 9.85, m: 32.6, span: 3 }, clear: true, hl: [{ obj: "L Brown Dwarf", label: false }, { obj: "Proxima Cen", label: "fusion starts", delay: 0.6 }] },
+    { at: "the strong force", hold: 25, hl: [{ squeeze: { mode: 2, from: 1.8, P: { startBox: 2.6 } } }] },
+    { at: "changes the delicate dance", cam: { r: 10.9, m: 33.1, span: 3.6 }, clear: true, hl: [] },
+    { at: "called the main sequence", hl: [{ obj: "Sun" }, MS, { obj: "Sirius A", delay: 0.4 }] },
+    { at: "most of their lives", hl: [MS, { obj: "Sun", label: "billions of years" }, { obj: "Sirius A", delay: 0.3 }, { obj: "Vega", delay: 0.6 }] },
+    { at: "once it runs out", hl: [{ line: "mainsequence" }, { obj: "Sun", label: "out of hydrogen" }] },
+    { at: "goes haywire", cam: { r: 11.85, m: 33.4, span: 3.6 }, hl: [{ swing: [{ obj: "Sun" }, { obj: "Red Giant" }], period: 1.2, core: true }, { obj: "Red Giant", label: "the fire goes out", delay: 1 }] },
+    // how stars end: the small ones (the white dwarf and the nebula), the big ones (the supernova), then the weak force
+    { at: "small stars", cam: { r: 12.6, m: 33.6, span: 9 }, dur: 3, clear: true, hl: [{ ...LOW, from: "Sun" }, { obj: "White Dwarf", label: "the core left", place: "left", delay: 0.8 }, { obj: "Planetary Nebula", label: "a nebula", delay: 1.6 }] },
+    { at: "more massive stars", hl: [HIGH, { obj: "Crab Nebula", label: "supernova", delay: 0.8 }] },
+    { at: "catastrophic core collapse", hl: [HIGH, { obj: "Crab Nebula", label: "supernova" }, { obj: "PSR J0030+0451", label: "the core", delay: 0.8 }] },
+    // the weak force, the lab's mode 3, its first ring clenching on "squeeze a proton"
+    { at: "a new player force", cam: { r: 8.0, m: 33.5, span: 7 }, dur: 2, hold: 34, hl: [{ squeeze: { mode: 3, from: 10.5 } }] },
+    { at: "this forms a neutron star", cam: { obj: "PSR J0030+0451", span: 3.4 }, dur: 2.5, clear: true, hl: [{ obj: "PSR J0030+0451", label: "neutron star" }] },
+    { at: "a bunch of neutrons", hl: [{ obj: "PSR J0030+0451", label: "one giant nucleus" }, { density: 14.36, label: "the density of a nucleus" }] },
+
+    // ── The black-hole line (the Black Hole Slope's shots) ──
+    { at: "a stranger thing", cam: { r: 8.6, m: 33.7, span: 8 }, dur: 3, clear: true, hl: [NS, { obj: "Stellar BH", label: "?", delay: 0.6 }] },
+    { at: "around bands", cam: { r: 2.2, m: 5.6, span: 9 }, dur: 2.4, clear: true, hl: [{ line: "water", label: "the density of water" }] },
+    { at: "column of super-Jupiter", cam: { r: 9.85, m: 30.9, span: 9, whip: true }, hl: [{ ...COLUMN, delay: 0.3 }] },
+    { at: "all living stars", cam: { r: 11.6, m: 33.7, span: 9, whip: true }, hl: [MS, ...CYCLE] },
+    { at: "where stars go to die", cam: { r: 12.6, m: 34, span: 15 }, dur: 4, hl: CYCLE },
+    { at: "cemetery of dead stars", cam: { r: 8.6, m: 33.7, span: 8 }, dur: 3, clear: true,
+      hl: [WD, NS, SBH, { ellipse: [7.45, 33.75, 2.3, 1.15], rot: 0, label: "dead stars", place: "above", color: "#e0e0e0", delay: 1.4 }] },
+    { at: "white dwarfs", hl: [{ obj: "White Dwarf", place: "left" }, NS, SBH] },
+    { at: "neutron stars", hl: [WD, { obj: "PSR J0030+0451", label: "neutron star", place: "right" }, SBH] },
+    { at: "black holes", hl: [WD, NS, { obj: "Stellar BH", label: "black hole" }] },
+    { at: "not scattered around", cam: { obj: "Sgr A*", span: 15 }, dur: 4, drift: 0.02, clear: true, hl: [KNOWN] },
+    { at: "lives exactly on this line", hl: [KNOWN, { ...SCHW, label: "black holes" }] },
+    { at: "this line is very special", cam: { r: 11, m: 38.6, span: 20 }, dur: 5, hl: [{ line: "triangle" }, { ...SCHW, label: "the first limit" }] },
+    { at: "for every object you can see", cam: { r: 4.2, m: 26.6, span: 16 }, dur: 3, hl: [SCHW, { obj: "Moon" }] },
+    { at: "if you squeeze them", hl: [SCHW, { obj: "Moon" }, { arrow: true, from: { obj: "Moon" }, to: BH(25.87), label: "squeeze", delay: 0.2 }] },
+    { at: "become a black hole", hl: [SCHW, { obj: "Moon" }, { arrow: true, from: { obj: "Moon" }, to: BH(25.87), delay: 0 },
+      { cross: BH(25.87), size: "the Moon: 0.2 mm wide", delay: 0.3 }] },
+    { at: "never cross this line", cam: { obj: "Sgr A*", span: 15 }, dur: 6, drift: 0.02, clear: true, hl: [{ ...SCHW, label: "nothing crosses it" }] },
+    { at: "called the schwarzschild radius", hl: [{ ...SCHW, label: "schwarzschild radius" }] },
+    { at: "upper limit in which", hl: [{ ...SCHW, label: "schwarzschild radius" }, { side: "left", of: "schwarzschild" }] },
+  ],
+};

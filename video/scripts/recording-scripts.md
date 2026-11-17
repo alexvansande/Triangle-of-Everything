@@ -24,6 +24,8 @@ went silent after a minute when it ran out.
 | 2 · up the line (water to brown dwarfs) | `short-02-up-the-line` | the source of long video 1 (6:01) and Shorts 2a (2:41) and 2b (2:02); re-recorded 2026-11-03, rec51 |
 | 3 · planets into stars | `short-03-stars` | 2:13 (re-recorded 2026-10-27, rec36) |
 | Long 2 · the opening to the black holes | `long-02-intro` | 8:09 (re-recorded 2026-11-06, rec57, natural speed, the second pass; the first piece of `long-02-space`, 19:14) |
+| Long 2 · the new script (draft) | `long-02b-space` (a cut) | 17:55 + 3 s credits: the new opening and the forces (`long-02b-opening`, rec74, 2026-11-17, natural speed, 6:29), then the Black Hole Slope from its horizon, the Smallest Black Holes, the Largest Structures and the Cosmic Event Horizon without their Short openings, and the Furthest Light whole |
+| The dance of the forces (Short, new) | `short-l2b-dance-of-the-forces` (a cut) | 2:56 + 3 s credits, from rec74 (the bonds, gravity's reach and the small stars' end left out to fit under 3:00); the old one (rec58) stays beside it |
 | The dance of the forces (Short) | `short-l2-dance-of-the-forces` | 2:45 (recorded on its own 2026-11-08, rec58, natural speed; cut from 3:19 on 2026-11-09) |
 | 4 · black holes and dark matter | `short-04-black-holes` | 4:31 at 1.1× (re-recorded 2026-10-29, rec48) |
 | The Black Hole Slope (Short: the black-hole line, recorded on its own) | `short-04a-black-hole-slope` | 2:51 with the credits (recorded 2026-11-09, rec59, natural speed); the earlier version, `short-04a-black-hole-line` (cut from rec48), stays beside it to compare; the author prefers it (2026-11-09: more concise, says "black hole" in the first 30 s, more energy), now 2:07 with rec59's ending from "But the most interesting question" to "tiny black holes" in place of its own, which stopped at "but how small" (on trial: do the two recordings sit together?). Fact check of that ending: "most of the things in the universe are just tiny black holes" says more than the idea does; it's most of the *matter*, the dark matter, that could be tiny black holes. To re-record: *"…some people who believe that most of the matter in the universe, the dark matter, could be tiny black holes."* |
@@ -1094,6 +1096,31 @@ plays fine.
 spoken line; each is carved from the long take by phrase (`video/cuts/short-l2*.json`).
 
 ---
+
+## Long 2 · The new script (`long-02b-opening`, rec74, 2026-11-17: a first draft)
+
+The author's script is the claude.ai doc "Long 2: Space Triangle — script". rec74 recorded its first part, from "What
+would happen if you tried to make a map of every single thing in the universe?" to the Schwarzschild line; the cut list
+and its choices are in `video/long-02b-opening/edl.py`, the fact check in `video/sources/2026-11-17/NOTES.md`. The long
+cut (`video/cuts/long-02b-space.json`) goes on with the Shorts already cut.
+
+### To re-record (from rec74's fact check)
+- ~~"Small stars will remain with a nucleus made of oxygen and helium"~~ → *"Small stars, like our Sun, will leave a core
+  of carbon and oxygen behind, and their outer layers will drift off into a nebula."* (wrong as said)
+- "Gravity is very weak compared to electromagnetism, but it works at much larger distances" → *"…but it only ever adds
+  up: there's no negative mass to cancel it out."*
+- "But it also has an even more limited range" → *"But it only reaches across the width of a nucleus."*
+- "neutrons… do not repel each other, so they will just stay put" → *"And neutrons, packed shoulder to shoulder, refuse to
+  be squeezed any further, so it just stays put, held together by gravity."*
+- "Their outer layers will spread out, and a new player force will enter into play" → *"Their outer layers are blown
+  away, and in the collapsing core a new player enters: the weak force."*
+- Slips kept in the cut: "a very single big atomic nucleus"; "More massive stars… will… undergo" (two long pauses).
+
+### Not recorded yet (in the script doc)
+- The black hole in the forces' terms (the doc's question): *"Add even more mass, and even the neutrons give way. No force
+  we know can push back, and gravity wins for good: everything falls in, and what's left is a black hole."*
+- The lead-in to the largest structures: "But let's talk about galaxies again, and you'll notice that…"
+- After "the observable universe": "But I'm not even sure you can call that a single object. Let's explore that."
 
 ## 3 · Planets into stars (`short-03-stars`)
 
