@@ -38,6 +38,9 @@ heard again on the edit (the restarts the long pass had smoothed over cut: "and 
 sort by", "What's happening is that, now, now it's for both of them", "Well, sometimes, well, sometimes", "It prevents
 things… but grav-", "But gravity wants-", "so it creates this…" ×4 (the 15:04 try used), "They can go from anything-").
 The take transcriber (`scripts/narration-take.py`) now runs verbatim too.
+Four more the author heard in the long draft (2026-11-18, the first five minutes), cut the same way: "and we… we will… we
+will find out" (rec75 1:35), "some smaller, some smaller part, some smaller particles" (1:52), "but the electrons also,
+but the electron layers" (4:27), "so it, so it quickly adds up" (6:59).
 
 ## Fact check
 

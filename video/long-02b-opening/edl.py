@@ -30,9 +30,9 @@ EDL = [
  ("rec75", "catalogue", 59.7, 62.24),  # We can even include things like rainbow or radio waves.
  ("rec75", "sort", 71.48, 73.0),  # And then we sort and categorize them.
  ("rec75", "sort", 73.66, 77.26),  # Some will float in the water, some will sink, some are round, some are not.
- ("rec75", "sort", 88.46, 103.26, {"s": 89.12}),   # (from the second "we sort": "we sort, we sort by" heard on the edit)
+ ("rec75", "sort", 88.46, 103.26, {"s": 89.12, "cut": [(95.0, 98.3)]}),   # (and the "And we…" before "and we will find out" out: the author, 2026-11-18, long draft 0:55)   # (from the second "we sort": "we sort, we sort by" heard on the edit)
  #  # we sort by heavier or lighter, bigger, smaller, and we will find out that there are two numbers that apply to almost everything, that is math and size.
- ("rec75", "chart", 112.82, 121.58),  # Some smaller particles won't have either, but they do have energy and wavelength, which turns out is the same thing.
+ ("rec75", "chart", 112.82, 121.58, {"s": 115.35}),   # (the last of "some smaller, some smaller part, some smaller particles": long draft 1:05)  # Some smaller particles won't have either, but they do have energy and wavelength, which turns out is the same thing.
  ("rec75", "chart", 149.07, 167.55, {"s": 156.8}),   # (from the last "and since": four restarts before it, 2:29-2:36, the long pass heard one)
  #  # And since the numbers are orders of magnitude difference, the only way we can organize them is by a log chart, where each square is 10 times the last one.
  ("rec75", "bands", 175.89, 179.31),  # If you do that, you notice that most things will fall in bands.
@@ -46,7 +46,7 @@ EDL = [
  ("rec75", "dance", 254.49, 258.49, {"s": 256.35}),   # (from the second "well": "Well, sometimes, well, sometimes")
  #  # Well, sometimes it can be a violent tug of war also.
  ("rec75", "em", 260.21, 262.67),  # Electrons are attracted to protons of the atom next door,
- ("rec75", "em", 266.31, 270.09),  # but the electron layers also push back when they get too close,
+ ("rec75", "em", 266.31, 270.09, {"s": 267.7}),   # (after "but the electrons also,": long draft 1:47)  # but the electron layers also push back when they get too close,
  ("rec75", "em", 283.21, 286.09),  # So the atoms settle at a distance where the two balance.
  ("rec75", "em", 288.11, 292.37),  # These are the chemical bonds keeping most things around you together, from a stick to a building.
  ("rec75", "em", 293.09, 295.47),  # These bonds are all variations of the electromagnetic force.
@@ -55,7 +55,7 @@ EDL = [
  ("rec75", "diagonal", 310.43, 326.49),  # Make something too big and it will crush under its own weight. Try to squeeze it too hard and the electrons themselves will push it outwards. The resulting line, this diagonal, is actually the density of atoms, and everything made of ordinary matter will fall somewhere along here.
  ("rec75", "gravity", 406.17, 410.45),  # electromagnetism is stronger than gravity, but it has both attraction and repulsion.
  ("rec75", "gravity", 411.73, 414.79),  # Gravity is weaker, but it only attracts.
- ("rec75", "gravity", 418.53, 421.29),  # So it quickly adds up.
+ ("rec75", "gravity", 418.53, 421.29, {"s": 420.3}),   # (the second "so it": long draft 2:37)  # So it quickly adds up.
  ("rec75", "gravity", 423.03, 434.55),  # The more massive something is, the more gravity has an effect on it, and the less chemical bonds can keep it together. That's why it's hard to build very tall buildings. And that's why at some point, everything in our list becomes round.
  ("rec75", "gravity", 435.89, 437.81),  # Gravity shapes everything from this point onwards.
  ("rec75", "column", 453.19, 456.93, {"gap": 3.2}),   # (a longer hold on the round worlds before it, the author, rec75 7:19: "the part where everything's round is passing too quickly")

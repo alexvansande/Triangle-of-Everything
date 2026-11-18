@@ -159,3 +159,6 @@ short-l2b-dance-of-the-forces
 # 2026-11-18, evening: the forces Short with every simulation back in, the fusion burst right after "capture"
 short-l2b-dance-of-the-forces
 long-02b-space
+# 2026-11-18, night: four more restarts out of long-02b-opening (the author, long draft 0:55, 1:05, 1:47, 2:37)
+long-02b-space
+short-l2b-dance-of-the-forces
