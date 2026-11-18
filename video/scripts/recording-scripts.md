@@ -1125,6 +1125,46 @@ cut (`video/cuts/long-02b-space.json`) goes on with the Shorts already cut.
 - The lead-in to the largest structures: "But let's talk about galaxies again, and you'll notice that…"
 - After "the observable universe": "But I'm not even sure you can call that a single object. Let's explore that."
 
+## Long 2 · The second take (`long-02b-opening` + `long-02b-right`, rec75 and rec76, 2026-11-18)
+
+The whole of long video 2 in one session, two files: rec75, from "What would happen if you try to make a map of every
+single thing in the universe?" to "the lucky few survivors" (with the forces Short's own opening recorded in the middle),
+and rec76, from the nebulae to the microwave background. It replaces rec74 and the Shorts the first draft borrowed. The
+cut lists and their choices: `video/long-02b-opening/edl.py`, `video/long-02b-right/edl.py`; the cuts:
+`video/cuts/long-02b-space.json` (the long video) and `video/cuts/short-l2b-dance-of-the-forces.json` (the Short); the
+fact check: `video/sources/2026-11-18/NOTES.md`.
+
+### Left out of the cut until re-recorded (wrong as said)
+- *"So the cosmic event horizon falls right on the top corner of our triangle."* (said: "…on the top left vertice"; our
+  universe is the chart's top-right corner, at the top end of the black-hole line)
+- *"The sunlight reaching you right now left the Sun about eight minutes ago."* (said: "…started its journey when you
+  started watching this video": right in a Short, but the line plays about half an hour into the long video)
+
+### To re-record if wanted (kept in the cut; the fact check's suggestions)
+- "the gravity will be so strong that it will overpower the electrons pushing out and the nuclei will be so close
+  together…" → *"For some massive objects, gravity squeezes and heats the core until the nuclei crash into each other
+  hard enough for the strong force to capture them and make one single nucleus."*
+- "Our living stars are around this white dwarf slope" (if it's "white dwarf": living stars are on the main sequence)
+  → *"Our living stars are around this rising slope, the main sequence."*
+- "Any signal sent from the far side of that filament was sent … when the dinosaurs were still roaming around" (the far
+  side is about 400 million years, before the dinosaurs) → *"Any signal sent from its heart was sent when the first
+  dinosaurs were roaming around. They never got the message."*
+- "a radioactive element is like a battery" → *"So in a way, uranium is like a battery charged once in these explosions."*
+- "It's infinite in all directions" → *"As far as we can tell, it goes on forever."*
+- "we know two moments when it happens" → *"…two moments when it could happen."*
+- Slips kept: "the size of a nuclei"; "no ordinary star can make them"; "A neutron, packed shoulder to shoulder,
+  refused…"; "The moon you're looking at is merely a second ago" (*"…is merely a second old"*); "how we move to more
+  larger and massive objects".
+
+### The forces Short from this take
+Its own opening (rec75 3:13–3:52, the last tries joined: "If you try to map every single thing that exists in a chart
+of mass and size, you see that most objects will fall in this diagonal band. What's special about it?"), then the dance
+of the forces to "That's when the strangest of objects is born, a black hole" (the author's end mark, rec75 13:10). To
+stay under three minutes it leaves out what the first take's Short did, and the heavy elements ("The death of massive
+stars…", "a battery charged once"); escape velocity comes in on "…escape velocity, the speed you need to win the tug of
+war against an object's gravity". If you'd rather keep the heavy elements in the Short, a line to record that names it
+on its own: *"Escape velocity is the speed you need to win the tug of war against an object's gravity."*
+
 ## 3 · Planets into stars (`short-03-stars`)
 
 *Not to read: see "Notes to bring up when you record next" at the top for a suggested line here.*

@@ -725,8 +725,9 @@ export function drawSqueeze(ctx, W, H, o, t, pixelRatio) {
     const run = t - o.start, f = smooth((run - a) / 0.6) * (b == null ? 1 : 1 - smooth((run - b) / 0.5)); if (f <= 0) continue;
     ctx.globalAlpha = f; text(ctx, s.toUpperCase(), W / 2, H * 0.12, Math.min(W, H) * 0.075, col); ctx.globalAlpha = 1;
   }
-  (o.labels || []).forEach(([s, col], i) => {
-    const f = smooth((t - o.start - 0.8 - i * 1.6) / 0.7); if (f <= 0) return;
+  // (a third entry, s into the run, times a title to its words)
+  (o.labels || []).forEach(([s, col, at], i) => {
+    const f = smooth((t - o.start - (at ?? 0.8 + i * 1.6)) / 0.7); if (f <= 0) return;
     ctx.globalAlpha = f; text(ctx, s, W / 2, H * (0.1 + i * 0.065), Math.min(W, H) * 0.045, col); ctx.globalAlpha = 1;
   });
 }

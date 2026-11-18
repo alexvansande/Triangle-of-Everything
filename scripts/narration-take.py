@@ -34,6 +34,9 @@ os.remove(wav)
 model = WhisperModel(model_name, device="cpu", compute_type="int8")
 segments, _ = model.transcribe(
     pcm, language="en", word_timestamps=True, beam_size=5, condition_on_previous_text=False,
+    # verbatim: no repetition penalty or n-gram blocking, so a repeated word stays in the words (the author,
+    # 2026-11-18: "turn off word smoothing in the transcriber, otherwise it skips repeated words")
+    repetition_penalty=1.0, no_repeat_ngram_size=0, temperature=0.0,
     initial_prompt="The triangle of everything. Schwarzschild radius, Hubble radius, Compton "
                    "wavelength, Laniakea, Chandrasekhar, Wolf-Rayet, Pluto, Saturn, primordial black holes.")
 words = []

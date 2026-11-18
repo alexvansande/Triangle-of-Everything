@@ -1,12 +1,18 @@
 {
   "title": "The dance of the forces",
-  "blurb": "Why most things on a chart of mass and size fall on one diagonal: electromagnetism against gravity, then the strong force and fusion, then the weak force, from a stick to a neutron star, and the strangest of all, black holes.",
+  "blurb": "Why most things on a chart of mass and size fall on one diagonal: electromagnetism against gravity, then the strong force and fusion, then the weak force, from a stick to a neutron star, and the strangest of objects, a black hole.",
   "lead": 1.2,
   "segments": [
     {
       "take": "long-02b-opening",
-      "from": "everything in our universe",
-      "to": "tug of war, also."
+      "from": "if you try to map",
+      "to": "What's special about it?"
+    },
+    {
+      "take": "long-02b-opening",
+      "from": "What's happening is that everything",
+      "to": "fundamental forces.",
+      "carry": "glide"
     },
     {
       "take": "long-02b-opening",
@@ -17,12 +23,12 @@
     {
       "take": "long-02b-opening",
       "from": "Notice how giant planets",
-      "to": "they just get denser.",
+      "to": "not made of ordinary matter.",
       "carry": "glide"
     },
     {
       "take": "long-02b-opening",
-      "from": "That is, until this bifurcation",
+      "from": "That's why super",
       "to": "most of their lives.",
       "carry": "glide"
     },
@@ -35,21 +41,27 @@
     {
       "take": "long-02b-opening",
       "from": "More massive stars",
-      "to": "purely by the force of gravity.",
+      "to": "create a neutron.",
       "carry": "glide"
     },
     {
       "take": "long-02b-opening",
-      "from": "And if you add even more mass, a stranger",
-      "to": "a stranger thing will happen.",
+      "from": "This form a neutron star",
+      "to": "atomic nucleus.",
       "carry": "glide"
     },
     {
       "take": "long-02b-opening",
-      "from": "This is the region where stars go to die",
-      "to": "strangest of all, black holes.",
+      "from": "its escape velocity, the speed",
+      "to": "object's gravity.",
+      "carry": "glide"
+    },
+    {
+      "take": "long-02b-opening",
+      "from": "But the speed of light works",
+      "to": "a black hole.",
       "carry": "glide"
     }
   ],
-  "_note": "The forces Short from the new take (rec74, 2026-11-17), the author: 'take out just the dance of the forces part and make a short video'. From 'everything in our universe is a delicate dance between four fundamental forces' to 'and the strangest of all, black holes' (the author, 2026-11-17), leaving out what a Short can lose to fit under 3:00: the chemical bonds and their animation, gravity's reach and the round worlds, 'Get massive enough…', the small stars' end, and the recap before the cemetery of dead stars ('So far our objects…'). The old Short (short-l2-dance-of-the-forces, rec58) stays beside it to compare."
+  "_note": "The forces Short from the second take (rec75, 2026-11-18): its own opening, recorded for it ('If you try to map every single thing that exists in a chart of mass and size…', the author at 3:04: 'now I'm going to rerecord this, but only for the intro of the dance of forces'), then from 'everything in our universe is a delicate dance' to 'That's when the strangest of objects is born, a black hole' (the author at 13:10: 'so that's where the short ends'). Left out to fit under 3:00 (it came to 3:31 whole): the chemical bonds, gravity against electromagnetism and the round worlds, 'Get massive enough…', the tug of war, why the giant planets' core changes ('These planets are massive…'), the small stars' end, the neutrons packed shoulder to shoulder and held by gravity, the heavy elements, and 'half the speed of light'; escape velocity comes in on '…escape velocity, the speed you need to win the tug of war against an object's gravity'."
 }

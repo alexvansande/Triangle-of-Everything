@@ -14,6 +14,24 @@
 // =============================================================
 // Field reference: docs/narration.md, "Scene fields". Rules: video/plans/visual-rules.md.
 
+import S4A from "./short-04a-black-hole-slope.js";
+import S4B from "./short-04b-smallest-black-holes.js";
+
+// the Black Hole Slope's shots from "don't actually have a size" and the Smallest Black Holes' from "with enough
+// pressure" (rec75 says them in one go, 2026-11-18): their cues, given this take's wording where it differs
+const ALIAS = {
+  "some people who believe": ["some scientists"],
+  "with enough pressure": ["we can't turn matter"],
+  "instants after the big bang": ["instance after the big bang", "instant after the big bang"],
+  "when we weigh galaxies": ["when we weight galaxies", "when we wait galaxies", "when we weigh"],
+  "to explain them": ["to explain it"],
+  "very first moments of our history": ["very first instance of our history", "very first instant of our history"],
+  "the milky way": ["our milky way"],
+  "but how small": ["actually how small"],
+};
+const alias = (c) => { const at = [].concat(c.at ?? []); const x = at.flatMap(a => ALIAS[a] ?? []); return x.length ? { ...c, at: [...at, ...x] } : c; };
+const from = (cues, at) => cues.slice(cues.findIndex(c => [].concat(c.at).includes(at)));
+
 const WATER = { line: "water" };
 const ON_LINE = (m) => (m - 0.62) / 3;
 // marks a little ahead of the camera on the pan up the diagonal (visual-rules.md, "Marks during a glide")
@@ -60,9 +78,9 @@ const WD = { obj: "White Dwarf", label: false }, NS = { obj: "PSR J0030+0451", l
 const FUSION_P = { groups4: true, fourAtOnce: false, count: 200, radius: 100, groupSpacing: 5.2, groupGap: 1.5, groupSpring: 14, startBox: 1.6, endBox: 1.2,
   relief: 0, jitter: 12, initSpeed: 40, damping: 1, hugRate: 1.4, bridgeTime: 0.15, neutrons: 2, arrowTime: 7, burstBox: 4, burstForce: 0.45, burstTau: 3, burstRate: 0.5 };
 const BONDS = { squeeze: { mode: 1, from: 0, P: { count: 34, startBox: 1.12, endBox: 1.12, shrinkTime: 999, threshold: 9, centreFirst: 0, initSpeed: 140, arrowTime: 30, arrowsIn: false, arrowsOut: false, arrowsBonds: true,
-  // each kind of arrow as it's named ("electrons repel other electrons", "and are attracted to protons"), s into the run
-  bondPushFrom: 0.7, bondPullFrom: 2.6 },
-  labels: [["electrons repel electrons", "#4fc3f7"], ["electrons and protons attract", "#b39ddb"]] } };
+  // each kind of arrow as it's named (rec75: "attracted to protons of the atom next door", then "the electron layers also push back"), s into the run
+  bondPullFrom: 0.8, bondPushFrom: 4.0 },
+  labels: [["electrons and protons attract", "#b39ddb", 0.8], ["electrons repel electrons", "#4fc3f7", 4.0]] } };
 
 export default {
   title: "The Triangle of Everything: space (the new opening)",
@@ -76,14 +94,15 @@ export default {
   edgesStart: 0,
   iconBoost: { from: 21.2, k: 0.6, slugs: { "laniakea-galaxy-supercluster": 0.55 } },
   icons: "all",
-  forceIcons: ["Sun", "L Brown Dwarf", "T Brown Dwarf", "Y Brown Dwarf"],
-  captionFixes: { hair: "here", nucleon: "nucleus", nebulas: "nebulae" },
+  forceIcons: ["Sun", "L Brown Dwarf", "T Brown Dwarf", "Y Brown Dwarf", "Ton 618"],
+  captionFixes: { hair: "here", nucleon: "nucleus", nebulas: "nebulae", shard: "chart", weight: "weigh", store: "star", "store's": "star's", rhenium: "uranium", depth: "death" },
 
   backing: "Immersed",
   sound: [
     { at: "something magical happens", fx: "ignite", offset: 0.3 },
     { at: "goes haywire", fx: "boom", offset: 0.2 },
     { at: "become a black hole", fx: "drop", atEnd: true, offset: -0.3 },
+    { at: "pool big enough", fx: "bubble", offset: 0.2 },
   ],
 
   cues: [
@@ -97,14 +116,13 @@ export default {
     CQ("car", "benz-patent-motorwagen"),
     CQ("microbe", "bacteria"),
     CQ("atom", "hydrogen"),
-    CQ("relate to each other", "links"),
-    CQ("add numbers", "labels"),
+    CQ(["connect to each other", "relate to each other"], "links"),
+    CQ(["numbers", "features"], "labels"),
     CQ("rainbow", "light"),
-    CQ("float in water", "float"),
+    CQ("float in", "float"),
     CQ("some are round", "round"),
-    CQ("are alive", "alive"),
-    CQ("heavy or light", "heavy"),
-    CQ("big or small", "big"),
+    CQ(["heavier or lighter", "heavy or light"], "heavy"),
+    CQ(["bigger, smaller", "big or small"], "big"),
     // to the chart: each picture flies to where the chart has it (the author, 2026-11-17, 1:10), then the chart takes over
     CQ("organize them", "chart"),
 
@@ -115,35 +133,39 @@ export default {
     { at: "each square", cam: { r: 5.5, m: 14, span: 30, glide: true }, dur: 0.05, bg: { to: 1, dur: 7, after: 1.4 }, hl: [] },
     { at: "fall in bands", cam: { r: 4.0, m: 11.0, span: 21, glide: true }, hl: [WATER, { ...COLUMN, delay: 1.2 }] },
     { at: "particular diagonal", cam: { r: 3.0, m: 9.3, span: 13, glide: true }, edges: { to: 1, dur: 3 }, hl: [{ line: "water", label: "the diagonal" }] },
+    // the forces Short's own opening (the "intro" clips, after "What is it?"; the long cut leaves it out): the bands, then
+    // the diagonal
+    { at: "if you try to map", cam: { r: 4.0, m: 11.0, span: 21, glide: true }, clear: true, hl: [WATER, { ...COLUMN, delay: 1.2 }] },
+    { at: "diagonal band", cam: { r: 3.0, m: 9.3, span: 13, glide: true }, hl: [{ line: "water", label: "the diagonal" }] },
     // the four forces: on the human, the tug of war marked on the line
     { at: "delicate dance", cam: { obj: "Human", span: 4.6, glide: true }, clear: true, hl: [WATER, { obj: "Human" }] },
     { at: "tug of war", hl: [WATER, ...GRAV_AT(3.6, false), ...EM_AT(6.2, false)] },
     // the chemical bonds: a few atoms on black, settling at their distance
     // (on until "…the electromagnetic force", the author, 2026-11-17: "the bond animation can last until 1:50")
-    { at: "electrons repel", hold: 999, hl: [BONDS] },
+    { at: ["electrons are attracted", "electrons repel"], hold: 999, hl: [BONDS] },
     { at: "electromagnetic force", offset: 0.2, cam: { obj: "Human", span: 6 }, dur: 0.05, clear: true, hl: [WATER, { obj: "Human", label: "held by chemical bonds" }, ...EM_AT(6.2)] },
-    { at: "gravity works", hl: [WATER, ...EM_AT(6.2, false), ...GRAV_AT(3.6)] },
+    { at: ["gravity keeps pulling", "gravity works"], hl: [WATER, ...EM_AT(6.2, false), ...GRAV_AT(3.6)] },
     // one pan up the line (visual-rules.md: one pan, one direction), the rings ahead of the camera
     { at: "make something too big", cam: UP(6), clear: true, hl: [WATER, { ellipse: [ON_LINE(7.5) + 1.2, 7.5, 0.6, 0.6], rot: 0, label: false, color: "#ffab40" },
       { arrow: true, solid: true, width: 4, color: "#ffab40", from: { r: ON_LINE(7.5) + 1.2, m: 7.5 }, to: { r: ON_LINE(7.5), m: 7.5 }, padEnd: 0, delay: 0.4 },
-      { text: "crushes under\nits own weight", at: [ON_LINE(7.5) + 1.25, 8.6], size: 22, color: "#ffab40", delay: 0.5 }] },
+      { text: "crushes\nunder its\nown weight", at: [ON_LINE(7.5) + 1.0, 8.75], size: 22, color: "#ffab40", delay: 0.5 }] },
     // (the arrows' tips on the line itself: "the blue arrow seems to be placed before the line ends", the author, 2026-11-17)
     { at: "squeeze it too hard", cam: UP(10), clear: true, hl: [WATER, { ellipse: [ON_LINE(12.5) - 1.2, 12.5, 0.6, 0.6], rot: 0, label: false, color: "#4fc3f7" },
       { arrow: true, solid: true, width: 4, color: "#4fc3f7", from: { r: ON_LINE(12.5) - 1.2, m: 12.5 }, to: { r: ON_LINE(12.5), m: 12.5 }, padEnd: 0, delay: 0.4 },
       { text: "its atoms\npush back", at: [ON_LINE(12.5) - 1.2, 11.4], size: 22, color: "#4fc3f7", delay: 0.5 }] },
     { at: "density of atoms", cam: UP(16), clear: true, hl: [{ line: "water", label: "the density of atoms" }] },
-    { at: "gravity is very weak", cam: UP(19), hl: [WATER, ...GRAV_AT(20.5)] },
+    { at: ["stronger than gravity", "gravity is very weak"], cam: UP(19), hl: [WATER, ...GRAV_AT(20.5)] },
     // (no Burj Khalifa: ten decades below the camera, the frame grew to take it in, a slow zoom out before the pan; the
     // author, 2026-11-17, 2:29: "just keep the pan and zoom together so we end up in the same place with a single movement")
     { at: "very tall buildings", cam: UP(22), hl: [WATER] },
     // "we are just panning up now, seeing the round moons" (the author's note); where things turn round marked as in
     // Short 2 (the author, 2026-11-17: "highlight the moment things start getting round, like we do in the other short"):
     // the line between Vesta, lumpy, and Ceres, round, the bonds holding the shape below it and gravity above
-    { at: "becomes round", cam: { r: 7.75, m: 24.1, span: 4.6, glide: true }, hl: [ROUND_BONDS, { ...ROUND_GRAV, delay: 0.5 }, { obj: "Vesta", label: "Vesta · lumpy", place: "left" }, { obj: "Ceres", label: "Ceres · round", delay: 0.4 }, { obj: "Pluto", label: false, delay: 0.7 }] },
+    { at: ["at some point", "becomes round"], cam: { r: 7.75, m: 24.1, span: 4.6, glide: true }, hl: [ROUND_BONDS, { ...ROUND_GRAV, delay: 0.5 }, { obj: "Vesta", label: "Vesta · lumpy", place: "left" }, { obj: "Ceres", label: "Ceres · round", delay: 0.4 }, { obj: "Pluto", label: false, delay: 0.7 }] },
     { at: "gravity shapes everything", cam: { r: 8.6, m: 27.0, span: 4.6, glide: true }, hl: [ROUND_GRAV, { obj: "Earth", label: "shaped by gravity" }, { obj: "Moon", label: false }] },
     // the giant planets' column
     { at: "atomic scale", cam: G(9.85, 30.9, 2.4), dur: 2.5, clear: true, hl: [{ obj: "Jupiter", label: "Jupiter", place: "left" }] },
-    { at: "go up on a column", hl: [{ obj: "Jupiter", label: false, place: "left" }, ...BD, COLUMN] },
+    { at: ["go up a column", "go up on a column"], hl: [{ obj: "Jupiter", label: false, place: "left" }, ...BD, COLUMN] },
     { at: "not made of ordinary matter", hl: [{ obj: "Jupiter", label: "not ordinary matter inside", place: "left" }, ...BD, { ...COLUMN, draw: 0.01 }] },
     // the atoms crushed: the Squeeze Lab's mode 1 ("show that sim of the degenerate matter forming")
     // (its arrows pointing at each other, as in the bonds: blue between the shells, purple to the other nucleus; red from
@@ -162,7 +184,7 @@ export default {
     ...[["the strong force", "start"], ["capture them", "capture"], ["large amount of energy", "energy"], ["counterbalances", "balance"], ["that's fusion", "fusion"]]
       .map(([at, phase], i) => ({ at, hold: 999, hl: [{ fusionSim: { phase, P: FUSION_P }, instant: i > 0, out: 0.8 }] })),
     // the main sequence: one slow push in (the author, 2026-11-17, 4:11: "I don't like static cameras")
-    { at: "changes the delicate dance", cam: { r: 10.9, m: 33.1, span: 4.2, glide: true }, dur: 0.05, clear: true, hl: [] },
+    { at: ["changes that delicate", "changes the delicate dance"], cam: { r: 10.9, m: 33.1, span: 4.2, glide: true }, dur: 0.05, clear: true, hl: [] },
     { at: "called the main sequence", cam: { r: 11.0, m: 33.15, span: 3.5, glide: true }, hl: [{ obj: "Sun" }, MS, { obj: "Sirius A", delay: 0.4 }] },
     { at: "most of their lives", cam: { r: 11.1, m: 33.2, span: 3.0, glide: true }, hl: [MS, { obj: "Sun", label: "billions of years" }, { obj: "Sirius A", delay: 0.3 }, { obj: "Vega", delay: 0.6 }] },
     { at: "once it runs out", cam: { r: 11.3, m: 33.25, span: 2.8, glide: true }, hl: [{ line: "mainsequence" }, { obj: "Sun", label: "out of hydrogen" }] },
@@ -172,31 +194,48 @@ export default {
     { at: "more massive stars", hl: [HIGH, { obj: "Crab Nebula", label: "supernova", delay: 0.8 }] },
     { at: "catastrophic core collapse", hl: [HIGH, { obj: "Crab Nebula", label: "supernova" }, { obj: "PSR J0030+0451", label: "the core", delay: 0.8 }] },
     // the weak force, the lab's mode 3, its first ring clenching on "squeeze a proton"
-    { at: "a new player force", cam: { r: 8.0, m: 33.5, span: 7 }, dur: 2, hold: 34, hl: [{ squeeze: { mode: 3, from: 10.5 } }] },
+    { at: ["a new player enters", "a new player force"], cam: { r: 8.0, m: 33.5, span: 7 }, dur: 2, hold: 34, hl: [{ squeeze: { mode: 3, from: 8.2 } }] },   // (the clench still on "if you squeeze": 10.2 s after the cue here, 7.9 in rec74)
     { at: "this forms a neutron star", cam: { obj: "PSR J0030+0451", span: 3.4 }, dur: 2.5, clear: true, hl: [{ obj: "PSR J0030+0451", label: "neutron star" }] },
     { at: "a bunch of neutrons", hl: [{ obj: "PSR J0030+0451", label: "one giant nucleus" }, { density: 14.36, label: "the density of a nucleus" }] },
 
     // ── The black-hole line (the Black Hole Slope's shots) ──
-    { at: "a stranger thing", cam: { r: 8.6, m: 33.7, span: 8 }, dur: 3, clear: true, hl: [NS, { obj: "Stellar BH", label: "?", delay: 0.6 }] },
+    // the heavy elements, forged where neutron stars collide
+    { at: "the death of massive stars", cam: { r: 8.4, m: 33.7, span: 7.5 }, dur: 3, clear: true, hl: [{ obj: "Crab Nebula", label: "supernova" }, { obj: "PSR J0030+0451", label: "neutron stars colliding", place: "right", delay: 1.4 }] },
+    { at: "like gold", hl: [{ obj: "Crab Nebula", label: false }, { obj: "PSR J0030+0451", label: "gold · platinum · uranium", place: "right" }] },
+    { at: "like a battery", hl: [{ obj: "PSR J0030+0451", label: "a battery charged once", place: "right" }] },
+    // escape velocity: the tug of war against gravity, half the speed of light on a neutron star
+    { at: "they are thrown out", cam: { obj: "PSR J0030+0451", span: 3.4 }, dur: 2.5, clear: true, hl: [{ obj: "PSR J0030+0451", label: "neutron star" }] },
+    { at: "escape velocity", offset: 0.05, hl: [{ obj: "PSR J0030+0451", label: "escape velocity" }] },   // (on the word: the Short starts its piece on "its escape velocity")
+    { at: "half the speed of light", hl: [{ obj: "PSR J0030+0451", label: "escape: half the speed of light" }] },
+    { at: "universal speed limit", hl: [{ obj: "PSR J0030+0451", label: "nothing goes faster than light" }] },
+    // more mass: escape faster than light, and a black hole
+    { at: "faster than the speed of light", cam: { r: 8.6, m: 33.7, span: 8 }, dur: 3, clear: true, hl: [NS, { obj: "Stellar BH", label: "?", delay: 0.6 }] },
+    { at: "not even light", hl: [NS, { obj: "Stellar BH", label: "not even light gets out" }] },
+    { at: "strangest of objects", hl: [NS, { obj: "Stellar BH", label: "a black hole" }] },
     { at: "so far our", cam: SO_FAR, dur: 2.6, ease: "gentle", icons: false, forceIcons: [], clear: true, hl: [] },
     { at: "around bands", hl: [OV_WATER] },
-    { at: "column of super-Jupiter", hl: [OV_WATER, OV_COLUMN] },
-    { at: "all living stars", hl: [OV_WATER, OV_COLUMN, OV_STARS] },
+    { at: "jupiter planets", hl: [OV_WATER, OV_COLUMN] },
+    { at: "living stars", hl: [OV_WATER, OV_COLUMN, OV_STARS] },
     { at: "where stars go to die", cam: { r: 12.6, m: 34, span: 15 }, dur: 4, hl: [OV_STARS, ...CYCLE] },
     { at: "cemetery of dead stars", cam: { r: 8.6, m: 33.7, span: 8 }, dur: 3, clear: true, icons: true, forceIcons: null,
       hl: [WD, NS, SBH, { ellipse: [7.45, 33.75, 2.3, 1.15], rot: 0, label: "dead stars", place: "above", color: "#e0e0e0", delay: 1.4 }] },
     { at: "white dwarfs", hl: [{ obj: "White Dwarf", place: "left" }, NS, SBH] },
     { at: "neutron stars", hl: [WD, { obj: "PSR J0030+0451", label: "neutron star", place: "right" }, SBH] },
-    { at: "black holes", hl: [WD, NS, { obj: "Stellar BH", label: "black hole" }] },
+    { at: ["our weird one", "black holes"], hl: [WD, NS, { obj: "Stellar BH", label: "black hole" }] },
     { at: "not scattered around", cam: { obj: "Sgr A*", span: 15 }, dur: 4, drift: 0.02, clear: true, hl: [KNOWN] },
     { at: "lives exactly on this line", hl: [KNOWN, { ...SCHW, label: "black holes" }] },
-    { at: "this line is very special", cam: { r: 11, m: 38.6, span: 20 }, dur: 5, hl: [{ line: "triangle" }, { ...SCHW, label: "the first limit" }] },
+    { at: ["this line is special", "this line is very special"], cam: { r: 11, m: 38.6, span: 20 }, dur: 5, hl: [{ line: "triangle" }, { ...SCHW, label: "the first limit" }] },
     { at: "for every object you can see", cam: { r: 4.2, m: 26.6, span: 16 }, dur: 3, hl: [SCHW, { obj: "Moon" }] },
     { at: "if you squeeze them", hl: [SCHW, { obj: "Moon" }, { arrow: true, from: { obj: "Moon" }, to: BH(25.87), label: "squeeze", delay: 0.2 }] },
     { at: "become a black hole", hl: [SCHW, { obj: "Moon" }, { arrow: true, from: { obj: "Moon" }, to: BH(25.87), delay: 0 },
       { cross: BH(25.87), size: "the Moon: 0.2 mm wide", delay: 0.3 }] },
     { at: "never cross this line", cam: { obj: "Sgr A*", span: 15 }, dur: 6, drift: 0.02, clear: true, hl: [{ ...SCHW, label: "nothing crosses it" }] },
     { at: "called the schwarzschild radius", hl: [{ ...SCHW, label: "schwarzschild radius" }] },
-    { at: "upper limit in which", hl: [{ ...SCHW, label: "schwarzschild radius" }, { side: "left", of: "schwarzschild" }] },
+    { at: ["the limit of how small", "upper limit in which"], hl: [{ ...SCHW, label: "schwarzschild radius" }, { side: "left", of: "schwarzschild" }] },
+
+    // ── The slope, the black holes we know, how small (the Black Hole Slope's shots) ──
+    ...from(S4A.cues, "don't actually have a size").filter(c => ![].concat(c.at).includes("according to relativity")).map(alias),
+    // ── The smallest black holes and dark matter (the Smallest Black Holes' shots) ──
+    ...from(S4B.cues, "with enough pressure").map(alias),
   ],
 };

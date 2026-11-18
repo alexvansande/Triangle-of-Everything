@@ -2407,6 +2407,30 @@ export async function startNarration(app) {
       // (fainter as the grid gets dense: at 6 px it would veil the picture)
       g.append("path").attr("d", d).attr("stroke", "#fff").attr("stroke-width", l === 0 ? 2 : 1.2).attr("opacity", (l === 0 ? 0.75 : 0.6) * Math.min(1, (b * k - 2) / 14));
     }
+    // `measure: { from: [x, y], to: [[x, y], …] }` (the picture's px): arrows from one galaxy to its neighbours, each
+    // with the distance in the picture's pixels as it is now, so the count doubles at every step while the galaxies stay
+    // put (the author, rec76 5:04: "take a star in the center and make an arrow between two of its neighbors and measure
+    // it in terms of pixels … it's 10 pixels and it's 20 pixels and it's 40 pixels")
+    if (o.measure) {
+      let L = 0;
+      for (let l = 1; l < names.length; l++) if (age >= steps[l - 1] && prog[l - 1] > 0.5) L = l;
+      const [fx, fy] = o.measure.from, m = g.append("g").attr("opacity", smooth((age - 0.8) / 0.6));
+      const x1 = X(fx), y1 = Y(fy), pad = 18, hd = 13;
+      m.append("circle").attr("cx", x1).attr("cy", y1).attr("r", pad - 4).attr("fill", "none").attr("stroke", "#ffd54f").attr("stroke-width", 2.5);
+      for (const [tx, ty] of o.measure.to) {
+        const x2 = X(tx), y2 = Y(ty), dd = Math.hypot(x2 - x1, y2 - y1), ux = (x2 - x1) / dd, uy = (y2 - y1) / dd;
+        const ax = x1 + ux * pad, ay = y1 + uy * pad, bx = x2 - ux * pad, by = y2 - uy * pad;
+        const head = (px, py, sx, sy) => `M${px - sx * hd - sy * hd * 0.55},${py - sy * hd + sx * hd * 0.55}L${px},${py}L${px - sx * hd + sy * hd * 0.55},${py - sy * hd - sx * hd * 0.55}`;
+        const path = `M${ax},${ay}L${bx},${by}` + head(bx, by, ux, uy) + head(ax, ay, -ux, -uy);
+        m.append("path").attr("d", path).attr("stroke", "#000").attr("stroke-width", 6).attr("fill", "none").attr("opacity", 0.55).attr("stroke-linecap", "round");
+        m.append("path").attr("d", path).attr("stroke", "#ffd54f").attr("stroke-width", 3).attr("fill", "none").attr("stroke-linecap", "round");
+        const n = Math.max(1, Math.round(Math.hypot(tx - fx, ty - fy) / blocks[L])), side = uy > 0 ? 1 : -1;
+        m.append("text").attr("class", "narr-tag").attr("text-anchor", "middle").attr("fill", "#ffd54f")
+          .attr("x", (x1 + x2) / 2 + uy * 30 * side).attr("y", (y1 + y2) / 2 - ux * 30 * side + 8)
+          .style("paint-order", "stroke").attr("stroke", "#000").attr("stroke-width", 5)
+          .text(`${n.toLocaleString("en")} pixel${n === 1 ? "" : "s"}`.toUpperCase());
+      }
+    }
   }
   /** `pixels.photo`: the picture is a photograph of stars (public/narration/photos/<photo>.jpg, `crop: [x, y, w, h]` as
    *  shares of it, 9:16), seen through pixels that start big (cell · 3^steps) and get 3 × 3 finer at each step, the grid

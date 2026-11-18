@@ -1,37 +1,24 @@
 {
   "title": "The Triangle of Everything: space",
-  "blurb": "A map of every single thing, sorted by mass and size; the dance of the forces up the diagonal, from chemical bonds to the neutron star; the black-hole line and the smallest black holes; out to the largest structures, the cosmic event horizon and the furthest light we can see (the new opening, recorded 2026-11-17).",
+  "blurb": "A map of every single thing, sorted by mass and size; the dance of the forces up the diagonal, from chemical bonds to the neutron star and the black hole; the black-hole line, the smallest black holes and dark matter; out to the largest structures, the cosmic event horizon and the furthest light we can see (the second take, 2026-11-18).",
   "stage": "landscape",
   "gap": 0.6,
   "segments": [
     {
-      "take": "long-02b-opening"
+      "take": "long-02b-opening",
+      "to": "What is it?"
     },
     {
-      "take": "short-04a-black-hole-slope",
-      "from": "And black holes don't actually have a size",
-      "to": "tiny black holes"
+      "take": "long-02b-opening",
+      "from": "What's happening is that everything",
+      "carry": "glide"
     },
     {
-      "take": "short-04b-smallest-black-holes",
-      "from": "For any given mass",
-      "to": "lucky few survivors"
-    },
-    {
-      "take": "short-05a-emptier",
-      "from": "the more we go to the right",
-      "to": "meets the speed of light"
-    },
-    {
-      "take": "short-05b-hubble-sphere",
-      "from": "See, the speed of light",
-      "to": "sits outside our triangle, the observable universe"
-    },
-    {
-      "take": "short-05d-observable-universe"
+      "take": "long-02b-right",
+      "carry": "glide"
     }
   ],
-  "_note": "A draft (the author, 2026-11-17: 'this first recording will be a draft'): the new opening and the forces (long-02b-opening, rec74) up to the Schwarzschild limit, then the Shorts already cut, as the script doc 'Long 2: Space Triangle — script' runs: the Black Hole Slope from its horizon line, the Smallest Black Holes, the Largest Structures (without its Short opening; the script's new lead-in, 'But let's talk about galaxies again', is still to record), the Cosmic Event Horizon (without its Short opening) and the Furthest Light whole. The script's 'But I'm not even sure you can call that a single object. Let's explore that.' isn't recorded yet. Replaces long-02-space when the author is happy with it.",
+  "_note": "The second take (the author, 2026-11-18: \"that should cover all of space dance and the short\"): rec75 as long-02b-opening, from the map of every single thing to the lucky few survivors, the forces Short's own opening left out (its 'intro' clips, after 'What is it?'); then rec76 as long-02b-right, from the nebulae to the furthest light. Replaces long-02-space when the author is happy with it. The first take's cut (rec74 and the Shorts already cut) is in git history.",
   "music": [
     {
       "track": "Immersed"
@@ -49,5 +36,5 @@
       "after": true
     }
   ],
-  "_music": "One piece of music after another under the whole video, no changes at the joins (the author, 2026-11-17: 'the long videos should not have music cuts, instead the music should continue ... meant as a single video and not a compendium of shorts'): the opening's Immersed, the Black Hole Slope's Mesmerize, video 5's Fresh Air, then Dreamer to the credits."
+  "_music": "One piece after another under the whole video, no changes at the joins (the author, 2026-11-17: 'the long videos should not have music cuts'): Immersed, Mesmerize, Fresh Air, then Dreamer to the credits."
 }
