@@ -22,6 +22,12 @@ export const BASE = {
   threshold: 0.3, spread: 0.2, centreFirst: 0, popTime: 0.35, electrons: 8, electronSpeed: 900, electronPush: 0.01, electronSize: 0.03, electronBounce: true, bareSpacing: 1,
   fuseAt: 0.6, fourAtOnce: false, neutrons: 2, maxNuclei: 4, bridgeTime: 0.4, hugRate: 0.7, nucleiPull: 2, chargeScaling: true,
   contract: false, shatter: 1, greySize: 1, greyUniform: true, greyAttract: 0, captureElectrons: false,
+  // fusion in fours (mode 2, long-02b-opening, the author, 2026-11-18): the protons start in diamonds of four, each held
+  // to its slots by a soft spring; on groupFuseAt (run s) every four joins at once into one wobbling ring; on burstAt the
+  // helium nearest the middle lets its energy go: the view centres on it, the box flies open and a push out from it
+  // (burstForce, fading over burstTau s) throws the rest off screen, with rays and a glow; the squeeze's red arrows come
+  // back on inArrowsAt
+  groups4: false, groupGap: 1.6, groupSpacing: 6.4, groupSpring: 3, groupFuseAt: null, burstAt: null, burstBox: 4, burstForce: 6, burstTau: 1.4, burstRate: 5, rays: 30, inArrowsAt: null,
   onScreenOnly: true, pictures: false, arrowsOut: false, arrowsIn: false, arrowsStrong: false, arrowsBonds: false, arrowSize: 0.45, arrowTime: 5, lineWidth: 3, glow: 1, fill: 0.06, hud: true, walls: true,
 };
 export const MODE_DEFAULTS = {
@@ -47,7 +53,7 @@ export function createSqueeze({ pics = {} } = {}) {
     seed: 1, hudText: "", arrowT0: 0,   // arrowT0: when the arrows' time starts (the run's start in the lab; a video clip's first frame)
     mode: 1, orient: "v", view: "screen", paused: false, speed: 1,
     P: null, t: 0, blobs: [], electrons: [], captures: [], flashes: [], pops: [], frags: [], bridges: [], events: { pop: 0, fuse: 0, break: 0 }, maxSq: 0,
-    W: SHORT, H: LONG, box: 0, shrinkT: 0, floor: 0, jam: 0, nextId: 1, fps: 0,
+    W: SHORT, H: LONG, box: 0, shrinkT: 0, floor: 0, jam: 0, nextId: 1, fps: 0, burst: null, groupsFused: false, vcx: 0, vcy: 0,
   };
   // seeded, so a seed always gives the same run (the video's renders step it on the take's clock, each worker from the
   // start); reset by build()
@@ -77,8 +83,26 @@ export function createSqueeze({ pics = {} } = {}) {
     const P = S.P;
     seedState = S.seed >>> 0;
     S.t = 0; S.blobs = []; S.electrons = []; S.captures = []; S.flashes = []; S.pops = []; S.frags = []; S.bridges = []; S.events = { pop: 0, fuse: 0, break: 0 }; S.maxSq = 0;
-    S.box = P.startBox * Math.max(S.W, S.H); S.shrinkT = 0; S.floor = 0; S.jam = 0;
+    S.box = P.startBox * Math.max(S.W, S.H); S.shrinkT = 0; S.floor = 0; S.jam = 0; S.burst = null; S.groupsFused = false; S.vcx = 0; S.vcy = 0;
     const half = S.box / 2 - P.radius * 1.05, R = P.radius;
+    if (P.groups4 && S.mode === 2) {   // diamonds of four on a jittered hexagonal lattice, the middle first
+      const sp = P.groupSpacing * R, rowH = sp * 0.866, cols = Math.ceil(2 * half / sp) + 1, rows = Math.ceil(2 * half / rowH) + 1, cs = [];
+      for (let r = 0; r < rows; r++) for (let c = 0; c < cols; c++) {
+        const x = (c - (cols - 1) / 2) * sp + (r % 2) * sp / 2 + rnd(-0.08, 0.08) * sp, y = (r - (rows - 1) / 2) * rowH + rnd(-0.08, 0.08) * sp;
+        if (Math.abs(x) < half - R * 2.4 && Math.abs(y) < half - R * 2.4) cs.push([x, y]);
+      }
+      cs.sort((a, b) => Math.hypot(a[0], a[1]) - Math.hypot(b[0], b[1]));
+      const a = P.groupGap * R;
+      cs.slice(0, Math.floor(P.count / 4)).forEach(([x, y], gi) => {
+        const turn = rnd(-0.25, 0.25), c = Math.cos(turn), sn = Math.sin(turn);
+        for (const [ox, oy] of [[a, 0], [0, a], [-a, 0], [0, -a]]) {
+          const sx = ox * c - oy * sn, sy = ox * sn + oy * c, an = rnd(0, TAU), v = P.initSpeed * rnd(0.2, 0.6);
+          const b = makeBlob(x + sx, y + sy, Math.cos(an) * v, Math.sin(an) * v, R, P.segments, 2);
+          b.group = gi; b.slot = [sx, sy]; S.blobs.push(b);
+        }
+      });
+      return;
+    }
     let pts = [];
     for (let n = 0, tries = 0; n < P.count && tries < P.count * 400; tries++) {
       const x = rnd(-half, half), y = rnd(-half, half);
@@ -152,8 +176,8 @@ export function createSqueeze({ pics = {} } = {}) {
     // crowd of hard discs sets a floor it can't go below; the real side eases toward the result
     S.shrinkT += dt;
     const u = clamp(S.shrinkT / P.shrinkTime, 0, 1), e = u * u * (3 - 2 * u), big = Math.max(S.W, S.H);
-    const goal = Math.max((P.startBox + (P.endBox - P.startBox) * e) * big, S.floor);
-    S.box += (goal - S.box) * Math.min(1, 3 * dt);
+    const goal = S.burst ? P.burstBox * big : Math.max((P.startBox + (P.endBox - P.startBox) * e) * big, S.floor);
+    S.box += (goal - S.box) * Math.min(1, (S.burst ? P.burstRate : 3) * dt);
     const half = S.box / 2;
 
     for (const b of blobs) { measure(b); for (const p of b.nodes) { p.fx = 0; p.fy = 0; } for (const k of b.nuclei) { k.fx = 0; k.fy = 0; } }
@@ -199,6 +223,42 @@ export function createSqueeze({ pics = {} } = {}) {
     if (P.gravity > 0) for (const b of blobs) {
       const d = Math.hypot(b.cx, b.cy) || 1; const g = P.gravity * 150 * Math.min(1, d / (big * 0.5));
       bodyForce(b, -b.cx / d * g, -b.cy / d * g);
+    }
+
+    // the fours: each member drawn to its slot round its group's middle (a soft spring, so they jostle and wobble)
+    if (P.groups4) {
+      const gs = new Map();
+      for (const b of blobs) if (b.group != null && b.q === 1) { const g = gs.get(b.group) || gs.set(b.group, { x: 0, y: 0, n: 0 }).get(b.group); g.x += b.cx; g.y += b.cy; g.n++; }
+      const k = P.groupSpring * 40;
+      for (const b of blobs) {
+        if (b.group == null || b.q !== 1) continue;
+        // (once the four are bridging, the strong force: all of them into the middle, hard)
+        const g = gs.get(b.group), in_ = b.bridge ? 0 : 1, tx = g.x / g.n + b.slot[0] * in_, ty = g.y / g.n + b.slot[1] * in_;
+        bodyForce(b, (tx - b.cx) * k * (b.bridge ? 6 : 1), (ty - b.cy) * k * (b.bridge ? 6 : 1));
+      }
+    }
+    // the energy let go: everything pushed out from the helium, the push fading; the helium itself held still
+    if (P.burstAt != null && !S.burst && S.t >= P.burstAt) {
+      let hero = null, best = Infinity;
+      for (const b of blobs) if (b.q >= 4) { const d = Math.hypot(b.cx, b.cy); if (d < best) { best = d; hero = b; } }
+      if (hero) {
+        S.burst = { t0: S.t, id: hero.id }; S.floor = 0;
+        for (let i = 0; i < 3; i++) S.flashes.push({ x: hero.cx, y: hero.cy, r0: hero.R, r1: big * 1.1, t: -i * 0.3, dur: 1.3, color: "255,214,150" });
+      }
+    }
+    if (S.burst) {
+      const hero = blobs.find(b => b.id === S.burst.id), since = S.t - S.burst.t0;
+      if (hero) {
+        const F = P.burstForce * 1000 * Math.exp(-since / P.burstTau), R = hero.R;
+        for (const b of blobs) {
+          if (b === hero) continue;
+          let dx = b.cx - hero.cx, dy = b.cy - hero.cy; const d = Math.hypot(dx, dy) || 1; dx /= d; dy /= d;
+          const f = F * clamp(R * 3 / d, 0.3, 1.2);
+          bodyForce(b, dx * f, dy * f);
+        }
+        bodyForce(hero, -hero.vx * 8 - hero.cx * 0, -hero.vy * 8);
+        S.vcx += (hero.cx - S.vcx) * Math.min(1, 6 * dt); S.vcy += (hero.cy - S.vcy) * Math.min(1, 6 * dt);
+      }
     }
 
     // each ring: hold its distance from the centre, its spacing, its smoothness, its area; stay outside its nuclei
@@ -356,7 +416,15 @@ export function createSqueeze({ pics = {} } = {}) {
     if (S.mode === 2) {
       const free = b => !b.bridge && b.state === "intact" && onScreen(b);
       const groups = [];
-      if (P.fourAtOnce) {
+      if (P.groups4) {
+        // every four at once, on its cue
+        if (P.groupFuseAt != null && !S.groupsFused && S.t >= P.groupFuseAt) {
+          S.groupsFused = true;
+          const gs = new Map();
+          for (const b of blobs) if (b.group != null && b.q === 1 && b.state === "intact") (gs.get(b.group) || gs.set(b.group, []).get(b.group)).push(b);
+          for (const g of gs.values()) if (g.length === 4) groups.push(g);
+        }
+      } else if (P.fourAtOnce) {
         // four lone nuclei in one touching cluster: the four nearest the most-touched one
         const adj = new Map();
         for (const [A, B] of touching) {
@@ -699,8 +767,19 @@ export function createSqueeze({ pics = {} } = {}) {
     let scale;
     if (S.view === "screen") scale = cw / S.W;
     else scale = Math.min(cw, ch) / (Math.max(S.box, Math.max(S.W, S.H)) * 1.06);
-    ctx.setTransform(scale, 0, 0, scale, cw / 2, ch / 2);
+    // (centred on the helium letting its energy go, once it does: S.vcx/vcy)
+    ctx.setTransform(scale, 0, 0, scale, cw / 2 - S.vcx * scale, ch / 2 - S.vcy * scale);
     const lw = P.lineWidth * dpr / scale;
+    const hero = S.burst && S.blobs.find(b => b.id === S.burst.id), since = S.burst ? S.t - S.burst.t0 : 0;
+    // the energy: a glow behind everything, flaring as it goes and then burning on
+    if (hero) {
+      const flare = Math.exp(-since / 0.6), r = hero.R * (3.2 + 4 * flare + 0.25 * Math.sin(since * 9));
+      ctx.globalCompositeOperation = "lighter";
+      const g = ctx.createRadialGradient(hero.cx, hero.cy, hero.R * 0.4, hero.cx, hero.cy, r);
+      g.addColorStop(0, `rgba(255,236,190,${0.55 + 0.4 * flare})`); g.addColorStop(0.35, `rgba(255,170,80,${0.25 + 0.3 * flare})`); g.addColorStop(1, "rgba(255,120,40,0)");
+      ctx.fillStyle = g; ctx.beginPath(); ctx.arc(hero.cx, hero.cy, r, 0, TAU); ctx.fill();
+      ctx.globalCompositeOperation = "source-over";
+    }
 
     if (S.view === "box") {   // the screen's frame
       ctx.strokeStyle = "rgba(220,228,239,0.35)"; ctx.lineWidth = lw * 0.6; ctx.setLineDash([lw * 3, lw * 3]);
@@ -768,9 +847,9 @@ export function createSqueeze({ pics = {} } = {}) {
     };
     const arrowLife = clamp(1 - (S.t - S.arrowT0 - P.arrowTime), 0, 1);   // gone a second after their time, counted from arrowT0
     // the bonds (long-02b-opening, the author, 2026-11-17): between neighbouring atoms, arrows on the (unseen) line
-    // between their centres. A blue pair in the gap, pointing apart, their heads at the two electron rings (the electrons
-    // repel); or a purple pair from each ring towards the other atom's nucleus, side by side (electrons and protons
-    // attract). Which a pair shows is fixed per pair, so it doesn't flicker as they move; each fades as its room goes.
+    // between their centres: a blue pair pushing apart (the electrons repel) or a purple pair pulling together
+    // (electrons and protons attract), below. Which a pair shows is fixed per pair, so it doesn't flicker as they move;
+    // each fades as its room goes.
     if (P.arrowsBonds && arrowLife > 0) {
       const L = P.radius * P.arrowSize, aw = Math.max(lw * 0.9, L * 0.06), list = S.blobs.filter(b => b.nodes.length);
       for (let i = 0; i < list.length; i++) for (let j = i + 1; j < list.length; j++) {
@@ -782,10 +861,11 @@ export function createSqueeze({ pics = {} } = {}) {
         const kindIn = (from) => clamp((S.t - (from ?? -1e9)) / 0.6, 0, 1);
         // one size of head for every arrow (the lab's arrow scales its head with its length: long pulls were wedges)
         let a = a0;
-        const hd = L * 0.42, line = (x0, y0, x1, y1, col) => {
-          const len = Math.hypot(x1 - x0, y1 - y0); if (len < hd * 1.2) return;
-          const vx = (x1 - x0) / len, vy = (y1 - y0) / len, hw = hd * 0.45;
-          ctx.strokeStyle = ctx.fillStyle = `rgba(${col},${a})`; ctx.lineWidth = aw * 2.2; ctx.lineCap = "round";
+        // (a head never longer than 60% of its arrow, so a short one in a tight gap still reads as an arrow)
+        const hd0 = L * 0.42, line = (x0, y0, x1, y1, col) => {
+          const len = Math.hypot(x1 - x0, y1 - y0); if (len < L * 0.22) return;
+          const hd = Math.min(hd0, len * 0.6), vx = (x1 - x0) / len, vy = (y1 - y0) / len, hw = hd * 0.45;
+          ctx.strokeStyle = ctx.fillStyle = `rgba(${col},${a})`; ctx.lineWidth = Math.min(aw * 2.2, hd * 0.35); ctx.lineCap = "round";
           ctx.beginPath(); ctx.moveTo(x0, y0); ctx.lineTo(x1 - vx * hd * 0.8, y1 - vy * hd * 0.8); ctx.stroke();
           ctx.beginPath(); ctx.moveTo(x1, y1); ctx.lineTo(x1 - vx * hd - vy * hw, y1 - vy * hd + vx * hw); ctx.lineTo(x1 - vx * hd + vy * hw, y1 - vy * hd - vx * hw); ctx.closePath(); ctx.fill();
         };
@@ -794,18 +874,31 @@ export function createSqueeze({ pics = {} } = {}) {
         const isPush = ((A.id * 7 + B.id * 13) % 5) < 2;
         a = a0 * kindIn(isPush ? P.bondPushFrom : P.bondPullFrom);
         if (a <= 0.01) continue;
-        if (isPush) {   // the push: from the middle of the gap out across each ring
-          const mx = A.cx + ux * (A.rm + gap / 2), my = A.cy + uy * (A.rm + gap / 2), half = Math.max(L * 0.9, gap / 2 + L * 0.35);
-          line(mx + ux * L * 0.1, my + uy * L * 0.1, mx + ux * half, my + uy * half, "150,205,255");
-          line(mx - ux * L * 0.1, my - uy * L * 0.1, mx - ux * half, my - uy * half, "150,205,255");
-        } else {                                   // the pull: each ring towards the other's nucleus, side by side
-          const nx = -uy * L * 0.24, ny = ux * L * 0.24, inA = A.nuclei[0]?.r ?? A.rm * 0.2, inB = B.nuclei[0]?.r ?? B.rm * 0.2;
-          line(A.cx + ux * A.rm + nx, A.cy + uy * A.rm + ny, B.cx - ux * (inB + L * 0.3) + nx, B.cy - uy * (inB + L * 0.3) + ny, P.bondPull || "190,150,255");
-          line(B.cx - ux * B.rm - nx, B.cy - uy * B.rm - ny, A.cx + ux * (inA + L * 0.3) - nx, A.cy + uy * (inA + L * 0.3) - ny, P.bondPull || "190,150,255");
+        // one line per pair, on the line between their centres, two arrows on it (the author, 2026-11-18):
+        //   push (blue): from one electron ring to the other; both arrows start at its middle and point out, towards
+        //   the rings, stopping short of them (a force pushing them apart)
+        //   pull (purple): from one atom's electron ring to the other's nucleus; both arrows start at its ends and point
+        //   in, towards its middle (each pulling the other)
+        const gapM = L * 0.1;
+        if (isPush) {
+          const mx = A.cx + ux * (A.rm + gap / 2), my = A.cy + uy * (A.rm + gap / 2), reach = Math.max(gap / 2 - L * 0.12, L * 0.5);
+          line(mx + ux * gapM, my + uy * gapM, mx + ux * reach, my + uy * reach, "150,205,255");
+          line(mx - ux * gapM, my - uy * gapM, mx - ux * reach, my - uy * reach, "150,205,255");
+        } else {
+          // which atom gives the ring and which the nucleus is fixed per pair
+          const [E, N, s] = (A.id + B.id) % 2 ? [A, B, 1] : [B, A, -1];
+          const inN = (N.nuclei[0]?.r ?? N.rm * 0.2) + L * 0.12;
+          const x0 = E.cx + s * ux * E.rm, y0 = E.cy + s * uy * E.rm, x1 = N.cx - s * ux * inN, y1 = N.cy - s * uy * inN;
+          const mx = (x0 + x1) / 2, my = (y0 + y1) / 2, vx = (x1 - x0), vy = (y1 - y0), vl = Math.hypot(vx, vy) || 1;
+          if (vx * ux * s + vy * uy * s <= 0) continue;   // the ring already past the nucleus: no room for a line
+          const ex = vx / vl * gapM, ey = vy / vl * gapM;
+          line(x0, y0, mx - ex, my - ey, P.bondPull || "190,150,255");
+          line(x1, y1, mx + ex, my + ey, P.bondPull || "190,150,255");
         }
       }
     }
-    if ((P.arrowsOut || P.arrowsIn) && arrowLife > 0) {
+    const inLife = P.inArrowsAt != null ? (S.t < P.inArrowsAt ? arrowLife : clamp((S.t - P.inArrowsAt) / 0.8, 0, 1)) : arrowLife;
+    if ((P.arrowsOut && arrowLife > 0) || (P.arrowsIn && inLife > 0)) {
       const L = P.radius * P.arrowSize, hb = S.box / 2, aw = Math.max(lw * 0.9, L * 0.06);
       if (P.arrowsOut) for (const b of S.blobs) {
         if (!b.nodes.length) continue;
@@ -845,11 +938,11 @@ export function createSqueeze({ pics = {} } = {}) {
         const nx = Math.max(2, Math.round(S.W / step)), ny = Math.max(2, Math.round(S.H / step));
         for (let i = 0; i < nx; i++) { const x = -S.W / 2 + (i + 0.5) * S.W / nx; pts.push([x, -S.H / 2 + inset, 0, 1]); pts.push([x, S.H / 2 - inset, 0, -1]); }
         for (let j = 0; j < ny; j++) { const y = -S.H / 2 + (j + 0.5) * S.H / ny; pts.push([-S.W / 2 + inset, y, 1, 0]); pts.push([S.W / 2 - inset, y, -1, 0]); }
-        for (const [x, y, ux, uy] of pts) {
-          const mx = x + ux * Lr / 2, my = y + uy * Lr / 2;
+        for (const [x0, y0, ux, uy] of pts) {
+          const x = x0 + S.vcx, y = y0 + S.vcy, mx = x + ux * Lr / 2, my = y + uy * Lr / 2;   // (the screen's edge, where the view is)
           let room = Infinity;   // the nearest circle's edge to the arrow's middle
           for (const o of S.blobs) { const d = Math.hypot(o.cx - mx, o.cy - my) - (o.nodes.length ? o.rm : o.nuclei[0].r); if (d < room) room = d; }
-          const a = clamp((room - Lr * 0.1) / (Lr * 0.5), 0, 1) * arrowLife;
+          const a = clamp((room - Lr * 0.1) / (Lr * 0.5), 0, 1) * inLife;
           arrow(x, y, x + ux * Lr, y + uy * Lr, "255,80,70", a, aw * 1.2);
         }
       }
@@ -896,6 +989,29 @@ export function createSqueeze({ pics = {} } = {}) {
       ctx.strokeStyle = `rgba(${f.color},${(1 - u) * 0.9})`; ctx.lineWidth = lw * (2.5 - 2 * u); ctx.stroke();
     }
 
+    // the energy going out: streaks along rays from the helium, each with an arrow's head (the outward pressure), a
+    // flood of them at first, then a steady stream
+    if (hero) {
+      const n = P.rays, v = 1300, len = hero.R * 1.2, maxR = Math.hypot(S.W, S.H) * 0.6, period = 0.5;
+      const strength = 0.4 + 0.6 * Math.exp(-since / 1.5);
+      ctx.globalCompositeOperation = "lighter"; ctx.lineCap = "round";
+      for (let i = 0; i < n; i++) {
+        const h1 = Math.sin(i * 12.9898) * 43758.5453, j = h1 - Math.floor(h1), ang = (i + j * 0.6) / n * TAU, ux = Math.cos(ang), uy = Math.sin(ang);
+        const vi = v * (0.8 + 0.4 * j), off = j * period;
+        for (let k = 0; ; k++) {
+          const age = since - off - k * period; if (age < 0) break;
+          const r1 = hero.R * 1.05 + vi * age, r0 = Math.max(hero.R * 1.05, r1 - len); if (r0 > maxR) continue;
+          const a = strength * (1 - r0 / maxR) * Math.min(1, (r1 - r0) / (len * 0.3));
+          if (a <= 0.02) continue;
+          const x0 = hero.cx + ux * r0, y0 = hero.cy + uy * r0, x1 = hero.cx + ux * r1, y1 = hero.cy + uy * r1, hd = Math.min(len * 0.22, (r1 - r0) * 0.6), hw = hd * 0.5;
+          ctx.strokeStyle = `rgba(255,190,120,${a * 0.75})`; ctx.lineWidth = lw * 1.2;
+          ctx.beginPath(); ctx.moveTo(x0, y0); ctx.lineTo(x1 - ux * hd * 0.8, y1 - uy * hd * 0.8); ctx.stroke();
+          ctx.fillStyle = `rgba(255,120,80,${a})`;
+          ctx.beginPath(); ctx.moveTo(x1, y1); ctx.lineTo(x1 - ux * hd - uy * hw, y1 - uy * hd + ux * hw); ctx.lineTo(x1 - ux * hd + uy * hw, y1 - uy * hd - ux * hw); ctx.closePath(); ctx.fill();
+        }
+      }
+      ctx.globalCompositeOperation = "source-over";
+    }
     // readout
     if (P.hud) {
       let onscreen = 0, intact = 0, area = 0;

@@ -146,3 +146,24 @@ on the waveform (the start and end given in the cut list); "That's fusion" had l
   in the forces' terms, a black hole is where nothing wins against gravity any more: *"Add even more mass, and even the
   neutrons give way. No force we know can push back, and gravity wins for good: everything falls in, and what's left is a
   black hole."* That would sit after the neutron star, before "So far our objects have all been around bands".
+
+## The forces Short, the author's notes (2026-11-18)
+
+- **Background and edges missing in the Short:** a cut piece now starts with the painting's and the chart edges' fades
+  as they stand at that point in the take (src/narration.js, cutCues). The long take's hand-off to the bare chart had
+  left the Short black.
+- **Bond arrows:** one line per pair of neighbours, on the line between their centres.
+  - Purple (attract): from one atom's electron ring to the other's nucleus, both arrows starting at the ends and
+    pointing in to the middle.
+  - Blue (repel): from ring to ring, both arrows starting at the middle and pointing out, stopping short of the rings.
+- **Fusion is a simulation again** (the lab's mode 2, src/squeeze-sim.js `groups4`).
+  - Protons start in diamonds of four, held by soft springs, pushing each other apart; the shrinking box squeezes
+    them.
+  - On "capture them" every four joins at once into one ring that wobbles round, and two of each four turn into
+    neutrons.
+  - On "a large amount of energy" the view centres on one helium and the box opens. Its energy streams out as rays
+    with a glow and shock rings, and pushes the rest off screen over about two seconds.
+  - Gravity's red arrows come back on "counterbalances", and "fusion" is written on "That's fusion".
+- **Cuts in the Short:** every jump between pieces now glides (`carry: "glide"`, 2.5 s), and pieces that run on in
+  the take carry nothing (no snap).
+- The author is re-recording the audio.

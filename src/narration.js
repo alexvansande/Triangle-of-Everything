@@ -154,7 +154,7 @@ async function cutCues(take, name) {
     scene: (await SCENES[`./narration-scenes/${s.scene}.js`]()).default,
   })));
   const all = [], missing = [], first = parts[0], sound = [];
-  for (const { s, src, scene } of parts) {
+  for (const [i, { s, src, scene }] of parts.entries()) {
     SCENE = scene;
     const rc = resolveScene(src.words);
     missing.push(...(window.__narrMissing || []));
@@ -164,8 +164,23 @@ async function cutCues(take, name) {
     // (a piece with `carry: false` keeps what's on screen from the piece before: no jump to its own scene's framing)
     // ("glide": the camera eases there over 2.5 s and the marks of before stay behind: a hook joined to the take's
     // middle, part 2 of the black holes, cut in a jump to marks that meant nothing there, the author, 2026-11-09)
-    if (s.from > 0 && cam && s.carry !== false) all.push({ cam: { ...cam.cam, glide: false, whip: false }, dur: s.carry === "glide" ? 2.5 : 0.05, drift: cam.drift, time: s.at });
-    if (s.from > 0 && hl?.hl && s.carry !== false && s.carry !== "glide") all.push({ hl: hl.hl.map(h => ({ ...h, delay: 0, draw: 0.01 })), time: s.at + 0.001 });
+    // (a piece that goes straight on from the one before in the same take carries nothing: it's already there; the
+    // first piece's state is in place from the cut's first frame, through its lead)
+    const prev = parts[i - 1]?.s;
+    const joined = prev && prev.take === s.take && Math.abs(prev.to - s.from) < 0.05;
+    const at0 = s === first.s ? 0 : s.at, glide = s.carry === "glide";
+    if (s.from > 0 && cam && s.carry !== false && !joined) all.push({ cam: { ...cam.cam, glide: false, whip: false }, dur: glide && s !== first.s ? (s.glideDur ?? 2.5) : 0.05, drift: cam.drift, time: at0 });
+    if (s.from > 0 && hl?.hl && s.carry !== false && !glide && !joined) all.push({ hl: hl.hl.map(h => ({ ...h, delay: 0, draw: 0.01 })), time: at0 + 0.001 });
+    // the painting's and the chart edges' fades (cue `bg` / `edges`) as they stand where the piece starts, so a piece
+    // cut from after the long take's hand-off to the bare chart doesn't open black (the forces Short, the author, 2026-11-18)
+    if (s.from > 0 && !joined) for (const [f, v0] of [["bg", scene.bgStart], ["edges", scene.edgesStart]]) {
+      const K = before.filter(c => c[f] != null).map(c => { const v = c[f], o = typeof v === "object";
+        return { t: c.time + ((o && v.after) || 0), to: o ? v.to : v, dur: (o && v.dur) || 1.5 }; }).sort((a, b) => a.t - b.t);
+      if (!K.length && v0 == null) continue;
+      let v = v0 ?? 1;
+      for (const k of K) { if (k.t > s.from) break; const q = Math.min(1, Math.max(0, (s.from - k.t) / k.dur)); v += (k.to - v) * q * q * (3 - 2 * q); }
+      all.push({ [f]: { to: v, dur: glide && s !== first.s ? 1.5 : 0.01 }, time: at0 });
+    }
     for (const c of rc) if (c.time >= s.from - 0.01 && c.time < s.to) all.push({ ...c, time: move(c.time) });
     // a piece over the powers-of-ten zoom (5d in long video 2): the zoom's script keys its moves on its own take's
     // clock (Earth at 0, its stops a few seconds after each mark), so it's handed that clock, not the cut's
@@ -2272,11 +2287,11 @@ export async function startNarration(app) {
   // the phases of the crush and fusion diagrams: the time of each cue carrying { crush: { phase } } / { fuse: { phase } }
   // (the first one, without a phase, is "start"), so the drawing runs on the take's clock whatever cue is live
   const phaseTimes = (key) => Object.fromEntries(cues.filter(c => c.hl?.some(q => q[key])).map(c => [c.hl.find(q => q[key])[key].phase || "start", c.time]));
-  const CATALOGUE_T = phaseTimes("catalogue"), CRUSH_T = phaseTimes("crush"), FUSE_T = phaseTimes("fuse"), WEAK_T = phaseTimes("weak"), DEUT_T = phaseTimes("deut"), EDGE_T = phaseTimes("edge"), OBS_T = phaseTimes("obs"), DIAMONDS_T = phaseTimes("diamonds");
+  const CATALOGUE_T = phaseTimes("catalogue"), CRUSH_T = phaseTimes("crush"), FUSE_T = phaseTimes("fuse"), WEAK_T = phaseTimes("weak"), DEUT_T = phaseTimes("deut"), EDGE_T = phaseTimes("edge"), OBS_T = phaseTimes("obs"), DIAMONDS_T = phaseTimes("diamonds"), FUSION_T = phaseTimes("fusionSim");
   const DIAGRAM_KINDS = { own: cues.some(c => c.hl?.some(q => q.own)), center: cues.some(c => c.hl?.some(q => q.center)), cosmos: cues.some(c => c.hl?.some(q => q.cosmos)),
-    particles: cues.some(c => c.hl?.some(q => q.crush || q.fuse || q.weak || q.deut || q.squeeze || q.diamonds)), edge: cues.some(c => c.hl?.some(q => q.edge || q.obs)), catalogue: cues.some(c => c.hl?.some(q => q.catalogue)) };
+    particles: cues.some(c => c.hl?.some(q => q.crush || q.fuse || q.weak || q.deut || q.squeeze || q.diamonds || q.fusionSim)), edge: cues.some(c => c.hl?.some(q => q.edge || q.obs)), catalogue: cues.some(c => c.hl?.some(q => q.catalogue)) };
   function drawDiagram(live, t) {
-    const cv = layer.querySelector("#narr-diagram"), h = live.filter(q => q.horizons || q.center || q.own || q.cosmos || q.crush || q.fuse || q.weak || q.deut || q.squeeze || q.diamonds || q.edge || q.obs || q.catalogue).sort((a, b) => b.t0 - a.t0)[0];   // the newest: an older one may still be live for its fade
+    const cv = layer.querySelector("#narr-diagram"), h = live.filter(q => q.horizons || q.center || q.own || q.cosmos || q.crush || q.fuse || q.weak || q.deut || q.squeeze || q.diamonds || q.fusionSim || q.edge || q.obs || q.catalogue).sort((a, b) => b.t0 - a.t0)[0];   // the newest: an older one may still be live for its fade
     if (!h) { cv.hidden = true; return; }
     cv.hidden = false;
     const dpr = Math.min(2, devicePixelRatio || 1), W = Math.round(layer.clientWidth * dpr), H = Math.round(layer.clientHeight * dpr);
@@ -2296,6 +2311,14 @@ export async function startNarration(app) {
     else if (h.edge) drawEdge(ctx, W, H, { ...h.edge, ...EDGE_T }, t);
     else if (h.squeeze) drawSqueeze(ctx, W, H, { ...h.squeeze, start: h.t0, exact: RENDER }, t, dpr);
     else if (h.diamonds) drawDiamonds(ctx, W, H, { ...DIAMONDS_T }, t);
+    // fusion as the lab's run (mode 2) in fours, its events on the cues' words (the author, 2026-11-18: a simulation, not
+    // an animation): { fusionSim: { phase, P } }, phases start, capture (the fours join), energy (the burst), balance
+    // (gravity's arrows back), fusion (the word)
+    else if (h.fusionSim) {
+      const T = FUSION_T, t0 = T.start ?? h.t0, rel = (k) => T[k] != null ? T[k] - t0 : null;
+      drawSqueeze(ctx, W, H, { mode: 2, start: t0, from: 0, exact: RENDER, P: { shrinkTime: Math.max(4, (rel("capture") ?? 14) - 1), ...h.fusionSim.P, groupFuseAt: rel("capture"), burstAt: rel("energy"), inArrowsAt: rel("balance") },
+        tlabels: [["helium", "#ffd54a", (rel("capture") ?? 99) + 1.4, rel("energy")], ["fusion", "#ff8a5c", rel("fusion") ?? 999, null]] }, t, dpr);
+    }
     else if (h.catalogue) drawCatalogue(ctx, W, H, { ...CATALOGUE_T }, t, (slug, r, m) => {
       // where the chart puts it now, so the pictures land on the chart's own (a catalogue dot: its numbers)
       const ob = objBySlug.get(slug); return { X: sx(ob ? ob.logR : r) * dpr, Y: sy(ob ? ob.logM : m) * dpr };

@@ -701,7 +701,7 @@ export function drawSqueeze(ctx, W, H, o, t, pixelRatio) {
   sim.draw(ctx, W, H, pixelRatio);
   // optional titles over the run ({ labels: [[text, colour], …] }), one after another from the top, each fading in a
   // second after the one before (long-02b-opening's bonds: "electrons repel electrons", "electrons and protons attract")
-  if (o.labels || o.push != null) ctx.setTransform(1, 0, 0, 1, 0, 0);   // the run draws under its own transform
+  if (o.labels || o.tlabels || o.push != null) ctx.setTransform(1, 0, 0, 1, 0, 0);   // the run draws under its own transform
   // the energy fusion releases pushing out ({ push: s into the clip }, long-02b-opening, the author, 2026-11-17: "a large
   // amount of energy will be released creating an outwards pressure - show arrows representing these"): a ring of red
   // arrows (red: pressure, as in the diagrams) out from the middle, each setting off a little after the one before and
@@ -719,6 +719,11 @@ export function drawSqueeze(ctx, W, H, o, t, pixelRatio) {
       ctx.beginPath(); ctx.moveTo(x1, y1); ctx.lineTo(x1 - ux * h - uy * hw, y1 - uy * h + ux * hw); ctx.lineTo(x1 - ux * h + uy * hw, y1 - uy * h - ux * hw); ctx.closePath(); ctx.fill();
     }
     ctx.globalAlpha = 1;
+  }
+  // titles on the run's own clock ({ tlabels: [[text, colour, from s, until s | null], …] }), one place, the next taking over
+  for (const [s, col, a, b] of o.tlabels || []) {
+    const run = t - o.start, f = smooth((run - a) / 0.6) * (b == null ? 1 : 1 - smooth((run - b) / 0.5)); if (f <= 0) continue;
+    ctx.globalAlpha = f; text(ctx, s.toUpperCase(), W / 2, H * 0.12, Math.min(W, H) * 0.075, col); ctx.globalAlpha = 1;
   }
   (o.labels || []).forEach(([s, col], i) => {
     const f = smooth((t - o.start - 0.8 - i * 1.6) / 0.7); if (f <= 0) return;

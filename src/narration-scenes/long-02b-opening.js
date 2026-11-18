@@ -56,6 +56,9 @@ const WD = { obj: "White Dwarf", label: false }, NS = { obj: "PSR J0030+0451", l
 // its arrows on (the author's note in the script: "electrons repel electrons", "electrons and protons attract"); the
 // arrows on the line between each two neighbours' centres (the author, 2026-11-17, 1:41): blue pairs pushing them
 // apart at the electron rings, purple ones from each ring to the other's nucleus (squeeze-sim.js, arrowsBonds)
+// the fusion run's settings (see the cues at "the strong force")
+const FUSION_P = { groups4: true, fourAtOnce: false, count: 200, radius: 100, groupSpacing: 5.2, groupGap: 1.5, groupSpring: 14, startBox: 1.6, endBox: 1.2,
+  relief: 0, jitter: 12, initSpeed: 40, damping: 1, hugRate: 1.4, bridgeTime: 0.15, neutrons: 2, arrowTime: 7, burstBox: 4, burstForce: 0.45, burstTau: 3, burstRate: 0.5 };
 const BONDS = { squeeze: { mode: 1, from: 0, P: { count: 34, startBox: 1.12, endBox: 1.12, shrinkTime: 999, threshold: 9, centreFirst: 0, initSpeed: 140, arrowTime: 30, arrowsIn: false, arrowsOut: false, arrowsBonds: true,
   // each kind of arrow as it's named ("electrons repel other electrons", "and are attracted to protons"), s into the run
   bondPushFrom: 0.7, bondPullFrom: 2.6 },
@@ -151,14 +154,13 @@ export default {
     { at: "bifurcation", cam: { r: 9.9, m: 33.0, span: 3.8 }, dur: 3, drift: 0.02, hl: [{ obj: "L Brown Dwarf", label: false }, ...FORK] },
     // the strong force: the brown dwarfs and Proxima, then the fusion diagram
     { at: "even more mass", cam: { r: 9.85, m: 32.6, span: 3 }, clear: true, hl: [{ obj: "L Brown Dwarf", label: false }, { obj: "Proxima Cen", label: "fusion starts", delay: 0.6 }] },
-    // fusion in diamonds (src/narr-diagrams.js, drawDiamonds; the author, 2026-11-17, 3:40): fours squeezed into diamonds,
-    // all merging at once on "capture them", then one helium pushing the rest away as the energy comes out
-    { at: "the strong force", hold: 999, hl: [{ diamonds: {}, out: 0.8 }] },
-    { at: "for some massive", hold: 999, hl: [{ diamonds: { phase: "squeeze" }, instant: true, out: 0.8 }] },
-    { at: "capture them", hold: 999, hl: [{ diamonds: { phase: "capture" }, instant: true, out: 0.8 }] },
-    { at: "large amount of energy", hold: 999, hl: [{ diamonds: { phase: "energy" }, instant: true, out: 0.8 }] },
-    { at: "counterbalances", hold: 999, hl: [{ diamonds: { phase: "balance" }, instant: true, out: 0.8 }] },
-    { at: "that's fusion", hold: 999, hl: [{ diamonds: { phase: "fusion" }, instant: true, out: 0.8 }] },
+    // fusion as a simulation (the lab's mode 2, src/squeeze-sim.js; the author, 2026-11-18: "it must be physics-based"):
+    // protons in diamonds of four, pushing each other apart, squeezed by the shrinking box (gravity); on "capture them"
+    // every four joins at once into one ring that wobbles round, two of each four turning into neutrons; on "large
+    // amount of energy" the view centres on one helium and the box flies open, its energy streaming out and throwing the
+    // rest off screen; gravity's arrows come back on "counterbalances"
+    ...[["the strong force", "start"], ["capture them", "capture"], ["large amount of energy", "energy"], ["counterbalances", "balance"], ["that's fusion", "fusion"]]
+      .map(([at, phase], i) => ({ at, hold: 999, hl: [{ fusionSim: { phase, P: FUSION_P }, instant: i > 0, out: 0.8 }] })),
     // the main sequence: one slow push in (the author, 2026-11-17, 4:11: "I don't like static cameras")
     { at: "changes the delicate dance", cam: { r: 10.9, m: 33.1, span: 4.2, glide: true }, dur: 0.05, clear: true, hl: [] },
     { at: "called the main sequence", cam: { r: 11.0, m: 33.15, span: 3.5, glide: true }, hl: [{ obj: "Sun" }, MS, { obj: "Sirius A", delay: 0.4 }] },
