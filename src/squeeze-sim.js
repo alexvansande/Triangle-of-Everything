@@ -984,7 +984,8 @@ export function createSqueeze({ pics = {} } = {}) {
       }
     }
     for (const f of S.flashes) {
-      const u = f.t / f.dur, r = f.r0 + (f.r1 - f.r0) * u;
+      if (f.t < 0) continue;   // a ring waiting its turn (the burst's later shock rings)
+      const u = f.t / f.dur, r = Math.max(0, f.r0 + (f.r1 - f.r0) * u);
       ctx.beginPath(); ctx.arc(f.x, f.y, r, 0, TAU);
       ctx.strokeStyle = `rgba(${f.color},${(1 - u) * 0.9})`; ctx.lineWidth = lw * (2.5 - 2 * u); ctx.stroke();
     }
