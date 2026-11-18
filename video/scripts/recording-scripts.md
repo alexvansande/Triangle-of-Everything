@@ -25,7 +25,7 @@ went silent after a minute when it ran out.
 | 3 · planets into stars | `short-03-stars` | 2:13 (re-recorded 2026-10-27, rec36) |
 | Long 2 · the opening to the black holes | `long-02-intro` | 8:09 (re-recorded 2026-11-06, rec57, natural speed, the second pass; the first piece of `long-02-space`, 19:14) |
 | Long 2 · the new script (draft) | `long-02b-space` (a cut) | 17:38 + 3 s credits (one music track list under it all, no changes at the joins): the new opening and the forces (`long-02b-opening`, rec74, 2026-11-17, natural speed, 6:14), then the Black Hole Slope from its horizon, the Smallest Black Holes, the Largest Structures and the Cosmic Event Horizon without their Short openings, and the Furthest Light whole |
-| The dance of the forces (Short, new) | `short-l2b-dance-of-the-forces` (a cut) | 2:56 + 3 s credits, from rec74, from "everything in our universe is a delicate dance" to "the strangest of all, black holes" (the bonds, gravity's reach, the small stars' end and the recap before the dead stars left out to fit under 3:00); the old one (rec58) stays beside it |
+| The dance of the forces (Short, new) | `short-l2b-dance-of-the-forces` (a cut) | 3:47 + 3 s credits, from rec75 (2026-11-18), from its own opening to "the strangest of objects is born, a black hole", every simulation in; over 3:00, lines to drop with the author; the old one (rec58) stays beside it |
 | The dance of the forces (Short) | `short-l2-dance-of-the-forces` | 2:45 (recorded on its own 2026-11-08, rec58, natural speed; cut from 3:19 on 2026-11-09) |
 | 4 · black holes and dark matter | `short-04-black-holes` | 4:31 at 1.1× (re-recorded 2026-10-29, rec48) |
 | The Black Hole Slope (Short: the black-hole line, recorded on its own) | `short-04a-black-hole-slope` | 2:51 with the credits (recorded 2026-11-09, rec59, natural speed); the earlier version, `short-04a-black-hole-line` (cut from rec48), stays beside it to compare; the author prefers it (2026-11-09: more concise, says "black hole" in the first 30 s, more energy), now 2:07 with rec59's ending from "But the most interesting question" to "tiny black holes" in place of its own, which stopped at "but how small" (on trial: do the two recordings sit together?). Fact check of that ending: "most of the things in the universe are just tiny black holes" says more than the idea does; it's most of the *matter*, the dark matter, that could be tiny black holes. To re-record: *"…some people who believe that most of the matter in the universe, the dark matter, could be tiny black holes."* |
@@ -1159,8 +1159,11 @@ fact check: `video/sources/2026-11-18/NOTES.md`.
 ### The forces Short from this take
 Its own opening (rec75 3:13–3:52, the last tries joined: "If you try to map every single thing that exists in a chart
 of mass and size, you see that most objects will fall in this diagonal band. What's special about it?"), then the dance
-of the forces to "That's when the strangest of objects is born, a black hole" (the author's end mark, rec75 13:10). To
-stay under three minutes it leaves out what the first take's Short did, and the heavy elements ("The death of massive
+of the forces to "That's when the strangest of objects is born, a black hole" (the author's end mark, rec75 13:10). Every
+simulation stays in (the author, 2026-11-18: "Dont cut any of the sim animations from the short, it's why the short is
+special"): the chemical bonds, the giant planets' atoms crushed, fusion, the weak force and the neutrons shoulder to
+shoulder, so it runs **3:47**, over a Short's 3:00, the lines to drop chosen with the author. Left out: the round worlds,
+"Get massive enough…", the small stars' end, and the heavy elements ("The death of massive
 stars…", "a battery charged once"); escape velocity comes in mid-sentence, on "…escape velocity, the speed you need to
 win the tug of war against an object's gravity. For a neutron star, that's already about half the speed of light"
 (the author, 2026-11-18: "the cut in escape velocity is weird"). To record, for the Short (and it works in the long

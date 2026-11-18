@@ -156,3 +156,6 @@
 long-02b-space
 short-l2b-dance-of-the-forces
 # 2026-11-17, afternoon: rec74 re-cut (restarts and stray tails out, the author's notes): new audio, so both render whole (queued above)
+# 2026-11-18, evening: the forces Short with every simulation back in, the fusion burst right after "capture"
+short-l2b-dance-of-the-forces
+long-02b-space

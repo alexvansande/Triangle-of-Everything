@@ -26,9 +26,11 @@
   push, wait for the deploy, then check the page serves the new take), and give the link with
   the take's hash, e.g. `…/videos-3v63rqq1/#short-03-stars` (the page itself is the grid alone since 2026-11-10, light enough
   for a phone; a #take sends the viewer on to `live.html`, the app, which the grid loads only then). The private claude.ai preview page
-  no longer fits (one version holds at most 512 files; the build has more). Don't touch the
-  rendered videos (`video/web/`, the preview's "Rendered video" switch): they're rendered in a
-  local session.
+  no longer fits (one version holds at most 512 files; the build has more). Rendered videos
+  (drafts and full renders) go to the author **in the chat**, as a phone copy under 30 MiB sent with
+  SendUserFile, not onto the site (the author, 2026-11-18: "remove the action of uploading the videos
+  to the site when they're rendered. Lets try to just use this chat for that"): nothing commits
+  `video/web/` any more, and `scripts/narration-overnight.sh` pushes only the render queue.
 - **Queue every changed video for a re-render** (the author's rule, 2026-10-28): when you change a
   video (its audio, captions, scene, mix, or the chart code or pictures it shows), add its take
   name (e.g. `short-04-black-holes`) on its own line to `video/render-queue.txt` in the same

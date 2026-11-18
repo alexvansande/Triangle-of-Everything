@@ -2318,8 +2318,8 @@ export async function startNarration(app) {
     // (gravity's arrows back), fusion (the word)
     else if (h.fusionSim) {
       const T = FUSION_T, t0 = T.start ?? h.t0, rel = (k) => T[k] != null ? T[k] - t0 : null;
-      drawSqueeze(ctx, W, H, { mode: 2, start: t0, from: 0, exact: RENDER, P: { shrinkTime: Math.max(4, (rel("capture") ?? 14) - 1), ...h.fusionSim.P, ...(h.fusionSim.P?.cycles ? { cycles: [rel("capture"), rel("energy") - 0.25], groupFuseAt: null, burstAt: null, inArrowsAt: null } : { groupFuseAt: rel("capture"), burstAt: rel("energy"), inArrowsAt: rel("balance") }) },
-        tlabels: [["helium", "#ffd54a", (rel("capture") ?? 99) + 1.4, rel("energy")], ["fusion", "#ff8a5c", rel("fusion") ?? 999, null]] }, t, dpr);
+      drawSqueeze(ctx, W, H, { mode: 2, start: t0, from: 0, exact: RENDER, P: { shrinkTime: Math.max(4, (rel("capture") ?? 14) - 1), ...h.fusionSim.P, ...(h.fusionSim.P?.cycles ? { cycles: [rel("capture"), rel("capture") + 1.0], groupFuseAt: null, burstAt: null, inArrowsAt: null } : { groupFuseAt: rel("capture"), burstAt: rel("energy"), inArrowsAt: rel("balance") }) },
+        tlabels: [["helium", "#ffd54a", (rel("capture") ?? 99) + (h.fusionSim.P?.cycles ? 0.4 : 1.4), h.fusionSim.P?.cycles ? (rel("capture") ?? 99) + 3.4 : rel("energy")], ["fusion", "#ff8a5c", rel("fusion") ?? 999, null]] }, t, dpr);
     }
     else if (h.catalogue) drawCatalogue(ctx, W, H, { ...CATALOGUE_T }, t, (slug, r, m) => {
       // where the chart puts it now, so the pictures land on the chart's own (a catalogue dot: its numbers)

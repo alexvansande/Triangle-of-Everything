@@ -1,11 +1,12 @@
 #!/bin/sh
-# Overnight renders, published as they finish:
+# Overnight renders, one take after another:
 #   caffeinate -i nice -n 19 scripts/narration-overnight.sh [take …]
 # For each take in order (default: every short, in number order): bring in
 # what's new on main, render it if its render is out of date (scripts/narration-render-stale.sh:
 # the full render in output/videos/, the web copy in video/web/, a dated copy in iCloud), then
-# commit the web copy and push to main, so the videos page's "Rendered video" has it as soon
-# as GitHub Pages deploys. The order is picked again before every take, after bringing main in:
+# commit the render queue and push it. The web copy isn't committed or put on the site (the author,
+# 2026-11-18: "remove the action of uploading the videos to the site when they're rendered. Lets
+# try to just use this chat for that"): the videos go to the author in the chat, from iCloud. The order is picked again before every take, after bringing main in:
 # the queue's "# next:" takes first, then the list given, then any other take that went out of
 # date meanwhile, so a change pushed mid-round (even to a take this round already rendered)
 # renders next (the author, 2026-11-01). A take that fails isn't tried again this round, and none
@@ -41,15 +42,15 @@ sync_main() {   # bring main in; false (and undone) if it conflicts
   fi
   git merge --abort 2>/dev/null; log "merging main conflicts: left for the morning"; return 1
 }
-publish() {     # commit the web copies and push them to main (after a build check)
-  git add video/web/*.mp4 video/render-queue.txt 2>/dev/null
+publish() {     # commit the render queue and push it (the videos themselves stay off the site)
+  git add video/render-queue.txt 2>/dev/null
   git diff --cached --quiet && return 0
-  git commit -q -m "Rendered video: $1 (overnight render, $(date +%F))
+  git commit -q -m "Render queue: $1 rendered (overnight render, $(date +%F))
 
 Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>" || return 1
   sync_main || return 1
   if ! npm run build > output/videos/overnight-build.log 2>&1; then log "site build failed (output/videos/overnight-build.log): not pushed"; return 1; fi
-  git push -q origin HEAD:main && git push -q origin HEAD && log "published $1"
+  git push -q origin HEAD:main && git push -q origin HEAD && log "rendered $1 (iCloud output videos; not put on the site)"
 }
 
 # a "# hold" line in the render queue (a session still changing the videos) stops the round
