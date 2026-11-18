@@ -28,6 +28,12 @@ export const BASE = {
   // (burstForce, fading over burstTau s) throws the rest off screen, with rays and a glow; the squeeze's red arrows come
   // back on inArrowsAt
   groups4: false, groupGap: 1.6, groupSpacing: 6.4, groupSpring: 3, groupFuseAt: null, burstAt: null, burstBox: 4, burstForce: 6, burstTau: 1.4, burstRate: 5, rays: 30, inArrowsAt: null,
+  // fusion in cycles (the author, 2026-11-18: "one of them fuses, releases the energy with the arrows, everything expands,
+  // and it contracts again, with the new nucleus coming together around the helium atom. Then a new one beside it will
+  // fuse and the cycle will repeat"): cycles = [first fuse, first burst] (run s); after that a four beside the last
+  // helium fuses every cyclePeriod s, its burst cycleBurst s later; the box stays open expandTime s after each burst,
+  // then closes back to endBox at contractRate
+  cycles: null, cyclePeriod: 5, cycleBurst: 0.7, expandTime: 1.8, contractRate: 1.6,
   onScreenOnly: true, pictures: false, arrowsOut: false, arrowsIn: false, arrowsStrong: false, arrowsBonds: false, arrowSize: 0.45, arrowTime: 5, lineWidth: 3, glow: 1, fill: 0.06, hud: true, walls: true,
 };
 export const MODE_DEFAULTS = {
@@ -83,7 +89,7 @@ export function createSqueeze({ pics = {} } = {}) {
     const P = S.P;
     seedState = S.seed >>> 0;
     S.t = 0; S.blobs = []; S.electrons = []; S.captures = []; S.flashes = []; S.pops = []; S.frags = []; S.bridges = []; S.events = { pop: 0, fuse: 0, break: 0 }; S.maxSq = 0;
-    S.box = P.startBox * Math.max(S.W, S.H); S.shrinkT = 0; S.floor = 0; S.jam = 0; S.burst = null; S.groupsFused = false; S.vcx = 0; S.vcy = 0;
+    S.box = P.startBox * Math.max(S.W, S.H); S.shrinkT = 0; S.floor = 0; S.jam = 0; S.burst = null; S.groupsFused = false; S.vcx = 0; S.vcy = 0; S.cycle = 0; S.pending = null; S.cycleGroup = null;
     const half = S.box / 2 - P.radius * 1.05, R = P.radius;
     if (P.groups4 && S.mode === 2) {   // diamonds of four on a jittered hexagonal lattice, the middle first
       const sp = P.groupSpacing * R, rowH = sp * 0.866, cols = Math.ceil(2 * half / sp) + 1, rows = Math.ceil(2 * half / rowH) + 1, cs = [];
@@ -176,8 +182,9 @@ export function createSqueeze({ pics = {} } = {}) {
     // crowd of hard discs sets a floor it can't go below; the real side eases toward the result
     S.shrinkT += dt;
     const u = clamp(S.shrinkT / P.shrinkTime, 0, 1), e = u * u * (3 - 2 * u), big = Math.max(S.W, S.H);
-    const goal = S.burst ? P.burstBox * big : Math.max((P.startBox + (P.endBox - P.startBox) * e) * big, S.floor);
-    S.box += (goal - S.box) * Math.min(1, (S.burst ? P.burstRate : 3) * dt);
+    const open = S.burst && (!P.cycles || S.t - S.burst.t0 < P.expandTime);
+    const goal = open ? P.burstBox * big : Math.max((P.startBox + (P.endBox - P.startBox) * e) * big, S.floor);
+    S.box += (goal - S.box) * Math.min(1, (open ? P.burstRate : S.burst ? P.contractRate : 3) * dt);
     const half = S.box / 2;
 
     for (const b of blobs) { measure(b); for (const p of b.nodes) { p.fx = 0; p.fy = 0; } for (const k of b.nuclei) { k.fx = 0; k.fy = 0; } }
@@ -238,7 +245,17 @@ export function createSqueeze({ pics = {} } = {}) {
       }
     }
     // the energy let go: everything pushed out from the helium, the push fading; the helium itself held still
-    if (P.burstAt != null && !S.burst && S.t >= P.burstAt) {
+    // (in cycles: the helium that last fused, on its time)
+    if (P.cycles && S.pending && S.t >= S.pending.at) {
+      let hero = null, best = Infinity;
+      for (const b of blobs) if (b.q >= 4) { const d = Math.hypot(b.cx - S.pending.x, b.cy - S.pending.y); if (d < best) { best = d; hero = b; } }
+      S.pending = null;
+      if (hero) {
+        S.burst = { t0: S.t, id: hero.id }; S.floor = 0;
+        for (let i = 0; i < 3; i++) S.flashes.push({ x: hero.cx, y: hero.cy, r0: hero.R, r1: big * 1.1, t: -i * 0.3, dur: 1.3, color: "255,214,150" });
+      }
+    }
+    if (!P.cycles && P.burstAt != null && !S.burst && S.t >= P.burstAt) {
       let hero = null, best = Infinity;
       for (const b of blobs) if (b.q >= 4) { const d = Math.hypot(b.cx, b.cy); if (d < best) { best = d; hero = b; } }
       if (hero) {
@@ -416,7 +433,22 @@ export function createSqueeze({ pics = {} } = {}) {
     if (S.mode === 2) {
       const free = b => !b.bridge && b.state === "intact" && onScreen(b);
       const groups = [];
-      if (P.groups4) {
+      if (P.groups4 && P.cycles) {
+        // one four at a time: the one in the middle first, then each time the one nearest the last helium
+        const at = (i) => i === 0 ? P.cycles[0] : P.cycles[1] + i * P.cyclePeriod - P.cycleBurst;
+        if (S.t >= at(S.cycle)) {
+          const gs = new Map();
+          for (const b of blobs) if (b.group != null && b.q === 1 && b.state === "intact" && !b.bridge) (gs.get(b.group) || gs.set(b.group, []).get(b.group)).push(b);
+          const last = S.burst && blobs.find(b => b.id === S.burst.id), rx = last ? last.cx : 0, ry = last ? last.cy : 0;
+          let pick = null, best = Infinity;
+          for (const g of gs.values()) if (g.length === 4) {
+            const x = g.reduce((v, b) => v + b.cx, 0) / 4, y = g.reduce((v, b) => v + b.cy, 0) / 4, d = Math.hypot(x - rx, y - ry);
+            if (d < best) { best = d; pick = { g, x, y }; }
+          }
+          if (pick) { groups.push(pick.g); S.pending = { at: S.cycle === 0 ? P.cycles[1] : S.t + P.cycleBurst, x: pick.x, y: pick.y }; }
+          S.cycle++;
+        }
+      } else if (P.groups4) {
         // every four at once, on its cue
         if (P.groupFuseAt != null && !S.groupsFused && S.t >= P.groupFuseAt) {
           S.groupsFused = true;
@@ -897,7 +929,9 @@ export function createSqueeze({ pics = {} } = {}) {
         }
       }
     }
-    const inLife = P.inArrowsAt != null ? (S.t < P.inArrowsAt ? arrowLife : clamp((S.t - P.inArrowsAt) / 0.8, 0, 1)) : arrowLife;
+    // (in cycles: gravity's arrows go as each burst pushes out and come back as the box closes)
+    const inLife = P.cycles ? (S.burst ? clamp((S.t - S.burst.t0 - P.expandTime * 0.8) / 0.8, 0, 1) : arrowLife)
+      : P.inArrowsAt != null ? (S.t < P.inArrowsAt ? arrowLife : clamp((S.t - P.inArrowsAt) / 0.8, 0, 1)) : arrowLife;
     if ((P.arrowsOut && arrowLife > 0) || (P.arrowsIn && inLife > 0)) {
       const L = P.radius * P.arrowSize, hb = S.box / 2, aw = Math.max(lw * 0.9, L * 0.06);
       if (P.arrowsOut) for (const b of S.blobs) {

@@ -179,7 +179,9 @@ async function cutCues(take, name) {
       if (!K.length && v0 == null) continue;
       let v = v0 ?? 1;
       for (const k of K) { if (k.t > s.from) break; const q = Math.min(1, Math.max(0, (s.from - k.t) / k.dur)); v += (k.to - v) * q * q * (3 - 2 * q); }
-      all.push({ [f]: { to: v, dur: glide && s !== first.s ? 1.5 : 0.01 }, time: at0 });
+      // (the first piece's a hair before 0, so the cut's very first frame has it already, not the scene's own start:
+      // the forces Short opened on a black frame, the author, 2026-11-18)
+      all.push({ [f]: { to: v, dur: glide && s !== first.s ? 1.5 : 0.01 }, time: s === first.s ? -0.05 : at0 });
     }
     for (const c of rc) if (c.time >= s.from - 0.01 && c.time < s.to) all.push({ ...c, time: move(c.time) });
     // a piece over the powers-of-ten zoom (5d in long video 2): the zoom's script keys its moves on its own take's
@@ -2316,7 +2318,7 @@ export async function startNarration(app) {
     // (gravity's arrows back), fusion (the word)
     else if (h.fusionSim) {
       const T = FUSION_T, t0 = T.start ?? h.t0, rel = (k) => T[k] != null ? T[k] - t0 : null;
-      drawSqueeze(ctx, W, H, { mode: 2, start: t0, from: 0, exact: RENDER, P: { shrinkTime: Math.max(4, (rel("capture") ?? 14) - 1), ...h.fusionSim.P, groupFuseAt: rel("capture"), burstAt: rel("energy"), inArrowsAt: rel("balance") },
+      drawSqueeze(ctx, W, H, { mode: 2, start: t0, from: 0, exact: RENDER, P: { shrinkTime: Math.max(4, (rel("capture") ?? 14) - 1), ...h.fusionSim.P, ...(h.fusionSim.P?.cycles ? { cycles: [rel("capture"), rel("energy") - 0.25], groupFuseAt: null, burstAt: null, inArrowsAt: null } : { groupFuseAt: rel("capture"), burstAt: rel("energy"), inArrowsAt: rel("balance") }) },
         tlabels: [["helium", "#ffd54a", (rel("capture") ?? 99) + 1.4, rel("energy")], ["fusion", "#ff8a5c", rel("fusion") ?? 999, null]] }, t, dpr);
     }
     else if (h.catalogue) drawCatalogue(ctx, W, H, { ...CATALOGUE_T }, t, (slug, r, m) => {

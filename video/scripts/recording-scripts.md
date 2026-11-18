@@ -1161,9 +1161,15 @@ Its own opening (rec75 3:13–3:52, the last tries joined: "If you try to map ev
 of mass and size, you see that most objects will fall in this diagonal band. What's special about it?"), then the dance
 of the forces to "That's when the strangest of objects is born, a black hole" (the author's end mark, rec75 13:10). To
 stay under three minutes it leaves out what the first take's Short did, and the heavy elements ("The death of massive
-stars…", "a battery charged once"); escape velocity comes in on "…escape velocity, the speed you need to win the tug of
-war against an object's gravity". If you'd rather keep the heavy elements in the Short, a line to record that names it
-on its own: *"Escape velocity is the speed you need to win the tug of war against an object's gravity."*
+stars…", "a battery charged once"); escape velocity comes in mid-sentence, on "…escape velocity, the speed you need to
+win the tug of war against an object's gravity. For a neutron star, that's already about half the speed of light"
+(the author, 2026-11-18: "the cut in escape velocity is weird"). To record, for the Short (and it works in the long
+video too, after "purely by the force of gravity"):
+*"To get away from anything's gravity, you have to go fast enough: that's its escape velocity, the speed you need to
+win the tug of war. For a neutron star, it's already about half the speed of light."*
+- Fixed in the cut (the author's review of the Short, 2026-11-18): five repeats the long pass had smoothed over, "you'll
+  — you see", "the strong force" twice at a join, "and the nuclei will be" twice, "but the speed of light" twice,
+  "meaning that if you add" three times and "then, then".
 
 ## 3 · Planets into stars (`short-03-stars`)
 

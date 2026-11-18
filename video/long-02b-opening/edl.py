@@ -38,7 +38,8 @@ EDL = [
  ("rec75", "bands", 175.89, 179.31),  # If you do that, you notice that most things will fall in bands.
  ("rec75", "bands", 179.87, 183.51),  # And it seems there's something special about this particular diagonal. What is it?
  ("rec75", "intro", 206.71, 209.29),  # if you try to map every single thing that exists
- ("rec75", "intro", 223.69, 224.79),  # in a chart of mass and size,   ("shard": chart; the try before it, 3:25, gives "if you try to map every single thing that exists")
+ ("rec75", "intro", 223.69, 224.79, {"e": 225.08}),   # (its end given: the snap took the "you" of "you see" after it, heard twice with the next clip, the author, 2026-11-18)
+ #  # in a chart of mass and size,   ("shard": chart; the try before it, 3:25, gives "if you try to map every single thing that exists")
  ("rec75", "intro", 231.43, 236.31),  # You see that most objects will fall in this diagonal band. What's special about it?
  ("rec75", "dance", 242.67, 250.73, {"s": 246.12}),   # (from the second "what's happening": an aside before it, "now, now it's for both of them")
  #  # What's happening is that everything in our universe is a delicate dance between four fundamental forces.
@@ -62,10 +63,12 @@ EDL = [
  ("rec75", "column", 458.05, 467.95),  # Notice how giant planets beyond Jupiter do not fall on our diagonal line anymore, Rather, they just go up a column. That's because their core is not made of ordinary matter.
  ("rec75", "column", 469.19, 481.47),  # These planets are massive, and there's so much pressure in their core that it's able to win over the repulsion of the electrons. The atoms get stripped out of their electron layers, and it becomes a lot of loose nuclei in a sea of electrons.
  ("rec75", "column", 483.77, 492.05),  # That's why super Jupiter planets don't get bigger, they just get denser. That is, until this little bifurcation here happens. What is that?
- ("rec75", "strong", 493.85, 498.91),  # Turns out, if you add even more mass, then something magical happens because a new force comes into play,
+ ("rec75", "strong", 493.85, 498.91, {"e": 499.18}),   # (its end given: the snap took the start of the next "the strong force", heard twice)
+ #  # Turns out, if you add even more mass, then something magical happens because a new force comes into play,
  ("rec75", "strong", 507.31, 511.91),  # The strong force, and as the name implies, it's the strongest of all,
  ("rec75", "strong", 527.21, 537.49, {"cut": [(529.75, 536.45)]}),  # But it doesn't reach very far, it's the size of a nuclei.   ("but it reaches, it's very tiny," cut; "nuclei" as said)
- ("rec75", "strong", 554.87, 570.57),  # For some massive objects, the gravity will be so strong that it will overpower the electrons pushing out and the nuclei will be so close together that the strong force can now capture them and make them one single nucleus.
+ ("rec75", "strong", 554.87, 570.57, {"cut": [(562.25, 564.28)]}),   # (the first "and the nuclei will be," cut: said twice)
+ #  # For some massive objects, the gravity will be so strong that it will overpower the electrons pushing out and the nuclei will be so close together that the strong force can now capture them and make them one single nucleus.
  ("rec75", "fusion", 571.7, 578.01),  # And when that happens, a large amount of energy is released, creating an outward pressure that counterbalances the force of gravity.   (the long pass heard "And when that pressure": the words re-heard, 9:31-9:38)
  ("rec75", "fusion", 579.05, 579.61),  # That's fusion.
  ("rec75", "fusion", 581.31, 592.91),  # And it changes that delicate dance between gravity, electromagnetism, and the strong force, creating this new stable equilibrium diagonal here, called the main sequence, where stars live most of their lives.
@@ -81,8 +84,10 @@ EDL = [
  ("rec75", "heavy", 669.89, 675.63),  # So in a way, a radioactive element is like a battery charged once in these explosions.
  ("rec75", "escape", 679.79, 692.99, {"cut": [(683.45, 686.6)]}),  # They are thrown out so fast that they escape the neutron star's gravity, faster than its escape velocity, the speed you need to win the tug of war against an object's gravity.   (the first "faster than its escape velocity" cut)
  ("rec75", "escape", 693.93, 697.11),  # For a neutron star, that's already about half the speed of light.
- ("rec75", "escape", 726.39, 732.07),  # But the speed of light works as a universal speed limit,
- ("rec75", "escape", 760.39, 771.63),  # Meaning that if you add even more mass, then the escape velocity will be faster than the speed of light.
+ ("rec75", "escape", 726.39, 732.07, {"s": 727.95}),   # (from the second "but the speed of light": "But the speed of light, but…")
+ #  # But the speed of light works as a universal speed limit,
+ ("rec75", "escape", 760.39, 771.63, {"s": 762.33, "cut": [(767.05, 767.98)]}),   # (from the third "meaning that if you add", and the first "then," cut: "Meaning, meaning that if you add, meaning that if you add… then, then")
+ #  # Meaning that if you add even more mass, then the escape velocity will be faster than the speed of light.
  ("rec75", "escape", 780.63, 783.69),  # So nothing, not even light will be able to get out.
  ("rec75", "escape", 785.67, 788.93),  # That's when the strangest of objects is born, a black hole.
  ("rec75", "cemetery", 797.05, 799.23),  # So far, our objects have been around bands,
