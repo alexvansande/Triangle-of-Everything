@@ -153,9 +153,6 @@
 # camera at 1:40 fixed in the field, so the orbit carries it away instead of holding it in the middle: picture only, in
 # the zoom's working folder (/Users/avsa/Dev/Triangle, earth-scene.js and deep-field.js, uncommitted) — rendered whole by hand (the author, 2026-11-14: "start a full render")
 # 2026-11-17: long video 2's new opening and forces (rec74, a first draft): the new long cut and the new forces Short, whole
-short-l2b-dance-of-the-forces
 # 2026-11-17, afternoon: rec74 re-cut (restarts and stray tails out, the author's notes): new audio, so both render whole (queued above)
 # 2026-11-18, evening: the forces Short with every simulation back in, the fusion burst right after "capture"
-short-l2b-dance-of-the-forces
 # 2026-11-18, night: four more restarts out of long-02b-opening (the author, long draft 0:55, 1:05, 1:47, 2:37)
-short-l2b-dance-of-the-forces
