@@ -24,8 +24,9 @@
 import { blackHoleFilter } from "./black-hole-palette.js";
 import * as d3 from "d3";
 import { iconUrls } from "./assets.js";
-import { drawHorizons, drawCenter, drawOwn, drawCosmos, drawCrush, drawFuse, drawWeak, drawDeut, drawSqueeze, drawDiamonds, drawEdge, drawObservable, edgePending, diagramsPending } from "./narr-diagrams.js";
+import { drawHorizons, drawCenter, drawOwn, drawCosmos, drawCrush, drawFuse, drawWeak, drawDeut, drawSqueeze, drawDiamonds, drawEdge, drawObservable, edgePending, diagramsPending, drawAtoms, atomsPending } from "./narr-diagrams.js";
 import { drawCatalogue, cataloguePending } from "./narr-catalogue.js";
+import { drawP10, p10Pending } from "./narr-p10.js";
 import {
   EVENT_HORIZON_LOG_R, HUBBLE_LOG_R, PLANCK_LOG_R, PLANCK_LOG_M, schwarzschildM, comptonM,
   densityLineM, DENSITY_SPHERE_C, SCHWARZSCHILD_C, COMPTON_C,
@@ -2289,11 +2290,11 @@ export async function startNarration(app) {
   // the phases of the crush and fusion diagrams: the time of each cue carrying { crush: { phase } } / { fuse: { phase } }
   // (the first one, without a phase, is "start"), so the drawing runs on the take's clock whatever cue is live
   const phaseTimes = (key) => Object.fromEntries(cues.filter(c => c.hl?.some(q => q[key])).map(c => [c.hl.find(q => q[key])[key].phase || "start", c.time]));
-  const CATALOGUE_T = phaseTimes("catalogue"), CRUSH_T = phaseTimes("crush"), FUSE_T = phaseTimes("fuse"), WEAK_T = phaseTimes("weak"), DEUT_T = phaseTimes("deut"), EDGE_T = phaseTimes("edge"), OBS_T = phaseTimes("obs"), DIAMONDS_T = phaseTimes("diamonds"), FUSION_T = phaseTimes("fusionSim");
+  const CATALOGUE_T = phaseTimes("catalogue"), CRUSH_T = phaseTimes("crush"), FUSE_T = phaseTimes("fuse"), WEAK_T = phaseTimes("weak"), DEUT_T = phaseTimes("deut"), EDGE_T = phaseTimes("edge"), OBS_T = phaseTimes("obs"), DIAMONDS_T = phaseTimes("diamonds"), FUSION_T = phaseTimes("fusionSim"), ATOMS_T = phaseTimes("atoms");
   const DIAGRAM_KINDS = { own: cues.some(c => c.hl?.some(q => q.own)), center: cues.some(c => c.hl?.some(q => q.center)), cosmos: cues.some(c => c.hl?.some(q => q.cosmos)),
-    particles: cues.some(c => c.hl?.some(q => q.crush || q.fuse || q.weak || q.deut || q.squeeze || q.diamonds || q.fusionSim)), edge: cues.some(c => c.hl?.some(q => q.edge || q.obs)), catalogue: cues.some(c => c.hl?.some(q => q.catalogue)) };
+    particles: cues.some(c => c.hl?.some(q => q.crush || q.fuse || q.weak || q.deut || q.squeeze || q.diamonds || q.fusionSim)), edge: cues.some(c => c.hl?.some(q => q.edge || q.obs)), catalogue: cues.some(c => c.hl?.some(q => q.catalogue)), p10: cues.some(c => c.hl?.some(q => q.p10)), atoms: cues.some(c => c.hl?.some(q => q.atoms)) };
   function drawDiagram(live, t) {
-    const cv = layer.querySelector("#narr-diagram"), h = live.filter(q => q.horizons || q.center || q.own || q.cosmos || q.crush || q.fuse || q.weak || q.deut || q.squeeze || q.diamonds || q.fusionSim || q.edge || q.obs || q.catalogue).sort((a, b) => b.t0 - a.t0)[0];   // the newest: an older one may still be live for its fade
+    const cv = layer.querySelector("#narr-diagram"), h = live.filter(q => q.horizons || q.center || q.own || q.cosmos || q.crush || q.fuse || q.weak || q.deut || q.squeeze || q.diamonds || q.fusionSim || q.edge || q.obs || q.catalogue || q.p10 || q.atoms).sort((a, b) => b.t0 - a.t0)[0];   // the newest: an older one may still be live for its fade
     if (!h) { cv.hidden = true; return; }
     cv.hidden = false;
     const dpr = Math.min(2, devicePixelRatio || 1), W = Math.round(layer.clientWidth * dpr), H = Math.round(layer.clientHeight * dpr);
@@ -2313,6 +2314,13 @@ export async function startNarration(app) {
     else if (h.edge) drawEdge(ctx, W, H, { ...h.edge, ...EDGE_T }, t);
     else if (h.squeeze) drawSqueeze(ctx, W, H, { ...h.squeeze, start: h.t0, exact: RENDER }, t, dpr);
     else if (h.diamonds) drawDiamonds(ctx, W, H, { ...DIAMONDS_T }, t);
+    else if (h.atoms) drawAtoms(ctx, W, H, { ...ATOMS_T }, t);
+    // a powers-of-ten zoom out (src/narr-p10.js): { p10: { … } }, its clock from the cue
+    else if (h.p10) {
+      // (it opens on the squeeze run's last frame: that run's cue, at its exact time, so the frame is the one already stepped)
+      const sc = cues.filter(c => c.time < h.t0 && c.hl?.some(q => q.squeeze)).at(-1), sq = sc?.hl.find(q => q.squeeze).squeeze;
+      drawP10(ctx, W, H, { ...h.p10, sim: h.p10.sim ?? (sq && { ...sq, start: sc.time }), start: h.t0, end: h.t1, exact: RENDER }, t, dpr);
+    }
     // fusion as the lab's run (mode 2) in fours, its events on the cues' words (the author, 2026-11-18: a simulation, not
     // an animation): { fusionSim: { phase, P } }, phases start, capture (the fours join), energy (the burst), balance
     // (gravity's arrows back), fusion (the word)
@@ -2323,7 +2331,11 @@ export async function startNarration(app) {
       // whole run by 8 s; at the end, 2.4 s closing in on the last helium while it fades (the author, 2026-11-20)
       const end = Number.isFinite(h.t1) ? h.t1 - t0 : null, Z0 = h.fusionSim.zoom ?? 1.4;
       const zoom = [[0, Z0], [1.5, Z0], [8, 1], ...(end != null ? [[end, 1], [end + (h.out ?? 0.6), h.fusionSim.endZoom ?? 2.4]] : [])];
-      drawSqueeze(ctx, W, H, { mode: 2, start: t0, from: 0, exact: RENDER, zoom, follow: [0, 8], P: { shrinkTime: Math.max(4, (rel("capture") ?? 14) - 1), ...h.fusionSim.P, ...(h.fusionSim.P?.cycles ? { cycles: [rel("capture"), rel("capture") + 0.2], groupFuseAt: null, burstAt: null, inArrowsAt: null } : { groupFuseAt: rel("capture"), burstAt: rel("energy"), inArrowsAt: rel("balance") }) },
+      // (the protons alone at first, pushing each other apart, the strong force's yellow reach on "doesn't reach very far",
+      // the push out and the squeeze in from "so strong" to just before the capture: the author, 2026-11-20, 3:42–3:50)
+      const staged = rel("reach") != null ? { ringsFrom: rel("reach"), repelWindow: [0.6, rel("reach") - 0.3], arrowsStrong: false,
+        outWindow: rel("push") != null && rel("capture") != null ? [rel("push"), rel("capture") - 0.5] : null } : {};
+      drawSqueeze(ctx, W, H, { mode: 2, start: t0, from: 0, exact: RENDER, zoom, follow: [0, 8], P: { shrinkTime: Math.max(4, (rel("capture") ?? 14) - 1), ...h.fusionSim.P, ...staged, ...(h.fusionSim.P?.cycles ? { cycles: [rel("capture"), rel("capture") + 0.2], groupFuseAt: null, burstAt: null, inArrowsAt: null } : { groupFuseAt: rel("capture"), burstAt: rel("energy"), inArrowsAt: rel("balance") }) },
         tlabels: [["helium", "#ffd54a", (rel("capture") ?? 99) + (h.fusionSim.P?.cycles ? 0.4 : 1.4), h.fusionSim.P?.cycles ? (rel("capture") ?? 99) + 3.4 : rel("energy")], ["fusion", "#ff8a5c", rel("fusion") ?? 999, null]] }, t, dpr);
     }
     else if (h.catalogue) drawCatalogue(ctx, W, H, { ...CATALOGUE_T }, t, (slug, r, m) => {
@@ -3143,7 +3155,7 @@ export async function startNarration(app) {
     now: () => curT,     // the take's time on screen (the live Hopf pictures animate by it)
     settle(t) { const { view } = camera(t); app.setCamera(view, false); app.bgNoiseSettle(); overlay(); },
     camera: (t) => camera(t).view,
-    pending: () => (window.__cmbIconPending || 0) + diagramsPending(DIAGRAM_KINDS) + (DIAGRAM_KINDS.catalogue ? cataloguePending() : 0) + (DIAGRAM_KINDS.edge ? edgePending() : 0) + app.tilesPending() + app.iconsPending() + (app.dustReady() ? 0 : 1) +
+    pending: () => (window.__cmbIconPending || 0) + diagramsPending(DIAGRAM_KINDS) + (DIAGRAM_KINDS.catalogue ? cataloguePending() : 0) + (DIAGRAM_KINDS.p10 ? p10Pending() : 0) + (DIAGRAM_KINDS.atoms ? atomsPending() : 0) + (DIAGRAM_KINDS.edge ? edgePending() : 0) + app.tilesPending() + app.iconsPending() + (app.dustReady() ? 0 : 1) +
       [...photoImgs.values()].filter(im => !im.complete).length +
       [...photoBox.querySelectorAll("img")].filter(im => !im.complete).length +
       [...photoBox.querySelectorAll("video"), ...layer.querySelectorAll("#narr-clips video")].filter(v => v.seeking || v.readyState < 2).length +

@@ -9,7 +9,8 @@
 // square centred on the screen, larger than it, shrinking over time. Everything is simulated inside the box; the
 // screen shows its middle.
 export const SHORT = 1080, LONG = 1920;
-export const DT = 1 / 120;                 // physics step (two a frame at 60 fps, more when slowed down)
+export const DT = 1 / 120;
+const SPRITE_FPS = 6;                      // live nucleons' frames a second (src/narr-diagrams.js makes the loops)                 // physics step (two a frame at 60 fps, more when slowed down)
 
 
 // ---------- parameters ----------
@@ -845,27 +846,42 @@ export function createSqueeze({ pics = {} } = {}) {
     }
 
     // nuclei: a broken one flashes white, then greys
+    // (live nucleons: PICS.frames.proton / .neutron, the Hopf particles turning, a loop each nucleus plays from its own
+    // place, so none is a still stamp; the author, 2026-11-20, 3:00: "not static images but dynamic images that rotate in
+    // many directions and change"; the stills until they're made)
+    const nucleon = (name, seed) => {
+      const F = PICS.frames?.[name];
+      if (F?.length) return F[(((Math.floor(S.t * SPRITE_FPS + seed)) % F.length) + F.length) % F.length];
+      return picReady(name) ? PICS[name] : null;
+    };
+    // helium's four nucleons, each loose on its own slow wander about its place (the author, 2026-11-20, 5:00: "not stuck
+    // to each other but still sort of gravitate, captured by the strong force"): where nucleon j of nucleus k is now
+    const nucleonAt = (k, seed, j) => {
+      const a = k.rot + j * TAU / 4 + 0.32 * Math.sin(S.t * 1.25 + seed + j * 2.1), off = k.r * 0.47 * (1 + 0.2 * Math.sin(S.t * 1.6 + seed * 1.3 + j * 1.7));
+      return [k.x + Math.cos(a) * off, k.y + Math.sin(a) * off];
+    };
     for (const b of S.blobs) {
       const fill = "#ff3b30";
-      for (const k of b.nuclei) {
+      for (let ki = 0; ki < b.nuclei.length; ki++) { const k = b.nuclei[ki], seed = b.id * 7.3 + ki * 13.1;
         const grey = k.grey || b.state === "grey", since = k.grey ? k.greyAt : b.broke;
         const flash = grey ? 1 - clamp((S.t - since - 0.1) / 0.35, 0, 1) : 0;   // white just after the change, fading
         const pic = grey ? "neutron" : "proton";
         // helium (P.helium, the neutron-star clip; the author, 2026-11-20: "the nucleus should all be helium nucleus as we
         // saw in the last video"): the disc drawn as four nucleons, two protons and two neutrons, all neutrons once the
         // ring clenches and its two electrons fall in
-        if (P.helium && P.pictures && picReady("proton") && picReady("neutron")) {
+        if (P.helium && P.pictures && nucleon("proton", 0) && nucleon("neutron", 0)) {
           const rn = k.r * 0.5, off = k.r * 0.47, d = rn * 2 / 0.78;
           for (let j = 0; j < 4; j++) {
-            const a = k.rot + j * TAU / 4, x = k.x + Math.cos(a) * off, y = k.y + Math.sin(a) * off, pj = grey || j % 2 ? "neutron" : "proton";
-            ctx.save(); ctx.translate(x, y); ctx.rotate(k.rot + j * 1.3); ctx.drawImage(PICS[pj], -d / 2, -d / 2, d, d); ctx.restore();
+            const [x, y] = nucleonAt(k, seed, j), pj = grey || j % 2 ? "neutron" : "proton";
+            ctx.save(); ctx.translate(x, y); ctx.rotate(k.rot + j * 1.3); ctx.drawImage(nucleon(pj, seed + j * 5.7), -d / 2, -d / 2, d, d); ctx.restore();
           }
           if (flash > 0) { ctx.beginPath(); ctx.arc(k.x, k.y, k.r, 0, TAU); ctx.fillStyle = `rgba(255,255,255,${flash})`; ctx.fill(); }
           continue;
         }
-        if (P.pictures && picReady(pic)) {
+        const im = P.pictures && nucleon(pic, seed);
+        if (im) {
           const d = k.r * 2 / 0.78;
-          ctx.save(); ctx.translate(k.x, k.y); ctx.rotate(k.rot); ctx.drawImage(PICS[pic], -d / 2, -d / 2, d, d); ctx.restore();
+          ctx.save(); ctx.translate(k.x, k.y); ctx.rotate(k.rot); ctx.drawImage(im, -d / 2, -d / 2, d, d); ctx.restore();
           if (flash > 0) { ctx.beginPath(); ctx.arc(k.x, k.y, k.r, 0, TAU); ctx.fillStyle = `rgba(255,255,255,${flash})`; ctx.fill(); }
           continue;
         }
@@ -877,9 +893,35 @@ export function createSqueeze({ pics = {} } = {}) {
       }
     }
     // rings: a strained shell whitens (and a film thins) toward its threshold
+    // (ringsFrom, run s: unseen until then, then fading in; the fusion's yellow reach of the strong force on "it doesn't
+    // reach very far", the protons alone before it: the author, 2026-11-20)
     ctx.lineJoin = "round"; ctx.lineCap = "round";
-    for (const b of S.blobs) {
+    const ringA = P.ringsFrom == null ? 1 : clamp((S.t - P.ringsFrom) / 0.8, 0, 1);
+    if (ringA < 1) ctx.globalAlpha = ringA;
+    if (ringA > 0) for (const b of S.blobs) {
       if (!b.nodes.length) continue;
+      // helium's weak force: not the round cell but a wrap a few pixels round its four nucleons, fading once they've become
+      // neutrons (the author, 2026-11-20, 5:00: "make the green circle much tighter and not circular at all but more like a
+      // wrap a few pixels around the nucleus. When the neutrons collapse, fade the weak force")
+      if (P.helium && P.pictures && b.nuclei.length === 1) {
+        const fade = b.state === "grey" ? 1 - clamp((S.t - b.broke) / 0.9, 0, 1) : 1;
+        if (fade <= 0.01) continue;
+        const k = b.nuclei[0], seed = b.id * 7.3, rn = k.r * 0.5 + lw * 2.2, cs = [0, 1, 2, 3].map(j => nucleonAt(k, seed, j).map((v, i) => v - (i ? k.y : k.x)));
+        ctx.beginPath();
+        for (let i = 0; i <= 56; i++) {
+          const th = i / 56 * TAU, ux = Math.cos(th), uy = Math.sin(th);
+          let r = rn * 0.6;
+          for (const [cx, cy] of cs) { const p = cx * ux + cy * uy, q = cx * cx + cy * cy - p * p; if (q < rn * rn) r = Math.max(r, p + Math.sqrt(rn * rn - q)); }
+          i ? ctx.lineTo(k.x + ux * r, k.y + uy * r) : ctx.moveTo(k.x + ux * r, k.y + uy * r);
+        }
+        ctx.closePath();
+        const st = (b.strain || 0) ** 3, col = COL[3].split(",").map(Number).map(c => Math.round(c + (255 - c) * st * 0.85)).join(",");
+        ctx.globalAlpha = ringA * fade;
+        if (P.glow > 0) { ctx.strokeStyle = `rgba(${col},${0.18 * P.glow + 0.25 * st})`; ctx.lineWidth = lw * (1 + 2 * P.glow); ctx.stroke(); }
+        ctx.strokeStyle = `rgb(${col})`; ctx.lineWidth = lw; ctx.stroke();
+        ctx.globalAlpha = ringA;
+        continue;
+      }
       const base = COL[b.kind].split(",").map(Number), st = (b.strain || 0) ** 3;
       const col = base.map(c => Math.round(c + (255 - c) * st * 0.85)).join(",");
       const w = lw * (b.kind === 1 ? 1 - 0.45 * st : 1 + 0.3 * st);
@@ -888,6 +930,7 @@ export function createSqueeze({ pics = {} } = {}) {
       if (P.glow > 0) { ctx.strokeStyle = `rgba(${col},${0.18 * P.glow + 0.25 * st})`; ctx.lineWidth = w * (1 + 3 * P.glow); ctx.stroke(); }
       ctx.strokeStyle = `rgb(${col})`; ctx.lineWidth = w; ctx.stroke();
     }
+    ctx.globalAlpha = 1;
     // arrows: blue ones out of every whole shell (the push), red ones in from the screen's edge (the squeeze); each one
     // lives only while there's room for it, fading as a neighbour, a wall or a circle takes its place
     // a readable arrow at phone size: the triangle is the arrow (two thirds of the length, as wide as it is long), with
@@ -900,6 +943,35 @@ export function createSqueeze({ pics = {} } = {}) {
       ctx.beginPath(); ctx.moveTo(x1, y1); ctx.lineTo(x1 - ux * h - uy * hw, y1 - uy * h + ux * hw); ctx.lineTo(x1 - ux * h + uy * hw, y1 - uy * h - ux * hw); ctx.closePath(); ctx.fill();
     };
     const arrowLife = clamp(1 - (S.t - S.arrowT0 - P.arrowTime), 0, 1);   // gone a second after their time, counted from arrowT0
+    // a window of run seconds [from, to]: in over 0.6 s, out over 0.6 s (null without one)
+    const win = (w) => w ? clamp((S.t - w[0]) / 0.6, 0, 1) * (1 - clamp((S.t - w[1]) / 0.6, 0, 1)) : null;
+    // (outWindow: the push out and the squeeze in only then; the fusion's, from "overpower the electrons pushing out" to
+    // just before they're captured: the author, 2026-11-20, 3:50)
+    const outLife = win(P.outWindow) ?? arrowLife;
+    // the protons pushing each other apart (repelWindow, the fusion's opening, the author, 2026-11-20, 3:42: "only the
+    // protons floating, with the blue arrows, which only point to other protons and scale and fade when they approach and
+    // then fade away (like the first sim)"): the bonds' blue pairs, on the line between two nuclei, from its middle out
+    // toward each, shorter as they close in, coming in as they near each other
+    const repelLife = win(P.repelWindow) ?? 0;
+    if (repelLife > 0) {
+      const L = P.radius * P.arrowSize, list = S.blobs.filter(b => b.nuclei.length === 1);
+      for (let i = 0; i < list.length; i++) for (let j = i + 1; j < list.length; j++) {
+        const A = list[i].nuclei[0], B = list[j].nuclei[0], dx = B.x - A.x, dy = B.y - A.y, d = Math.hypot(dx, dy) || 1, gap = d - A.r - B.r;
+        if (gap > L * 3.2 || gap < L * 0.3) continue;
+        const mx0 = (A.x + B.x) / 2 - (S.camX ?? S.vcx), my0 = (A.y + B.y) / 2 - (S.camY ?? S.vcy);
+        if (Math.abs(mx0) > S.W / 2 / (S.zoom || 1) + L || Math.abs(my0) > S.H / 2 / (S.zoom || 1) + L) continue;
+        const ux = dx / d, uy = dy / d, a = clamp((L * 3.2 - gap) / L, 0, 1) * repelLife;
+        const mx = A.x + ux * (A.r + gap / 2), my = A.y + uy * (A.r + gap / 2), reach = gap / 2 - L * 0.12, gm = L * 0.1;
+        if (reach - gm < L * 0.25) continue;
+        const hd = Math.min(L * 0.42, (reach - gm) * 0.6), hw = hd * 0.45, aw = Math.max(lw * 0.9, L * 0.06);
+        for (const sg of [1, -1]) {
+          const x0 = mx + sg * ux * gm, y0 = my + sg * uy * gm, x1 = mx + sg * ux * reach, y1 = my + sg * uy * reach, vx = sg * ux, vy = sg * uy;
+          ctx.strokeStyle = ctx.fillStyle = `rgba(150,205,255,${a})`; ctx.lineWidth = Math.min(aw * 2.2, hd * 0.35); ctx.lineCap = "round";
+          ctx.beginPath(); ctx.moveTo(x0, y0); ctx.lineTo(x1 - vx * hd * 0.8, y1 - vy * hd * 0.8); ctx.stroke();
+          ctx.beginPath(); ctx.moveTo(x1, y1); ctx.lineTo(x1 - vx * hd - vy * hw, y1 - vy * hd + vx * hw); ctx.lineTo(x1 - vx * hd + vy * hw, y1 - vy * hd - vx * hw); ctx.closePath(); ctx.fill();
+        }
+      }
+    }
     // the bonds (long-02b-opening, the author, 2026-11-17): between neighbouring atoms, arrows on the (unseen) line
     // between their centres: a blue pair pushing apart (the electrons repel) or a purple pair pulling together
     // (electrons and protons attract), below. Which a pair shows is fixed per pair, so it doesn't flicker as they move;
@@ -952,9 +1024,9 @@ export function createSqueeze({ pics = {} } = {}) {
       }
     }
     // (in cycles: gravity's arrows go as each burst pushes out and come back as the box closes)
-    const inLife = P.cycles ? (S.burst ? clamp((S.t - S.burst.t0 - P.expandTime * 0.8) / 0.8, 0, 1) : arrowLife)
+    const inLife = P.cycles ? (S.burst ? clamp((S.t - S.burst.t0 - P.expandTime * 0.8) / 0.8, 0, 1) : outLife)
       : P.inArrowsAt != null ? (S.t < P.inArrowsAt ? arrowLife : clamp((S.t - P.inArrowsAt) / 0.8, 0, 1)) : arrowLife;
-    if ((P.arrowsOut && arrowLife > 0) || (P.arrowsIn && inLife > 0)) {
+    if ((P.arrowsOut && outLife > 0) || (P.arrowsIn && inLife > 0)) {
       const L = P.radius * P.arrowSize, hb = S.box / 2, aw = Math.max(lw * 0.9, L * 0.06);
       if (P.arrowsOut) for (const b of S.blobs) {
         if (!b.nodes.length) continue;
@@ -973,7 +1045,7 @@ export function createSqueeze({ pics = {} } = {}) {
           // and before the box's wall
           const tx = ux > 1e-6 ? (hb - x0) / ux : ux < -1e-6 ? (-hb - x0) / ux : Infinity, ty = uy > 1e-6 ? (hb - y0) / uy : uy < -1e-6 ? (-hb - y0) / uy : Infinity;
           space = Math.min(space, tx, ty);
-          const a = clamp((space - L * 0.5) / (L * 0.7), 0, 1) * arrowLife;
+          const a = clamp((space - L * 0.5) / (L * 0.7), 0, 1) * outLife;
           arrow(x0, y0, x0 + ux * L, y0 + uy * L, "150,205,255", a, aw);
         }
       }

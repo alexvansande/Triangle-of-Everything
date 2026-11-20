@@ -916,6 +916,7 @@ const ELEMENTS = [
   [16, 32, 'sulfur', 'Sulfur', ''],
   [26, 56, 'iron', 'Iron', 'Iron-56 sits near the peak of nuclear binding: stars make it in their cores, and fusing it further takes energy instead of giving it, which ends a massive star.'],
   [79, 197, 'gold', 'Gold', 'Its inner electrons move at over half the speed of light, and relativity pulls the outer 6s electron in: that is why gold is yellow. This hydrogen-like picture leaves relativity out.'],
+  [78, 195, 'platinum', 'Platinum', 'Platinum-195, gold\'s neighbour one proton down: like gold, mostly forged where neutron stars collide.'],
   [92, 238, 'uranium', 'Uranium', 'Uranium-238 lives 4.5 billion years, about the age of the Earth; its electrons fill seven shells.'],
   [118, 294, 'oganesson', 'Oganesson', 'Only five atoms have ever been made, each lasting under a millisecond. Its shells are only predicted, and relativity is expected to smear them together; this picture fills them by the ordinary rules.'],
 ];

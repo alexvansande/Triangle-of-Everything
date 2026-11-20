@@ -38,6 +38,38 @@ const pic = (slug) => {
   }
   return pics.get(slug);
 };
+// live nucleons for the simulations (the author, 2026-11-20, 3:00: "make sure the protons are not static images but
+// dynamic images that rotate in many directions and change"): the Hopf proton and neutron (public/hopf/hopf-core.js, the
+// stills' own particles) rendered once as a loop of frames, turning a full turn sideways while nodding up and down twice,
+// their quark sea moving; each nucleus plays the loop from its own place (squeeze-sim.js)
+const SPRITE_N = 40, SPRITE_PX = 256, HOPF_OPTS = { drift: true, flow: true, width: 1, bloom: 0.9, exposure: 1.1, core: 0.8 };
+let _hopf = null;
+const hopfCore = () => _hopf || (_hopf = import(/* @vite-ignore */ `${import.meta.env.BASE_URL}hopf/hopf-core.js`).then(core => ({ core, renderer: new core.Renderer({ alpha: true }) })));
+let _sprites = null;
+function nucleonSprites() {
+  if (_sprites) return _sprites;
+  _sprites = { proton: null, neutron: null, failed: false };
+  (async () => {
+    try {
+      const { core, renderer } = await hopfCore(); renderer.resize(SPRITE_PX);
+      for (const [name, id] of [["proton", "proton-scale"], ["neutron", "neutron-scale"]]) {
+        const view = new core.HopfView(renderer, null, core.PARTICLES.find(p => p.id === id));
+        view.res = 0; const p0 = view.pitch, frames = [];
+        for (let i = 0; i < SPRITE_N; i++) {
+          const u = i / SPRITE_N;
+          view.yaw = 0.6 + u * Math.PI * 2; view.pitch = p0 + 0.6 * Math.sin(u * Math.PI * 4);
+          view.update(u * 4, HOPF_OPTS);
+          const c = document.createElement("canvas"); c.width = c.height = SPRITE_PX;
+          renderer.render(view, HOPF_OPTS, [c.getContext("2d"), 0, 0, SPRITE_PX, SPRITE_PX]);
+          frames.push(c);
+        }
+        _sprites[name] = frames;
+      }
+    } catch (err) { console.warn("live nucleons unavailable, keeping the stills:", err.message); _sprites.failed = true; }
+  })();
+  return _sprites;
+}
+const spritesPending = () => { const s = nucleonSprites(); return s.failed || (s.proton && s.neutron) ? 0 : 1; };
 const picsPending = (slugs) => slugs.map(pic).filter(im => im.__ok && !(im.complete && im.naturalWidth)).length;
 // the chart's own particles (the author, 2026-11-07: "the proton isn't a red dot, we have a nice image of it"):
 // drawn centred at (x, y), `d` wide; a dot of the given colour until the picture has arrived
@@ -311,7 +343,7 @@ export function drawCosmos(ctx, W, H, o, t) {
 }
 export function diagramsPending(kinds) {
   let n = 0;
-  if (kinds.particles) n += picsPending(PARTICLES);
+  if (kinds.particles) n += picsPending(PARTICLES) + spritesPending();
   if (kinds.own) n += picsPending(GALAXIES);
   if (kinds.center) n += picsPending(["ton-618"]);
   if (kinds.cosmos) { const c = cosmosData(); n += c.pts && c.shell.ready() ? 0 : 1; }
@@ -687,19 +719,28 @@ export function drawSqueeze(ctx, W, H, o, t, pixelRatio) {
   // a step back to where the run was saved last (the frame's earlier moments): from there, not from its start
   if (sim && sim.S.t > want + 1e-6 && sim.mark && sim.mark.t <= want + 1e-6) sim.restore(sim.mark.snap);
   if (!sim || sim.S.t > want + 1e-6) {
-    sim = createSqueeze({ pics: { proton: pic("proton"), neutron: pic("neutron") } });
+    sim = createSqueeze({ pics: { proton: pic("proton"), neutron: pic("neutron"), frames: nucleonSprites() } });
     Object.assign(sim.S, { mode: o.mode, seed: o.seed ?? 1, W: W > H ? SQUEEZE_LONG : SQUEEZE_SHORT, H: W > H ? SQUEEZE_SHORT : SQUEEZE_LONG });
     sim.S.P = { ...squeezeDefaults(o.mode), hud: false, ...o.P };
     sim.build(); SQUEEZE.set(key, sim);
     // (the one the camera follows: picked as built, so every render worker follows the same)
     sim.followId = sim.S.blobs.reduce((a, b) => Math.hypot(b.cx, b.cy) < Math.hypot(a.cx, a.cy) ? b : a).id;
+    const k0 = sim.S.blobs.find(b => b.id === sim.followId)?.nuclei[0]; if (k0) sim.S.camSm = { x: k0.x, y: k0.y };
     // the arrows the lab's settings switch on, for the clip's first seconds (the author, 2026-11-09): their time counts
     // from the clip's first frame, in seconds of the video at whatever speed the run plays
     sim.S.arrowT0 = o.from ?? 0; sim.S.P.arrowTime *= o.speed ?? 1;
   }
   // saved before going on, at most once a tenth of a second of the run: the moments a frame's blur goes back to
   if (o.exact && sim.S.t + SQUEEZE_DT <= want + 1e-9 && !(sim.mark && sim.S.t - sim.mark.t < 0.1)) sim.mark = { t: sim.S.t, snap: sim.save() };
-  for (let n = 0; sim.S.t + SQUEEZE_DT <= want + 1e-9 && (o.exact || n < 60); n++) sim.step(SQUEEZE_DT);
+  // (the camera trails the nucleus it follows on a soft spring, lag s behind, so the view breathes with it instead of
+  // sitting nailed to it: the author, 2026-11-20, 3:09, "let it a bit elastic so it doesn't seem to be stuck on the wall";
+  // kept in the run's state, so every worker's frame is the same)
+  const lagK = 1 - Math.exp(-SQUEEZE_DT / (o.lag ?? 1.1));
+  for (let n = 0; sim.S.t + SQUEEZE_DT <= want + 1e-9 && (o.exact || n < 60); n++) {
+    sim.step(SQUEEZE_DT);
+    const c = sim.S.camSm, k = o.follow && c && sim.S.blobs.find(b => b.id === sim.followId)?.nuclei[0];
+    if (k) { c.x += (k.x - c.x) * lagK; c.y += (k.y - c.y) * lagK; }
+  }
   // the camera ({ zoom: [[s since the cue, ×], …], follow?: [from s, to s] }, the author, 2026-11-20: the clips hand over at
   // one zoom, the degenerate matter closing in on a nucleus, the fusion opening on it and closing in on its helium): eased
   // from key to key; within follow, centred on the nucleus nearest the middle at the start, as far as the zoom has come in
@@ -711,7 +752,7 @@ export function drawSqueeze(ctx, W, H, o, t, pixelRatio) {
   }
   sim.S.zoom = z; sim.S.camX = sim.S.camY = null;
   if (o.follow && since >= o.follow[0] && since <= o.follow[1] && z > 1) {
-    const fb = sim.S.blobs.find(b => b.id === sim.followId), k = fb?.nuclei[0];
+    const k = sim.S.camSm;
     if (k) { const w = Math.min(1, (z - 1) / 0.6); sim.S.camX = sim.S.vcx + (k.x - sim.S.vcx) * w; sim.S.camY = sim.S.vcy + (k.y - sim.S.vcy) * w; }
   }
   sim.draw(ctx, W, H, pixelRatio);
@@ -1043,4 +1084,47 @@ export function drawDiamonds(ctx, W, H, o, t) {
   const heA = smooth((t - TN - 0.6) / 0.6) * (1 - smooth((t - fus) / 0.4)), fuA = smooth((t - fus) / 0.5);
   if (heA > 0.01) { ctx.globalAlpha = heA; text(ctx, "helium", X(hero.gx), hy, U * 0.036, "#ffd54f"); ctx.globalAlpha = 1; }
   if (fuA > 0.01) { ctx.globalAlpha = fuA; text(ctx, "fusion", X(hero.gx), hy, U * 0.05, "#ffd54f"); ctx.globalAlpha = 1; }
+}
+
+// ---------- heavy atoms on black: gold, platinum, uranium (the author, 2026-11-20, 5:30: "when I say gold, platinum, etc
+// cut to black and show these atom arrangements on the screen, each occupying a third, rotating and with a label on the
+// bottom"; then "so in a way it's like a battery": "fade the other elements, keep just the uranium with a label: energy
+// battery. Collide stars to charge") ----------
+// { atoms: { phase } }, phases by cue (start, battery); the Hopf atoms (public/hopf/hopf-core.js), each turning its own way
+let _atomViews = null, _atomsFailed = false;
+const ATOMS = [["gold", "gold", "79 protons"], ["platinum", "platinum", "78 protons"], ["uranium", "uranium", "92 protons"]];
+function atomViews() {
+  if (_atomViews || _atomsFailed) return _atomViews;
+  _atomViews = false;
+  hopfCore().then(({ core, renderer }) => {
+    _atomViews = { renderer, views: ATOMS.map(([id], i) => { const v = new core.HopfView(renderer, null, core.PARTICLES.find(p => p.id === id)); v.yaw0 = 0.7 + i * 2.1; v.pitch0 = v.pitch; return v; }) };
+  }).catch(err => { console.warn("atoms unavailable:", err.message); _atomsFailed = true; });
+  return _atomViews;
+}
+export const atomsPending = () => { const a = atomViews(); return a || _atomsFailed ? 0 : 1; };
+export function drawAtoms(ctx, W, H, o, t) {
+  const A = atomViews(); if (!A) return;
+  const start = o.start ?? t, bat = o.battery ?? Infinity, since = t - start;
+  const k = smooth((t - bat) / 1.2);                                  // the battery: the others go, uranium to the middle
+  const S = Math.min(W / 3, H * 0.62) * 0.98;
+  ATOMS.forEach(([, name, sub], i) => {
+    const keep = i === 2, a = keep ? 1 : 1 - smooth((t - bat) / 0.8);
+    if (a <= 0.01) return;
+    const x0 = W * (i + 0.5) / 3, x = keep ? x0 + (W / 2 - x0) * k : x0, size = S * 1.3 * (keep ? 1 + 0.2 * k : 1), y = H * 0.42;   // (the render's frame is mostly glow: the atom fills its third)
+    const v = A.views[i];
+    v.yaw = v.yaw0 + 0.35 * since; v.pitch = v.pitch0 + 0.35 * Math.sin(0.5 * since + i * 1.7);
+    v.update(t, HOPF_OPTS);
+    A.renderer.resize(Math.min(1024, Math.ceil(size / 64) * 64));
+    ctx.globalAlpha = a; A.renderer.render(v, HOPF_OPTS, [ctx, x - size / 2, y - size / 2, size, size]);
+    // the labels at the bottom: the name and its protons; on the battery, uranium's own
+    const fs = Math.min(W, H) * 0.045, ly = y + S * 0.6 + fs * 1.4;
+    const la = keep ? 1 - smooth((t - bat) / 0.5) : 1;
+    if (la > 0.01) { ctx.globalAlpha = a * la; text(ctx, name.toUpperCase(), x, ly, fs, "#ffe9a3"); text(ctx, sub, x, ly + fs * 1.05, fs * 0.6, "#d8dde8"); }
+    if (keep && k > 0) {
+      const lb = smooth((t - bat - 0.6) / 0.6); ctx.globalAlpha = lb;
+      text(ctx, "ENERGY BATTERY", W / 2, ly, fs * 1.1, "#ffd54a");
+      text(ctx, "collide stars to charge", W / 2, ly + fs * 1.15, fs * 0.7, "#d8dde8");
+    }
+    ctx.globalAlpha = 1;
+  });
 }

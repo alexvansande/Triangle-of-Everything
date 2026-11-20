@@ -1,6 +1,6 @@
 {
   "title": "The Triangle of Everything: space",
-  "blurb": "A map of every single thing, sorted by mass and size; the dance of the forces up the diagonal, from chemical bonds to the neutron star and the black hole; the black-hole line, the smallest black holes and dark matter; out to the largest structures, the cosmic event horizon and the furthest light we can see (the second take, 2026-11-18).",
+  "blurb": "A map of every single thing, sorted by mass and size; the dance of the forces up the diagonal, from chemical bonds to the neutron star and the black hole; the black-hole line, the smallest black holes and dark matter.",
   "stage": "landscape",
   "gap": 0.6,
   "segments": [
@@ -12,29 +12,21 @@
       "take": "long-02b-opening",
       "from": "What's happening is that everything",
       "carry": "glide"
-    },
-    {
-      "take": "long-02b-right",
-      "carry": "glide"
     }
   ],
-  "_note": "The second take (the author, 2026-11-18: \"that should cover all of space dance and the short\"): rec75 as long-02b-opening, from the map of every single thing to the lucky few survivors, the forces Short's own opening left out (its 'intro' clips, after 'What is it?'); then rec76 as long-02b-right, from the nebulae to the furthest light. Replaces long-02-space when the author is happy with it. The first take's cut (rec74 and the Shorts already cut) is in git history.",
+  "_note": "Part one of long video 2 (the author, 2026-11-20: \"we should end the video at the 'lucky few survivors' line and cut the second part separatedly. It will be a 12 and 6 minutes video\"): rec75 (long-02b-opening), from the map of every single thing to the lucky few survivors, the forces Short's own opening left out (its 'intro' clips, after 'What is it?'). Part two, from the nebulae to the furthest light (rec76), is long-02c-space-right. Until 2026-11-20 the two were one 18-minute video; that cut is in git history.",
   "music": [
     {
       "track": "Immersed"
-    },
-    {
-      "track": "Mesmerize",
-      "after": true
     },
     {
       "track": "Fresh Air",
       "after": true
     },
     {
-      "track": "Dreamer",
+      "track": "Mesmerize",
       "after": true
     }
   ],
-  "_music": "One piece after another under the whole video, no changes at the joins (the author, 2026-11-17: 'the long videos should not have music cuts'): Immersed, Mesmerize, Fresh Air, then Dreamer to the credits."
+  "_music": "One piece after another under the whole video, no changes at the joins (the author, 2026-11-17: 'the long videos should not have music cuts'): Immersed, Fresh Air, then Mesmerize to the credits (part two plays Dreamer and Soaring)."
 }

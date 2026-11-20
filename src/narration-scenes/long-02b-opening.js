@@ -16,6 +16,7 @@
 
 import S4A from "./short-04a-black-hole-slope.js";
 import S4B from "./short-04b-smallest-black-holes.js";
+import { W5, ML, HAW, NS_OPEN, SRC_NS } from "./short-04-black-holes.js";
 
 // the Black Hole Slope's shots from "don't actually have a size" and the Smallest Black Holes' from "with enough
 // pressure" (rec75 says them in one go, 2026-11-18): their cues, given this take's wording where it differs
@@ -49,10 +50,12 @@ const FORK = [
   { obj: "White Dwarf", label: "dead stars' cores", place: "right", delay: 0.8 },
 ];
 const MS = { line: "mainsequence", label: "main sequence" };
-// where things turn round (Short 2's ROUND_M, between Vesta and Ceres): the shape held by bonds below, by gravity above
-const ROUND_M = 23.7;
-const ROUND_BONDS = { side: "below", mass: ROUND_M, label: "electromagnetism\ndominates", labelX: 0.22 };
-const ROUND_GRAV = { side: "above", mass: ROUND_M, label: "gravity\ndominates", labelX: 0.22 };
+// where things turn round: just under Mimas, the smallest round moon (the author, 2026-11-20, 2:35: "place the horizontal
+// line near Mimas and put two labels Round and Many shapes"; it was Short 2's, between Vesta and Ceres); the shape held by
+// bonds below, by gravity above
+const ROUND_M = 22.45;
+const ROUND_BONDS = { side: "below", mass: ROUND_M, label: "many shapes", labelX: 0.22 };
+const ROUND_GRAV = { side: "above", mass: ROUND_M, label: "round", labelX: 0.22 };
 // "so far our objects…": the chart with no pictures, its dots only, the places they gather looped (the author,
 // 2026-11-17, 5:21: "hide all icons, keep just the dots and then use circles and ovals to highlight these areas")
 const SO_FAR = { r: 4.6, m: 15, span: 22, frame: [-5, -9, 14, 41] };
@@ -93,7 +96,13 @@ const BONDS = { squeeze: { mode: 1, from: 0, P: { count: 34, startBox: 1.12, end
   bondPullFrom: 0.8, bondPushFrom: 4.0 },
   labels: [["electrons and protons attract", "#b39ddb", 0.8], ["electrons repel electrons", "#4fc3f7", 4.0]] } };
 
-export default {
+// back on the window, the part neutron stars might still rule out marked, with its source (the author, 2026-11-20,
+// 9:30: "that window might close more in the future: show the part that might be ruled out by neutron star studies and
+// cite it"); "they'd be invisible" moves on as before
+const WINDOW_NS = { at: ["window might close", "might close more"], cam: { r: -8.6, m: 19.4, span: 12 }, dur: 2.5, clear: true, forceIcons: null,
+  hl: [{ window: W5, cuts: [ML, HAW, NS_OPEN], label: "still open?", dist: 40, instant: true }, SRC_NS] };
+
+const SCENE = {
   title: "The Triangle of Everything: space (the new opening)",
   blurb: "A map of every single thing: the catalogue, sorted and laid out by mass and size; then the dance of the forces up the diagonal, from chemical bonds to the neutron star, and the black-hole line.",
   // the chart's first frame, behind the catalogue until it hands over (bare: the painting comes back from 1:20)
@@ -168,11 +177,13 @@ export default {
     { at: ["stronger than gravity", "gravity is very weak"], cam: UP(19), hl: [WATER, ...GRAV_AT(20.5)] },
     // (no Burj Khalifa: ten decades below the camera, the frame grew to take it in, a slow zoom out before the pan; the
     // author, 2026-11-17, 2:29: "just keep the pan and zoom together so we end up in the same place with a single movement")
-    { at: "very tall buildings", cam: UP(22), hl: [WATER] },
+    // the line where things turn round already on the way up, as gravity starts to tell (2:35)
+    { at: ["the more massive something", "more massive something is"], cam: UP(20.5), hl: [WATER, ROUND_BONDS, { ...ROUND_GRAV, delay: 0.4 }] },
+    { at: "very tall buildings", cam: UP(22), hl: [WATER, ROUND_BONDS, ROUND_GRAV] },
     // "we are just panning up now, seeing the round moons" (the author's note); where things turn round marked as in
     // Short 2 (the author, 2026-11-17: "highlight the moment things start getting round, like we do in the other short"):
     // the line between Vesta, lumpy, and Ceres, round, the bonds holding the shape below it and gravity above
-    { at: ["at some point", "becomes round"], cam: { r: 7.75, m: 24.1, span: 4.6, glide: true }, hl: [ROUND_BONDS, { ...ROUND_GRAV, delay: 0.5 }, { obj: "Vesta", label: "Vesta · lumpy", place: "left" }, { obj: "Ceres", label: "Ceres · round", delay: 0.4 }, { obj: "Pluto", label: false, delay: 0.7 }] },
+    { at: ["at some point", "becomes round"], cam: { r: 7.75, m: 24.1, span: 4.6, glide: true }, hl: [ROUND_BONDS, ROUND_GRAV, { obj: "Mimas" }, { obj: "Ceres", label: "Ceres · round", delay: 0.4 }, { obj: "Pluto", label: false, delay: 0.7 }] },
     { at: "gravity shapes everything", cam: { r: 8.6, m: 27.0, span: 4.6, glide: true }, hl: [ROUND_GRAV, { obj: "Earth", label: "shaped by gravity" }, { obj: "Moon", label: false }] },
     // the giant planets' column
     { at: "atomic scale", cam: G(9.85, 30.9, 2.4), dur: 2.5, clear: true, hl: [{ obj: "Jupiter", label: "Jupiter", place: "left" }] },
@@ -194,7 +205,9 @@ export default {
     // every four joins at once into one ring that wobbles round, two of each four turning into neutrons; on "large
     // amount of energy" the view centres on one helium and the box flies open, its energy streaming out and throwing the
     // rest off screen; gravity's arrows come back on "counterbalances"
-    ...[["the strong force", "start"], ["capture them", "capture"], ["large amount of energy", "energy"], ["counterbalances", "balance"], ["that's fusion", "fusion"]]
+    // (from "a new force", the protons alone first; the strong force's reach on "doesn't reach very far"; the push out from
+    // "so strong": the author, 2026-11-20, 3:35–3:50)
+    ...[["a new force", "start"], ["doesn't reach very far", "reach"], [["gravity will be so strong", "will be so strong"], "push"], ["capture them", "capture"], ["large amount of energy", "energy"], ["counterbalances", "balance"], ["that's fusion", "fusion"]]
       // (the last fades over 2.4 s, closing in on the helium: the author, 2026-11-20, "zoom in closer at the resulting
       // helium nucleus in the end for 2 more seconds while you fade")
       .map(([at, phase], i) => ({ at, hold: 999, hl: [{ fusionSim: { phase, P: FUSION_P }, instant: i > 0, out: phase === "fusion" ? 2.4 : 0.8 }] })),
@@ -205,19 +218,23 @@ export default {
     { at: "once it runs out", cam: { r: 11.3, m: 33.25, span: 2.8, glide: true }, hl: [{ line: "mainsequence" }, { obj: "Sun", label: "out of hydrogen" }] },
     { at: "goes haywire", cam: { r: 11.85, m: 33.4, span: 3.6, glide: true }, hl: [{ swing: [{ obj: "Sun" }, { obj: "Red Giant" }], period: 1.2, core: true }, { obj: "Red Giant", label: "the fire goes out", delay: 1 }] },
     // how stars end: the small ones (the white dwarf and the nebula), the big ones (the supernova), then the weak force
-    { at: "small stars", cam: { r: 12.6, m: 33.6, span: 9 }, dur: 3, clear: true, hl: [{ ...LOW, from: "Sun" }, { obj: "White Dwarf", label: "the core left", place: "left", delay: 0.8 }, { obj: "Planetary Nebula", label: "a nebula", delay: 1.6 }] },
+    // (closer, and higher, so the super-Jupiters' column is out of the frame: the author, 2026-11-20, 4:30)
+    { at: "small stars", cam: { r: 12.7, m: 35.0, span: 5 }, dur: 3, clear: true, hl: [{ ...LOW, from: "Sun" }, { obj: "White Dwarf", label: "the core left", place: "left", delay: 0.8 }, { obj: "Planetary Nebula", label: "a nebula", delay: 1.6 }] },
     { at: "more massive stars", hl: [HIGH, { obj: "Crab Nebula", label: "supernova", delay: 0.8 }] },
     { at: "catastrophic core collapse", hl: [HIGH, { obj: "Crab Nebula", label: "supernova" }, { obj: "PSR J0030+0451", label: "the core", delay: 0.8 }] },
     // the weak force, the lab's mode 3, its first ring clenching on "squeeze a proton"
     { at: ["a new player enters", "a new player force"], cam: { r: 8.0, m: 33.5, span: 7 }, dur: 2, hold: 34, hl: [{ squeeze: { mode: 3, from: 8.2, P: { helium: true }, zoom: [[0, 2.4], [34, 3.0]] } }] },   // (the clench still on "if you squeeze": 10.2 s after the cue here, 7.9 in rec74)
-    { at: "this forms a neutron star", cam: { obj: "PSR J0030+0451", span: 3.4 }, dur: 2.5, clear: true, hl: [{ obj: "PSR J0030+0451", label: "neutron star" }] },
-    { at: "a bunch of neutrons", hl: [{ obj: "PSR J0030+0451", label: "one giant nucleus" }, { density: 14.36, label: "the density of a nucleus" }] },
+    // then no fade: a powers-of-ten zoom out on a square grid, from the neutrons up to the whole neutron star (the author,
+    // 2026-11-20, 5:10: "keep a square grid and zoom out, from the atomic scale to the size of a neutron star", src/narr-p10.js);
+    // the chart comes back on the neutron star for its collisions
+    { at: "this forms a neutron star", cam: { obj: "PSR J0030+0451", span: 3.4 }, dur: 0.05, clear: true, hold: 999, hl: [{ p10: {}, instant: true, out: 1.0 }] },
 
     // ── The black-hole line (the Black Hole Slope's shots) ──
     // the heavy elements, forged where neutron stars collide
     { at: "the death of massive stars", cam: { r: 8.4, m: 33.7, span: 7.5 }, dur: 3, clear: true, hl: [{ obj: "Crab Nebula", label: "supernova" }, { obj: "PSR J0030+0451", label: "neutron stars colliding", place: "right", delay: 1.4 }] },
-    { at: "like gold", hl: [{ obj: "Crab Nebula", label: false }, { obj: "PSR J0030+0451", label: "gold · platinum · uranium", place: "right" }] },
-    { at: "like a battery", hl: [{ obj: "PSR J0030+0451", label: "a battery charged once", place: "right" }] },
+    // a cut to black, the three atoms side by side, then uranium alone, the battery (the author, 2026-11-20, 5:30)
+    { at: "like gold", hold: 999, hl: [{ atoms: { phase: "start" }, instant: true, out: 0.8 }] },
+    { at: "like a battery", hold: 999, hl: [{ atoms: { phase: "battery" }, instant: true, out: 0.8 }] },
     // escape velocity: the tug of war against gravity, half the speed of light on a neutron star
     { at: "they are thrown out", cam: { obj: "PSR J0030+0451", span: 3.4 }, dur: 2.5, clear: true, hl: [{ obj: "PSR J0030+0451", label: "neutron star" }] },
     { at: "escape velocity", offset: 0.05, hl: [{ obj: "PSR J0030+0451", label: "escape velocity" }] },   // (on the word: the Short starts its piece on "its escape velocity")
@@ -253,6 +270,8 @@ export default {
     // ── The slope, the black holes we know, how small (the Black Hole Slope's shots) ──
     ...from(S4A.cues, "don't actually have a size").filter(c => ![].concat(c.at).includes("according to relativity")).map(alias),
     // ── The smallest black holes and dark matter (the Smallest Black Holes' shots) ──
-    ...from(S4B.cues, "with enough pressure").map(alias),
+    ...(() => { const L = from(S4B.cues, "with enough pressure").map(alias), i = L.findIndex(c => [].concat(c.at).some(a => /invisible/.test(a)));
+      return [...L.slice(0, i), WINDOW_NS, ...L.slice(i)]; })(),
   ],
 };
+export default SCENE;

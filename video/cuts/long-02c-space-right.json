@@ -1,0 +1,22 @@
+{
+  "title": "The Triangle of Everything: space, the largest things",
+  "blurb": "The bigger something is, the less dense it is: nebulae, galaxies, clusters and voids, up to where the expansion meets the speed of light; the cosmic event horizon, and the observable universe outside the triangle.",
+  "stage": "landscape",
+  "gap": 0.6,
+  "segments": [
+    {
+      "take": "long-02b-right"
+    }
+  ],
+  "_note": "Part two of long video 2 (the author, 2026-11-20: a 12- and a 6-minute video instead of one of 18): rec76 (long-02b-right), from the nebulae to the furthest light. Part one is long-02b-space.",
+  "music": [
+    {
+      "track": "Dreamer"
+    },
+    {
+      "track": "Soaring",
+      "after": true
+    }
+  ],
+  "_music": "One piece after another, no changes at the joins: Dreamer, then Soaring to the credits (part one plays Immersed, Fresh Air and Mesmerize)."
+}
