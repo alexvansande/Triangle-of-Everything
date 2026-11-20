@@ -20,17 +20,15 @@
   scene's marks and a note of what the timeline must do, shot by shot), check it with stills, queue it, and only then
   report. "The audio is ready, the picture is still to do" is not a finished hand-over; if the picture truly can't be
   made here, say so in the first report, not the last.
-- **Every new or re-cut video must be watchable by the author when you hand it over** (the
-  author's rule, 2026-10-27). Get it onto the unlisted page,
-  https://triangleofeverything.com/videos-3v63rqq1/ (built from `main` by GitHub Pages: merge,
-  push, wait for the deploy, then check the page serves the new take), and give the link with
-  the take's hash, e.g. `…/videos-3v63rqq1/#short-03-stars` (the page itself is the grid alone since 2026-11-10, light enough
-  for a phone; a #take sends the viewer on to `live.html`, the app, which the grid loads only then). The private claude.ai preview page
-  no longer fits (one version holds at most 512 files; the build has more). Rendered videos
-  (drafts and full renders) go to the author **in the chat**, as a phone copy under 30 MiB sent with
-  SendUserFile, not onto the site (the author, 2026-11-18: "remove the action of uploading the videos
-  to the site when they're rendered. Lets try to just use this chat for that"): nothing commits
-  `video/web/` any more, and `scripts/narration-overnight.sh` pushes only the render queue.
+- **Every new or re-cut video goes to the author as a mobile draft in the chat** (the author, 2026-11-20:
+  "Instead of publishing videos as they are edited, render a mobile draft and bring them to the thread"; it
+  replaces the 2026-10-27 rule of handing over a link to the unlisted page). After an edit: commit and push to
+  `main` (the drafts and the nightly render from it), run `scripts/narration-draft.sh <take>` (720p, no blur;
+  never while another draft runs), make a phone copy under 30 MiB (`ffmpeg -crf 30 -vf scale=720:-2 -b:a 128k`
+  for a Short, `-crf 34 -vf scale=480:-2 -b:a 96k` for a long one) and send it with SendUserFile. Don't hand
+  over the unlisted page (https://triangleofeverything.com/videos-3v63rqq1/) as the way to watch an edit; it
+  still rebuilds from `main`. Rendered videos never go onto the site: nothing commits `video/web/`, and
+  `scripts/narration-overnight.sh` pushes only the render queue.
 - **Queue every changed video for a re-render** (the author's rule, 2026-10-28): when you change a
   video (its audio, captions, scene, mix, or the chart code or pictures it shows), add its take
   name (e.g. `short-04-black-holes`) on its own line to `video/render-queue.txt` in the same
