@@ -2323,7 +2323,7 @@ export async function startNarration(app) {
       // whole run by 8 s; at the end, 2.4 s closing in on the last helium while it fades (the author, 2026-11-20)
       const end = Number.isFinite(h.t1) ? h.t1 - t0 : null, Z0 = h.fusionSim.zoom ?? 1.4;
       const zoom = [[0, Z0], [1.5, Z0], [8, 1], ...(end != null ? [[end, 1], [end + (h.out ?? 0.6), h.fusionSim.endZoom ?? 2.4]] : [])];
-      drawSqueeze(ctx, W, H, { mode: 2, start: t0, from: 0, exact: RENDER, zoom, follow: [0, 8], P: { shrinkTime: Math.max(4, (rel("capture") ?? 14) - 1), ...h.fusionSim.P, ...(h.fusionSim.P?.cycles ? { cycles: [rel("capture"), rel("capture") + 1.0], groupFuseAt: null, burstAt: null, inArrowsAt: null } : { groupFuseAt: rel("capture"), burstAt: rel("energy"), inArrowsAt: rel("balance") }) },
+      drawSqueeze(ctx, W, H, { mode: 2, start: t0, from: 0, exact: RENDER, zoom, follow: [0, 8], P: { shrinkTime: Math.max(4, (rel("capture") ?? 14) - 1), ...h.fusionSim.P, ...(h.fusionSim.P?.cycles ? { cycles: [rel("capture"), rel("capture") + 0.2], groupFuseAt: null, burstAt: null, inArrowsAt: null } : { groupFuseAt: rel("capture"), burstAt: rel("energy"), inArrowsAt: rel("balance") }) },
         tlabels: [["helium", "#ffd54a", (rel("capture") ?? 99) + (h.fusionSim.P?.cycles ? 0.4 : 1.4), h.fusionSim.P?.cycles ? (rel("capture") ?? 99) + 3.4 : rel("energy")], ["fusion", "#ff8a5c", rel("fusion") ?? 999, null]] }, t, dpr);
     }
     else if (h.catalogue) drawCatalogue(ctx, W, H, { ...CATALOGUE_T }, t, (slug, r, m) => {

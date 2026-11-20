@@ -81,12 +81,13 @@ const WD = { obj: "White Dwarf", label: false }, NS = { obj: "PSR J0030+0451", l
 // apart at the electron rings, purple ones from each ring to the other's nucleus (squeeze-sim.js, arrowsBonds)
 // the fusion run's settings (see the cues at "the strong force")
 // (in cycles, the author, 2026-11-18: the fours are only which atoms fuse together; each atom reads as its own, on a soft
-// spring that lets it jostle ("keep them quite elastic"); one four fuses, its energy
+// spring that lets it jostle ("keep them quite elastic"); one four fuses, its energy at once (0.2 s, the helium's ring
+// just closed: the author, 2026-11-20, "there's like a second between the fusion and the release of energy"),
 // throws everything out, the box closes again round the new helium, then the four beside it fuses, and again; the
 // first on "capture them", its energy on "a large amount of energy", then one every 4.2 s to the end of the shot)
 const FUSION_P = { groups4: true, fourAtOnce: false, count: 200, radius: 100, groupSpacing: 5.0, groupGap: 1.6, groupSpring: 4, startBox: 1.6, endBox: 1.2,
   relief: 0, jitter: 12, initSpeed: 40, damping: 1, hugRate: 1.4, bridgeTime: 0.15, neutrons: 2, arrowTime: 7,
-  cycles: true, cyclePeriod: 4.2, cycleBurst: 0.7, expandTime: 1.6, contractRate: 1.6, burstBox: 2.0, burstForce: 1.5, burstTau: 0.8, burstRate: 2.5 };
+  cycles: true, cyclePeriod: 4.2, cycleBurst: 0.2, expandTime: 1.6, contractRate: 1.6, burstBox: 2.0, burstForce: 1.5, burstTau: 0.8, burstRate: 2.5 };
 const BONDS = { squeeze: { mode: 1, from: 0, P: { count: 34, startBox: 1.12, endBox: 1.12, shrinkTime: 999, threshold: 9, centreFirst: 0, initSpeed: 140, arrowTime: 30, arrowsIn: false, arrowsOut: false, arrowsBonds: true,
   // each kind of arrow as it's named (rec75: "attracted to protons of the atom next door", then "the electron layers also push back"), s into the run
   bondPullFrom: 0.8, bondPushFrom: 4.0 },
