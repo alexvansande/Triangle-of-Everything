@@ -16,7 +16,7 @@
 // Everything is a function of the take's clock t (render workers draw frames in any order). One WebGL2 canvas of its own
 // for the noise; the star is the Star Forge's live model (src/star-forge.js). A lost context falls back to 2D.
 
-import { drawSqueeze } from "./narr-diagrams.js";
+import { drawSqueeze, nucleonFrames, spritesPending } from "./narr-diagrams.js";
 import { createStarForge, starBySlug, discFraction } from "./star-forge.js";
 
 const clamp01 = x => Math.max(0, Math.min(1, x));
@@ -25,20 +25,75 @@ const LOG2_10 = Math.log2(10);
 
 const DEFAULT_SIM = { at: "a new player enters", mode: 3, from: 8.2, P: { helium: true }, zoom: [[0, 2.4], [34, 3.0]] };
 
-export function p10Pending() { return 0; }
+export function p10Pending() { return spritesPending(); }
 
 // ---------------------------------------------------------------- the zoom's clock
 // log10 of the frame's width (m) at time u s after the start: a trapezoid of speed in log scale (eased in from the
 // still frame, a steady glide through the decades, eased out onto the star)
+// (slow through the first decades, where the neutrons' lattice can be seen, then faster: the author, 2026-11-20, "an
+// infinite lattice as if it was a zoom of the surface of the star")
+const speed = (u, dur) => (0.06 + 0.94 * smooth((u - 3.2) / 2.0)) * smooth(u / 1.0) * (1 - smooth((u - (dur - 2.4)) / 2.4));
+const PROFILE = new Map();
 function logWidth(u, L0, L1, dur) {
-  const a = 0.2 * dur, b = 0.3 * dur, v = 1 / (dur - (a + b) / 2);   // fraction of the way per second at full speed
-  let f;
-  if (u <= 0) f = 0;
-  else if (u < a) f = v * u * u / (2 * a);
-  else if (u < dur - b) f = v * (a / 2 + (u - a));
-  else if (u < dur) { const r = dur - u; f = 1 - v * r * r / (2 * b); }
-  else f = 1;
-  return L0 + (L1 - L0) * f;
+  let P = PROFILE.get(dur);
+  if (!P) { P = [0]; const n = 400; for (let i = 1; i <= n; i++) P.push(P[i - 1] + speed((i - 0.5) * dur / n, dur)); P = P.map(x => x / P[n]); PROFILE.set(dur, P); }
+  const x = Math.max(0, Math.min(1, u / dur)) * (P.length - 1), i = Math.min(P.length - 2, Math.floor(x));
+  return L0 + (L1 - L0) * (P[i] + (P[i + 1] - P[i]) * (x - i));
+}
+
+// ---------------------------------------------------------------- the neutrons' lattice
+// Neutrons packed edge to edge on a slightly jostled triangular lattice (fm), each the live Hopf neutron turning (the
+// sims' loops, src/narr-diagrams.js), each from its own frame and turned its own way; close up every one is drawn and
+// wanders a little, and once they're too small to see turn, a still tile of them (32 × 32 cells, repeating, with its own
+// halvings so it shrinks without shimmering) carries the lattice on until it melts into the noise
+const LA = 1.75, ND = 1.7, ROW = LA * Math.sqrt(3) / 2, TN = 32, TP = 32;   // spacing, neutron, row (fm); tile cells; tile px a cell
+const hsh = (i, j, k) => { let h = (i * 374761393 + j * 668265263 + k * 1442695041) | 0; h = Math.imul(h ^ (h >>> 13), 1274126177); return ((h ^ (h >>> 16)) >>> 0) / 4294967296; };
+const wrapT = (n) => ((n % TN) + TN) % TN;
+function site(i, j, t, wob) {
+  const a = wrapT(i), b = wrapT(j);
+  return [(i + 0.5 * (j & 1)) * LA + (hsh(a, b, 1) - 0.5) * 0.2 * LA + wob * 0.06 * LA * Math.sin(t * 0.9 + hsh(a, b, 2) * 6.283),
+    j * ROW + (hsh(a, b, 3) - 0.5) * 0.2 * LA + wob * 0.06 * LA * Math.cos(t * 0.8 + hsh(a, b, 4) * 6.283), hsh(a, b, 5), hsh(a, b, 6) * 6.283];
+}
+let tile = null;
+function latticeTile(F) {
+  if (tile) return tile;
+  const k0 = TP / LA, w = TN * TP, h = Math.round(TN * ROW * k0), ky = h / (TN * ROW * k0);
+  const c = document.createElement("canvas"); c.width = w; c.height = h;
+  const g = c.getContext("2d"), dd = ND * k0 / 0.78;
+  for (let j = -2; j < TN + 2; j++) for (let i = -2; i < TN + 2; i++) {
+    const [x, y, f, rot] = site(i, j, 0, 0);
+    g.setTransform(Math.cos(rot), Math.sin(rot), -Math.sin(rot), Math.cos(rot), x * k0, y * k0 * ky);
+    g.drawImage(F[Math.floor(f * F.length)], -dd / 2, -dd / 2, dd, dd);
+  }
+  const levels = [c];
+  while (levels.at(-1).width > 48) {
+    const p = levels.at(-1), q = document.createElement("canvas"); q.width = Math.round(p.width / 2); q.height = Math.round(p.height / 2);
+    const qg = q.getContext("2d"); qg.imageSmoothingQuality = "high"; qg.drawImage(p, 0, 0, q.width, q.height); levels.push(q);
+  }
+  return (tile = levels);
+}
+// ppf: px a fm; a: opacity; live: how far the neutrons are drawn one by one (1) rather than the tile (0)
+function drawLattice(ctx, W, H, ppf, t, a, live) {
+  const F = nucleonFrames()?.neutron; if (!F?.length || a <= 0.01) return;
+  if (live < 1) {
+    const L = latticeTile(F), want = TN * LA * ppf;   // the tile's width on screen
+    let lv = 0; while (lv < L.length - 1 && L[lv + 1].width >= want) lv++;
+    const pat = ctx.createPattern(L[lv], "repeat");
+    pat.setTransform(new DOMMatrix([want / L[lv].width, 0, 0, TN * ROW * ppf / L[lv].height, W / 2, H / 2]));
+    ctx.globalAlpha = a * (1 - live); ctx.fillStyle = pat; ctx.fillRect(0, 0, W, H);
+  }
+  if (live > 0) {
+    const dd = ND * ppf / 0.78, hw = W / 2 / ppf + LA, hh = H / 2 / ppf + LA;
+    ctx.globalAlpha = a * live;
+    for (let j = Math.floor(-hh / ROW) - 1; j <= Math.ceil(hh / ROW) + 1; j++) for (let i = Math.floor(-hw / LA) - 1; i <= Math.ceil(hw / LA) + 1; i++) {
+      const [x, y, f, rot] = site(i, j, t, 1);
+      if (Math.abs(x) > hw || Math.abs(y) > hh) continue;
+      ctx.setTransform(Math.cos(rot), Math.sin(rot), -Math.sin(rot), Math.cos(rot), W / 2 + x * ppf, H / 2 + y * ppf);
+      ctx.drawImage(F[(Math.floor(t * 6 + f * F.length) % F.length + F.length) % F.length], -dd / 2, -dd / 2, dd, dd);
+    }
+    ctx.setTransform(1, 0, 0, 1, 0, 0);
+  }
+  ctx.globalAlpha = 1;
 }
 
 // ---------------------------------------------------------------- the noise (WebGL2)
@@ -335,9 +390,12 @@ export function drawP10(ctx, W, H, o, t, dpr = 1) {
   const rPx = limb * W;
   const progress = (logF - L0) / (L1 - L0);
 
+  // (the noise grey as the lattice melts, its colours blooming after)
   // the run's last frame: full at the cut, folded into the warp and gone by ~1.6 decades out
   const sim = frozenSim(o, W, H, dpr);
-  const simAmt = sim ? 1 - smooth((s - 1.2) / 4.2) : 0;
+  // (it hands over to the lattice in the zoom's first second, while it's still slow)
+  const simAmt = sim ? 1 - smooth((u - 0.25) / 0.9) : 0;
+  const ppf = W / (10 ** logF / 1e-15), cellPx = LA * ppf;
   const G = glNoise();
   // the lens (aberration, vignette) and the grid come in over the first moments, so the cut from the run is clean
   const lens = smooth(u / 0.8), gridIn = smooth(u / 0.6);
@@ -355,8 +413,8 @@ export function drawP10(ctx, W, H, o, t, dpr = 1) {
         G.simKey = simFrame.key;
       }
       renderNoise(G, w, h, {
-        uS: s, uTime: t, uSimAmt: simAmt, uSimWarp: 0.06 * smooth(s / 4), uLimb: limb > 40 ? 99 : limb,
-        uEnd: smooth((progress - 0.8) / 0.2), uWarp: 0.14, uSimAspect: W / H, uAb: 0.012 * lens, uVig: 0.25 * lens,
+        uS: s, uTime: t, uSimAmt: 0, uSimWarp: 0.06 * smooth(s / 4), uLimb: limb > 40 ? 99 : limb,
+        uEnd: Math.max(smooth((progress - 0.8) / 0.2), 1 - smooth((logF - L0 - 1.5) / 1.6)), uWarp: 0.14, uSimAspect: W / H, uAb: 0.012 * lens, uVig: 0.25 * lens,
       });
       ctx.drawImage(G.canvas, 0, 0, W, H);
       drew = true;
@@ -370,6 +428,12 @@ export function drawP10(ctx, W, H, o, t, dpr = 1) {
     }
     if (limb < 40) { ctx.fillStyle = "#3a3d55"; ctx.beginPath(); ctx.arc(W / 2, H / 2, rPx, 0, Math.PI * 2); ctx.fill(); }
   }
+  // the lattice: black between the neutrons while they're big, the noise showing through as they shrink, gone by 2.5 px
+  const blackA = smooth((cellPx - 6) / 16), latA = smooth((cellPx - 2.5) / 6), live = smooth((cellPx - 18) / 12);
+  if (blackA > 0) { ctx.globalAlpha = blackA; ctx.fillStyle = "#000"; ctx.fillRect(0, 0, W, H); ctx.globalAlpha = 1; }
+  drawLattice(ctx, W, H, ppf, t, latA, live);
+  // the run's last frame over it all at first, going as the lattice takes over
+  if (sim && simAmt > 0) { ctx.globalAlpha = simAmt; ctx.drawImage(sim, 0, 0, W, H); ctx.globalAlpha = 1; }
   // the star's model, coming in as its disc shrinks from 0.62 to 0.45 of the frame's height (radius)
   const starA = smooth((0.62 * H - rPx) / (0.17 * H));
   if (starA > 0) drawStar(ctx, W, H, rPx, starA, t);

@@ -69,7 +69,8 @@ function nucleonSprites() {
   })();
   return _sprites;
 }
-const spritesPending = () => { const s = nucleonSprites(); return s.failed || (s.proton && s.neutron) ? 0 : 1; };
+export const nucleonFrames = () => nucleonSprites();
+export const spritesPending = () => { const s = nucleonSprites(); return s.failed || (s.proton && s.neutron) ? 0 : 1; };
 const picsPending = (slugs) => slugs.map(pic).filter(im => im.__ok && !(im.complete && im.naturalWidth)).length;
 // the chart's own particles (the author, 2026-11-07: "the proton isn't a red dot, we have a nice image of it"):
 // drawn centred at (x, y), `d` wide; a dot of the given colour until the picture has arrived
