@@ -22,13 +22,15 @@
   made here, say so in the first report, not the last.
 - **Every new or re-cut video goes to the author as a mobile draft in the chat** (the author, 2026-11-20:
   "Instead of publishing videos as they are edited, render a mobile draft and bring them to the thread"; it
-  replaces the 2026-10-27 rule of handing over a link to the unlisted page). After an edit: commit and push to
-  `main` (the drafts and the nightly render from it), run `scripts/narration-draft.sh <take>` (720p, no blur;
-  never while another draft runs), make a phone copy under 30 MiB (`ffmpeg -crf 30 -vf scale=720:-2 -b:a 128k`
-  for a Short, `-crf 34 -vf scale=480:-2 -b:a 96k` for a long one) and send it with SendUserFile. Don't hand
-  over the unlisted page (https://triangleofeverything.com/videos-3v63rqq1/) as the way to watch an edit; it
-  still rebuilds from `main`. Rendered videos never go onto the site: nothing commits `video/web/`, and
-  `scripts/narration-overnight.sh` pushes only the render queue.
+  replaces the 2026-10-27 rule of handing over a link to the unlisted page). Video edits live on the **`video`
+  branch**, committed there and pushed to `origin/video` only: don't touch `main` unless the author
+  wants to deploy ("keep this work on a video branch and avoid touching main unless we want to deploy"); then
+  merge `video` into `main` and push. After an edit: run `scripts/narration-draft.sh <take>` from the checkout
+  on `video` (it merges main in first; 720p, no blur; never while another draft runs), make a phone copy under
+  30 MiB (`ffmpeg -crf 30 -vf scale=720:-2 -b:a 128k` for a Short, `-crf 34 -vf scale=480:-2 -b:a 96k` for a
+  long one) and send it with SendUserFile. The unlisted page (https://triangleofeverything.com/videos-3v63rqq1/)
+  builds from `main`, so it shows only what was deployed. Rendered videos never go onto the site: nothing commits
+  `video/web/`; `scripts/narration-overnight.sh` pushes only the render queue (to `video` when run on it).
 - **Queue every changed video for a re-render** (the author's rule, 2026-10-28): when you change a
   video (its audio, captions, scene, mix, or the chart code or pictures it shows), add its take
   name (e.g. `short-04-black-holes`) on its own line to `video/render-queue.txt` in the same

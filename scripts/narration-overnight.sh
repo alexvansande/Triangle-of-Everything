@@ -50,6 +50,9 @@ publish() {     # commit the render queue and push it (the videos themselves sta
 Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>" || return 1
   sync_main || return 1
   if ! npm run build > output/videos/overnight-build.log 2>&1; then log "site build failed (output/videos/overnight-build.log): not pushed"; return 1; fi
+  # on the video branch (the edits under review; the author, 2026-11-20: "avoid touching main unless we want to deploy"):
+  # the queue goes to that branch only, never to main
+  if [ "$(git branch --show-current)" = video ]; then git push -q origin HEAD:video && log "rendered $1 (iCloud output videos; queue pushed to the video branch, not main)"; return; fi
   git push -q origin HEAD:main && git push -q origin HEAD && log "rendered $1 (iCloud output videos; not put on the site)"
 }
 
