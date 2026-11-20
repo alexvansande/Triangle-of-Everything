@@ -57,6 +57,11 @@ const ROUND_GRAV = { side: "above", mass: ROUND_M, label: "gravity\ndominates", 
 // 2026-11-17, 5:21: "hide all icons, keep just the dots and then use circles and ovals to highlight these areas")
 const SO_FAR = { r: 4.6, m: 15, span: 22, frame: [-5, -9, 14, 41] };
 const OV_WATER = { ellipse: [2.4, 7.9, 1.3, 20], label: "ordinary matter", place: "left", color: "#80deea" };
+// along the water line, each group its own loop as it's named (the author, 2026-11-20: "instead of one big circle for all
+// water density zoom in the line and add circles for asteroids and dwarf planets, terrestrial planets and gas giants")
+const OV_ROCKS = { ellipse: [6.2, 19.5, 0.75, 6.2], label: "asteroids and dwarf planets", place: "left", color: "#80deea" };
+const OV_TERR = { ellipse: [8.58, 27.15, 0.5, 1.1], label: "terrestrial planets", place: "left", color: "#80deea" };
+const OV_GIANTS = { ellipse: [9.62, 29.6, 0.5, 1.0], label: "gas giants", place: "right", color: "#80deea" };
 const OV_COLUMN = { ellipse: [9.85, 31.2, 0.5, 1.7], rot: 0, label: "super-Jupiters", place: "left", color: "#ffd54f" };
 const OV_STARS = { ellipse: [11.1, 33.9, 0.55, 2.1], rot: 34, label: "living stars", place: "right", color: "#ffab40" };
 // (each cue holds the catalogue until the next: with the default 14 s it ended at 0:26 and the chart showed through,
@@ -175,7 +180,9 @@ export default {
     // the atoms crushed: the Squeeze Lab's mode 1 ("show that sim of the degenerate matter forming")
     // (its arrows pointing at each other, as in the bonds: blue between the shells, purple to the other nucleus; red from
     // the edges, the squeeze; the author, 2026-11-17, 3:30)
-    { at: "these planets are massive", hold: 14, hl: [{ squeeze: { mode: 1, from: 13.2, P: { arrowsOut: false, arrowsBonds: true, arrowTime: 30, bondPushFrom: 13.4, bondPullFrom: 14.5, bondShare: 0.25 } } }] },
+    // (its last 7 s a slow push in on the nucleus nearest the middle, the fusion opening on the same nuclei at the same size and
+    // spacing: the author, 2026-11-20; the nuclei a quarter of the atom, not a tenth, so a close look shows them)
+    { at: "these planets are massive", hold: 14, hl: [{ squeeze: { mode: 1, from: 13.2, zoom: [[7, 1], [14.6, 3.2]], follow: [0, 99], P: { nucleus: 0.25, arrowsOut: false, arrowsBonds: true, arrowTime: 30, bondPushFrom: 13.4, bondPullFrom: 14.5, bondShare: 0.25 } } }] },
     { at: "don't get bigger", cam: G(9.85, 31.4, 2.6), clear: true, hl: [{ obj: "Jupiter", label: false, place: "left" }, ...BD, { ...COLUMN, draw: 0.01 }] },
     // "show the super jupiters and brown dwarf branching"
     { at: "bifurcation", cam: { r: 9.9, m: 33.0, span: 3.8 }, dur: 3, drift: 0.02, hl: [{ obj: "L Brown Dwarf", label: false }, ...FORK] },
@@ -187,7 +194,9 @@ export default {
     // amount of energy" the view centres on one helium and the box flies open, its energy streaming out and throwing the
     // rest off screen; gravity's arrows come back on "counterbalances"
     ...[["the strong force", "start"], ["capture them", "capture"], ["large amount of energy", "energy"], ["counterbalances", "balance"], ["that's fusion", "fusion"]]
-      .map(([at, phase], i) => ({ at, hold: 999, hl: [{ fusionSim: { phase, P: FUSION_P }, instant: i > 0, out: 0.8 }] })),
+      // (the last fades over 2.4 s, closing in on the helium: the author, 2026-11-20, "zoom in closer at the resulting
+      // helium nucleus in the end for 2 more seconds while you fade")
+      .map(([at, phase], i) => ({ at, hold: 999, hl: [{ fusionSim: { phase, P: FUSION_P }, instant: i > 0, out: phase === "fusion" ? 2.4 : 0.8 }] })),
     // the main sequence: one slow push in (the author, 2026-11-17, 4:11: "I don't like static cameras")
     { at: ["changes that delicate", "changes the delicate dance"], cam: { r: 10.9, m: 33.1, span: 4.2, glide: true }, dur: 0.05, clear: true, hl: [] },
     { at: "called the main sequence", cam: { r: 11.0, m: 33.15, span: 3.5, glide: true }, hl: [{ obj: "Sun" }, MS, { obj: "Sirius A", delay: 0.4 }] },
@@ -199,7 +208,7 @@ export default {
     { at: "more massive stars", hl: [HIGH, { obj: "Crab Nebula", label: "supernova", delay: 0.8 }] },
     { at: "catastrophic core collapse", hl: [HIGH, { obj: "Crab Nebula", label: "supernova" }, { obj: "PSR J0030+0451", label: "the core", delay: 0.8 }] },
     // the weak force, the lab's mode 3, its first ring clenching on "squeeze a proton"
-    { at: ["a new player enters", "a new player force"], cam: { r: 8.0, m: 33.5, span: 7 }, dur: 2, hold: 34, hl: [{ squeeze: { mode: 3, from: 8.2 } }] },   // (the clench still on "if you squeeze": 10.2 s after the cue here, 7.9 in rec74)
+    { at: ["a new player enters", "a new player force"], cam: { r: 8.0, m: 33.5, span: 7 }, dur: 2, hold: 34, hl: [{ squeeze: { mode: 3, from: 8.2, P: { helium: true }, zoom: [[0, 2.4], [34, 3.0]] } }] },   // (the clench still on "if you squeeze": 10.2 s after the cue here, 7.9 in rec74)
     { at: "this forms a neutron star", cam: { obj: "PSR J0030+0451", span: 3.4 }, dur: 2.5, clear: true, hl: [{ obj: "PSR J0030+0451", label: "neutron star" }] },
     { at: "a bunch of neutrons", hl: [{ obj: "PSR J0030+0451", label: "one giant nucleus" }, { density: 14.36, label: "the density of a nucleus" }] },
 
@@ -218,9 +227,11 @@ export default {
     { at: "not even light", hl: [NS, { obj: "Stellar BH", label: "not even light gets out" }] },
     { at: "strangest of objects", hl: [NS, { obj: "Stellar BH", label: "a black hole" }] },
     { at: "so far our", cam: SO_FAR, dur: 2.6, ease: "gentle", icons: false, forceIcons: [], clear: true, hl: [] },
-    { at: "around bands", hl: [OV_WATER] },
-    { at: "jupiter planets", hl: [OV_WATER, OV_COLUMN] },
-    { at: "living stars", hl: [OV_WATER, OV_COLUMN, OV_STARS] },
+    { at: "around bands", hl: [WATER] },
+    // then in along the line to its groups, up to the super-Jupiters, on to the stars (the author, 2026-11-20)
+    { at: "scattered around", cam: { r: 7.3, m: 22.6, span: 12 }, dur: 2.2, hl: [WATER, { ...OV_ROCKS, delay: 0.6 }, { ...OV_TERR, delay: 1.3 }, { ...OV_GIANTS, delay: 2.0 }] },
+    { at: "jupiter planets", cam: { r: 9.6, m: 30.6, span: 4.4 }, dur: 1.8, hl: [OV_TERR, OV_GIANTS, OV_COLUMN] },
+    { at: "living stars", cam: { r: 10.7, m: 32.8, span: 5 }, dur: 1.8, hl: [OV_COLUMN, OV_STARS] },
     { at: "where stars go to die", cam: { r: 12.6, m: 34, span: 15 }, dur: 4, hl: [OV_STARS, ...CYCLE] },
     { at: "cemetery of dead stars", cam: { r: 8.6, m: 33.7, span: 8 }, dur: 3, clear: true, icons: true, forceIcons: null,
       hl: [WD, NS, SBH, { ellipse: [7.45, 33.75, 2.3, 1.15], rot: 0, label: "dead stars", place: "above", color: "#e0e0e0", delay: 1.4 }] },

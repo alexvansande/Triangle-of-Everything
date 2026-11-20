@@ -2318,7 +2318,12 @@ export async function startNarration(app) {
     // (gravity's arrows back), fusion (the word)
     else if (h.fusionSim) {
       const T = FUSION_T, t0 = T.start ?? h.t0, rel = (k) => T[k] != null ? T[k] - t0 : null;
-      drawSqueeze(ctx, W, H, { mode: 2, start: t0, from: 0, exact: RENDER, P: { shrinkTime: Math.max(4, (rel("capture") ?? 14) - 1), ...h.fusionSim.P, ...(h.fusionSim.P?.cycles ? { cycles: [rel("capture"), rel("capture") + 1.0], groupFuseAt: null, burstAt: null, inArrowsAt: null } : { groupFuseAt: rel("capture"), burstAt: rel("energy"), inArrowsAt: rel("balance") }) },
+      // the camera: opening close in, its protons the size and spacing of the degenerate matter's nuclei at its last zoom (on
+      // the proton nearest the middle), out to the
+      // whole run by 8 s; at the end, 2.4 s closing in on the last helium while it fades (the author, 2026-11-20)
+      const end = Number.isFinite(h.t1) ? h.t1 - t0 : null, Z0 = h.fusionSim.zoom ?? 1.4;
+      const zoom = [[0, Z0], [1.5, Z0], [8, 1], ...(end != null ? [[end, 1], [end + (h.out ?? 0.6), h.fusionSim.endZoom ?? 2.4]] : [])];
+      drawSqueeze(ctx, W, H, { mode: 2, start: t0, from: 0, exact: RENDER, zoom, follow: [0, 8], P: { shrinkTime: Math.max(4, (rel("capture") ?? 14) - 1), ...h.fusionSim.P, ...(h.fusionSim.P?.cycles ? { cycles: [rel("capture"), rel("capture") + 1.0], groupFuseAt: null, burstAt: null, inArrowsAt: null } : { groupFuseAt: rel("capture"), burstAt: rel("energy"), inArrowsAt: rel("balance") }) },
         tlabels: [["helium", "#ffd54a", (rel("capture") ?? 99) + (h.fusionSim.P?.cycles ? 0.4 : 1.4), h.fusionSim.P?.cycles ? (rel("capture") ?? 99) + 3.4 : rel("energy")], ["fusion", "#ff8a5c", rel("fusion") ?? 999, null]] }, t, dpr);
     }
     else if (h.catalogue) drawCatalogue(ctx, W, H, { ...CATALOGUE_T }, t, (slug, r, m) => {

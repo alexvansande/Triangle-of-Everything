@@ -34,6 +34,7 @@ export const BASE = {
   // helium fuses every cyclePeriod s, its burst cycleBurst s later; the box stays open expandTime s after each burst,
   // then closes back to endBox at contractRate
   cycles: null, cyclePeriod: 5, cycleBurst: 0.7, expandTime: 1.8, contractRate: 1.6,
+  helium: false,
   onScreenOnly: true, pictures: false, arrowsOut: false, arrowsIn: false, arrowsStrong: false, arrowsBonds: false, arrowSize: 0.45, arrowTime: 5, lineWidth: 3, glow: 1, fill: 0.06, hud: true, walls: true,
 };
 export const MODE_DEFAULTS = {
@@ -132,7 +133,12 @@ export function createSqueeze({ pics = {} } = {}) {
     }
     // mode 3: an electron beside each proton, drifting round just outside its ring (the author, 2026-11-09: "blue
     // glowing circles representing electrons that merge with the protons")
-    if (S.mode === 3 && P.captureElectrons) for (const b of S.blobs) S.captures.push({ b, a: rnd(0, TAU), d: rnd(1.08, 1.22), w: rnd(-0.35, 0.35), x: b.cx, y: b.cy, fall: -1 });
+    // (helium: two electrons, one for each proton, on either side)
+    if (S.mode === 3 && P.captureElectrons) for (const b of S.blobs) {
+      const a = rnd(0, TAU), w = rnd(-0.35, 0.35);
+      S.captures.push({ b, a, d: rnd(1.08, 1.22), w, x: b.cx, y: b.cy, fall: -1 });
+      if (P.helium) S.captures.push({ b, a: a + Math.PI + rnd(-0.4, 0.4), d: rnd(1.08, 1.22), w, x: b.cx, y: b.cy, fall: -1 });
+    }
   }
 
   // ---------- geometry ----------
@@ -799,8 +805,12 @@ export function createSqueeze({ pics = {} } = {}) {
     let scale;
     if (S.view === "screen") scale = cw / S.W;
     else scale = Math.min(cw, ch) / (Math.max(S.box, Math.max(S.W, S.H)) * 1.06);
+    // a camera the video drives (src/narr-diagrams.js, { zoom }): S.zoom × closer, centred on S.camX/camY when given
+    // (the author, 2026-11-20: the clips hand over at one zoom, closing in on a nucleus at the end)
+    scale *= S.zoom || 1;
     // (centred on the helium letting its energy go, once it does: S.vcx/vcy)
-    ctx.setTransform(scale, 0, 0, scale, cw / 2 - S.vcx * scale, ch / 2 - S.vcy * scale);
+    const vx = S.camX ?? S.vcx, vy = S.camY ?? S.vcy;
+    ctx.setTransform(scale, 0, 0, scale, cw / 2 - vx * scale, ch / 2 - vy * scale);
     const lw = P.lineWidth * dpr / scale;
     const hero = S.burst && S.blobs.find(b => b.id === S.burst.id), since = S.burst ? S.t - S.burst.t0 : 0;
     // the energy: a glow behind everything, flaring as it goes and then burning on
@@ -841,6 +851,18 @@ export function createSqueeze({ pics = {} } = {}) {
         const grey = k.grey || b.state === "grey", since = k.grey ? k.greyAt : b.broke;
         const flash = grey ? 1 - clamp((S.t - since - 0.1) / 0.35, 0, 1) : 0;   // white just after the change, fading
         const pic = grey ? "neutron" : "proton";
+        // helium (P.helium, the neutron-star clip; the author, 2026-11-20: "the nucleus should all be helium nucleus as we
+        // saw in the last video"): the disc drawn as four nucleons, two protons and two neutrons, all neutrons once the
+        // ring clenches and its two electrons fall in
+        if (P.helium && P.pictures && picReady("proton") && picReady("neutron")) {
+          const rn = k.r * 0.5, off = k.r * 0.47, d = rn * 2 / 0.78;
+          for (let j = 0; j < 4; j++) {
+            const a = k.rot + j * TAU / 4, x = k.x + Math.cos(a) * off, y = k.y + Math.sin(a) * off, pj = grey || j % 2 ? "neutron" : "proton";
+            ctx.save(); ctx.translate(x, y); ctx.rotate(k.rot + j * 1.3); ctx.drawImage(PICS[pj], -d / 2, -d / 2, d, d); ctx.restore();
+          }
+          if (flash > 0) { ctx.beginPath(); ctx.arc(k.x, k.y, k.r, 0, TAU); ctx.fillStyle = `rgba(255,255,255,${flash})`; ctx.fill(); }
+          continue;
+        }
         if (P.pictures && picReady(pic)) {
           const d = k.r * 2 / 0.78;
           ctx.save(); ctx.translate(k.x, k.y); ctx.rotate(k.rot); ctx.drawImage(PICS[pic], -d / 2, -d / 2, d, d); ctx.restore();

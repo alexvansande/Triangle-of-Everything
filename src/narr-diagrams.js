@@ -691,6 +691,8 @@ export function drawSqueeze(ctx, W, H, o, t, pixelRatio) {
     Object.assign(sim.S, { mode: o.mode, seed: o.seed ?? 1, W: W > H ? SQUEEZE_LONG : SQUEEZE_SHORT, H: W > H ? SQUEEZE_SHORT : SQUEEZE_LONG });
     sim.S.P = { ...squeezeDefaults(o.mode), hud: false, ...o.P };
     sim.build(); SQUEEZE.set(key, sim);
+    // (the one the camera follows: picked as built, so every render worker follows the same)
+    sim.followId = sim.S.blobs.reduce((a, b) => Math.hypot(b.cx, b.cy) < Math.hypot(a.cx, a.cy) ? b : a).id;
     // the arrows the lab's settings switch on, for the clip's first seconds (the author, 2026-11-09): their time counts
     // from the clip's first frame, in seconds of the video at whatever speed the run plays
     sim.S.arrowT0 = o.from ?? 0; sim.S.P.arrowTime *= o.speed ?? 1;
@@ -698,6 +700,20 @@ export function drawSqueeze(ctx, W, H, o, t, pixelRatio) {
   // saved before going on, at most once a tenth of a second of the run: the moments a frame's blur goes back to
   if (o.exact && sim.S.t + SQUEEZE_DT <= want + 1e-9 && !(sim.mark && sim.S.t - sim.mark.t < 0.1)) sim.mark = { t: sim.S.t, snap: sim.save() };
   for (let n = 0; sim.S.t + SQUEEZE_DT <= want + 1e-9 && (o.exact || n < 60); n++) sim.step(SQUEEZE_DT);
+  // the camera ({ zoom: [[s since the cue, ×], …], follow?: [from s, to s] }, the author, 2026-11-20: the clips hand over at
+  // one zoom, the degenerate matter closing in on a nucleus, the fusion opening on it and closing in on its helium): eased
+  // from key to key; within follow, centred on the nucleus nearest the middle at the start, as far as the zoom has come in
+  const since = Math.max(0, t - o.start), Z = o.zoom;
+  let z = 1;
+  if (Z?.length) {
+    const j = Z.findIndex(([s]) => s > since);
+    z = j < 0 ? Z[Z.length - 1][1] : j === 0 ? Z[0][1] : Z[j - 1][1] + (Z[j][1] - Z[j - 1][1]) * smooth((since - Z[j - 1][0]) / (Z[j][0] - Z[j - 1][0]));
+  }
+  sim.S.zoom = z; sim.S.camX = sim.S.camY = null;
+  if (o.follow && since >= o.follow[0] && since <= o.follow[1] && z > 1) {
+    const fb = sim.S.blobs.find(b => b.id === sim.followId), k = fb?.nuclei[0];
+    if (k) { const w = Math.min(1, (z - 1) / 0.6); sim.S.camX = sim.S.vcx + (k.x - sim.S.vcx) * w; sim.S.camY = sim.S.vcy + (k.y - sim.S.vcy) * w; }
+  }
   sim.draw(ctx, W, H, pixelRatio);
   // optional titles over the run ({ labels: [[text, colour], …] }), one after another from the top, each fading in a
   // second after the one before (long-02b-opening's bonds: "electrons repel electrons", "electrons and protons attract")
