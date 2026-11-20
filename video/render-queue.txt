@@ -156,3 +156,4 @@
 # 2026-11-17, afternoon: rec74 re-cut (restarts and stray tails out, the author's notes): new audio, so both render whole (queued above)
 # 2026-11-18, evening: the forces Short with every simulation back in, the fusion burst right after "capture"
 # 2026-11-18, night: four more restarts out of long-02b-opening (the author, long draft 0:55, 1:05, 1:47, 2:37)
+# hold (the author, 2026-11-19: "No render for tonight. Leave the CPU for some other job"; delete this line to let the renders go on)
