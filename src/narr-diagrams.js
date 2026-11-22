@@ -63,11 +63,55 @@ function nucleonSprites() {
           renderer.render(view, HOPF_OPTS, [c.getContext("2d"), 0, 0, SPRITE_PX, SPRITE_PX]);
           frames.push(c);
         }
-        _sprites[name] = frames;
+        if (name === "neutron") _sprites[name] = frames;
       }
-    } catch (err) { console.warn("live nucleons unavailable, keeping the stills:", err.message); _sprites.failed = true; }
+    } catch (err) { console.warn("live neutrons unavailable, keeping the stills:", err.message); _sprites.failed = true; }
   })();
+  _sprites.proton = protonDice();
   return _sprites;
+}
+// The proton as a three-sided die (the author, 2026-11-22: "protons and neutrons are still too similar … make them be made
+// of the 3 basic colors and switch around quickly as if it was some sort three sided dice … and then only becomes gray
+// once it's a neutron"): three lobes, red, green and blue, added together so where all three overlap it's white (the
+// quarks' colours making no colour); it tumbles, and every third of a second it rolls a third of a turn while two lobes
+// trade colours with a flash between them, a gluon going across. 72 frames played at 18 a second (`fps`), a loop: twelve
+// rolls make four turns and the swaps come back to where they began.
+function protonDice() {
+  const TAU = Math.PI * 2, N = 72, STEP = 6, S = SPRITE_PX, frames = [], C = [[255, 40, 40], [40, 235, 70], [50, 110, 255]];
+  const swaps = [[0, 1], [1, 2], [2, 0]], ease = (u) => u * u * (3 - 2 * u);
+  let perm = [0, 1, 2];
+  const perms = [];
+  for (let k = 0; k < N / STEP; k++) { perms.push(perm.slice()); const [i, j] = swaps[k % 3]; [perm[i], perm[j]] = [perm[j], perm[i]]; }
+  for (let f = 0; f < N; f++) {
+    const k = Math.floor(f / STEP), v = (f % STEP) / STEP, roll = ease(Math.min(1, v / 0.55));
+    const P0 = perms[k], P1 = perms[(k + 1) % perms.length], mix = ease(Math.min(1, Math.max(0, (v - 0.3) / 0.5)));
+    const ang = (k + roll) * TAU / 3 + 0.3 * Math.sin(f / N * TAU * 2);
+    const tilt = 0.84 + 0.16 * Math.cos(f / N * TAU * 3), axis = f / N * TAU;   // a tumble: squashed along a turning axis
+    const c = document.createElement("canvas"); c.width = c.height = S; const g = c.getContext("2d");
+    g.translate(S / 2, S / 2); g.rotate(axis); g.scale(1, tilt); g.rotate(ang - axis);
+    g.globalCompositeOperation = "lighter";
+    const off = S * 0.13, rl = S * 0.27;
+    const at = (i) => [Math.cos(i * TAU / 3 - Math.PI / 2) * off, Math.sin(i * TAU / 3 - Math.PI / 2) * off];
+    for (let i = 0; i < 3; i++) {
+      const a = C[P0[i]], b = C[P1[i]], col = a.map((x, n) => Math.round(x + (b[n] - x) * mix)), [x, y] = at(i);
+      const gr = g.createRadialGradient(x - rl * 0.25, y - rl * 0.3, rl * 0.05, x, y, rl);
+      gr.addColorStop(0, `rgba(${col.map(q => Math.min(255, q + 90)).join(",")},1)`);
+      gr.addColorStop(0.6, `rgba(${col.join(",")},0.95)`);
+      gr.addColorStop(0.9, `rgba(${col.join(",")},0.35)`);
+      gr.addColorStop(1, `rgba(${col.join(",")},0)`);
+      g.fillStyle = gr; g.beginPath(); g.arc(x, y, rl, 0, TAU); g.fill();
+    }
+    // the gluon: a bright stroke between the two lobes trading colours, at the swap's middle
+    const flash = Math.max(0, 1 - Math.abs(v - 0.5) / 0.28);
+    if (flash > 0) {
+      const [i, j] = swaps[k % 3], [x1, y1] = at(i), [x2, y2] = at(j);
+      g.strokeStyle = `rgba(255,255,230,${0.85 * flash})`; g.lineWidth = S * 0.03; g.lineCap = "round";
+      g.beginPath(); g.moveTo(x1, y1); g.quadraticCurveTo(0, 0, x2, y2); g.stroke();
+    }
+    frames.push(c);
+  }
+  frames.fps = 18;
+  return frames;
 }
 export const nucleonFrames = () => nucleonSprites();
 export const spritesPending = () => { const s = nucleonSprites(); return s.failed || (s.proton && s.neutron) ? 0 : 1; };

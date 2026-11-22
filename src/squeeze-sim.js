@@ -924,7 +924,7 @@ export function createSqueeze({ pics = {} } = {}) {
     // many directions and change"; the stills until they're made)
     const nucleon = (name, seed) => {
       const F = PICS.frames?.[name];
-      if (F?.length) return F[(((Math.floor(S.t * SPRITE_FPS + seed)) % F.length) + F.length) % F.length];
+      if (F?.length) return F[(((Math.floor(S.t * (F.fps ?? SPRITE_FPS) + seed)) % F.length) + F.length) % F.length];   // (the proton's die plays faster: F.fps)
       return picReady(name) ? PICS[name] : null;
     };
     // helium's four nucleons, each loose on its own slow wander about its place (the author, 2026-11-20, 5:00: "not stuck
