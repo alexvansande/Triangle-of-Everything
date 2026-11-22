@@ -765,6 +765,11 @@ export function drawSqueeze(ctx, W, H, o, t, pixelRatio) {
     if (k) { const w = Math.min(1, (z - 1) / 0.6); sim.S.camX = sim.S.vcx + (k.x - sim.S.vcx) * w; sim.S.camY = sim.S.vcy + (k.y - sim.S.vcy) * w; }
   }
   sim.draw(ctx, W, H, pixelRatio);
+  // (where the run's units land on screen, and its hexagonal grid if the neutrons have one: src/narr-p10.js picks its
+  // lattice up from here, so the zoom out starts on the same grid)
+  const S = sim.S, sc = S.view === "screen" ? W / S.W * (S.zoom || 1) : null, site = S.hex && Object.values(S.hex.at)[0];
+  const geo = sc && { scale: sc, ox: W / 2 - (S.camX ?? S.vcx) * sc, oy: H / 2 - (S.camY ?? S.vcy) * sc,
+    hex: site && { a: S.hex.a, x: site[0], y: site[1], t: S.t, t0: S.hex.t0, time: S.P.hexTime } };
   // optional titles over the run ({ labels: [[text, colour], …] }), one after another from the top, each fading in a
   // second after the one before (long-02b-opening's bonds: "electrons repel electrons", "electrons and protons attract")
   if (o.labels || o.tlabels || o.push != null) ctx.setTransform(1, 0, 0, 1, 0, 0);   // the run draws under its own transform
@@ -796,6 +801,7 @@ export function drawSqueeze(ctx, W, H, o, t, pixelRatio) {
     const f = smooth((t - o.start - (at ?? 0.8 + i * 1.6)) / 0.7); if (f <= 0) return;
     ctx.globalAlpha = f; text(ctx, s, W / 2, H * (0.1 + i * 0.065), Math.min(W, H) * 0.045, col); ctx.globalAlpha = 1;
   });
+  return geo;
 }
 
 // ---------- our universe and an alien's: the edge, two horizons, and the observable universe (the author's design,
