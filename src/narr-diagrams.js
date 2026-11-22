@@ -737,10 +737,18 @@ export function drawSqueeze(ctx, W, H, o, t, pixelRatio) {
   // sitting nailed to it: the author, 2026-11-20, 3:09, "let it a bit elastic so it doesn't seem to be stuck on the wall";
   // kept in the run's state, so every worker's frame is the same)
   const lagK = 1 - Math.exp(-SQUEEZE_DT / (o.lag ?? 1.1));
+  // (how far the view has gone over to the nucleus it follows at run time u: the box's walls go the same way)
+  const zoomAt = (since) => { const Z = o.zoom; if (!Z?.length) return 1; const j = Z.findIndex(([s]) => s > since);
+    return j < 0 ? Z[Z.length - 1][1] : j === 0 ? Z[0][1] : Z[j - 1][1] + (Z[j][1] - Z[j - 1][1]) * smooth((since - Z[j - 1][0]) / (Z[j][0] - Z[j - 1][0])); };
+  const boxW = (u) => { const since = (u - (o.from ?? 0)) / (o.speed ?? 1), z = zoomAt(since);
+    return o.follow && since >= o.follow[0] && since <= o.follow[1] && z > 1 ? Math.min(1, (z - 1) / 0.6) : 0; };
   for (let n = 0; sim.S.t + SQUEEZE_DT <= want + 1e-9 && (o.exact || n < 60); n++) {
     sim.step(SQUEEZE_DT);
     const c = sim.S.camSm, k = o.follow && c && sim.S.blobs.find(b => b.id === sim.followId)?.nuclei[0];
     if (k) { c.x += (k.x - c.x) * lagK; c.y += (k.y - c.y) * lagK; }
+    // (boxFollow: the box's walls kept round the camera, so a push in near the edge doesn't show the wall: the
+    // degenerate matter's bare nuclei squeezed against it, the author, 2026-11-22)
+    if (k && o.boxFollow) { const w = boxW(sim.S.t); sim.S.bx = sim.S.vcx + (c.x - sim.S.vcx) * w; sim.S.by = sim.S.vcy + (c.y - sim.S.vcy) * w; }
   }
   // the camera ({ zoom: [[s since the cue, ×], …], follow?: [from s, to s] }, the author, 2026-11-20: the clips hand over at
   // one zoom, the degenerate matter closing in on a nucleus, the fusion opening on it and closing in on its helium): eased

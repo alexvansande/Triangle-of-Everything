@@ -194,7 +194,9 @@ const SCENE = {
     // the edges, the squeeze; the author, 2026-11-17, 3:30)
     // (its last 7 s a slow push in on the nucleus nearest the middle, the fusion opening on the same nuclei at the same size and
     // spacing: the author, 2026-11-20; the nuclei a quarter of the atom, not a tenth, so a close look shows them)
-    { at: "these planets are massive", hold: 14, hl: [{ squeeze: { mode: 1, from: 13.2, zoom: [[7, 1], [14.6, 3.2]], follow: [0, 99], P: { nucleus: 0.25, arrowsOut: false, arrowsBonds: true, arrowTime: 30, bondPushFrom: 13.4, bondPullFrom: 14.5, bondShare: 0.25 } } }] },
+    { at: "these planets are massive", hold: 14, hl: [{ squeeze: { mode: 1, from: 13.2, zoom: [[7, 1], [14.6, 3.2]], follow: [0, 99], boxFollow: true, P: { nucleus: 0.25, arrowsOut: false, arrowsBonds: true, arrowTime: 30, bondPushFrom: 13.4, bondPullFrom: 14.5, bondShare: 0.25,
+      // (on "stripped" every shell left pops and the box squeezes the bare nuclei on: the author, 2026-11-22)
+      popAllAt: 20.9, popAllSpread: 0.8, endBox2: 0.6, shrink2Time: 4 } } }] },
     { at: "don't get bigger", cam: G(9.85, 31.4, 2.6), clear: true, hl: [{ obj: "Jupiter", label: false, place: "left" }, ...BD, { ...COLUMN, draw: 0.01 }] },
     // "show the super jupiters and brown dwarf branching"
     { at: "bifurcation", cam: { r: 9.9, m: 33.0, span: 3.8 }, dur: 3, drift: 0.02, hl: [{ obj: "L Brown Dwarf", label: false }, ...FORK] },
@@ -222,8 +224,9 @@ const SCENE = {
     { at: "small stars", cam: { r: 12.7, m: 35.0, span: 5 }, dur: 3, clear: true, hl: [{ ...LOW, from: "Sun" }, { obj: "White Dwarf", label: "the core left", place: "left", delay: 0.8 }, { obj: "Planetary Nebula", label: "a nebula", delay: 1.6 }] },
     { at: "more massive stars", hl: [HIGH, { obj: "Crab Nebula", label: "supernova", delay: 0.8 }] },
     { at: "catastrophic core collapse", hl: [HIGH, { obj: "Crab Nebula", label: "supernova" }, { obj: "PSR J0030+0451", label: "the core", delay: 0.8 }] },
-    // the weak force, the lab's mode 3, its first ring clenching on "squeeze a proton"
-    { at: ["a new player enters", "a new player force"], cam: { r: 8.0, m: 33.5, span: 7 }, dur: 2, hold: 34, hl: [{ squeeze: { mode: 3, from: 8.2, P: { helium: true }, zoom: [[0, 2.4], [34, 3.0]] } }] },   // (the clench still on "if you squeeze": 10.2 s after the cue here, 7.9 in rec74)
+    // the weak force, the lab's mode 3, its first ring clenching on "squeeze a proton"; the neutrons settle into a hexagonal
+    // grid on "a neutron, packed shoulder to shoulder" (hexAt; the author, 2026-11-22)
+    { at: ["a new player enters", "a new player force"], cam: { r: 8.0, m: 33.5, span: 7 }, dur: 2, hold: 34, hl: [{ squeeze: { mode: 3, from: 11.5, P: { helium: true, hexAt: 23.7, hexTime: 2.4 }, zoom: [[0, 2.4], [34, 3.0]] } }] },   // (the clench still on "if you squeeze": 6.9 s after the cue here since the restart on "what decides what" was cut, 10.2 before, 7.9 in rec74)
     // then no fade: a powers-of-ten zoom out on a square grid, from the neutrons up to the whole neutron star (the author,
     // 2026-11-20, 5:10: "keep a square grid and zoom out, from the atomic scale to the size of a neutron star", src/narr-p10.js);
     // the chart comes back on the neutron star for its collisions

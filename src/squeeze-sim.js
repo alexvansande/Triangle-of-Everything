@@ -36,6 +36,14 @@ export const BASE = {
   // then closes back to endBox at contractRate
   cycles: null, cyclePeriod: 5, cycleBurst: 0.7, expandTime: 1.8, contractRate: 1.6,
   helium: false,
+  // the degenerate matter's second squeeze (the author, 2026-11-22: "when the app starts compressing the second time just
+  // explode all remaining electron layers and compress the loose nuclei"): on popAllAt (run s) every shell still whole
+  // pops, from the middle out over popAllSpread s, and the box goes on shrinking to endBox2 over shrink2Time s
+  popAllAt: null, popAllSpread: 0.8, endBox2: null, shrink2Time: 6,
+  // the neutrons settling into a hexagonal grid (the author, 2026-11-22: "have the neutrons collapse into a hexagonal
+  // grid, right now they're all messy diamonds"): on hexAt (run s) helium's four nucleons each take a site of one grid,
+  // spaced to touch, and slide there over hexTime s
+  hexAt: null, hexTime: 2.4,
   onScreenOnly: true, pictures: false, arrowsOut: false, arrowsIn: false, arrowsStrong: false, arrowsBonds: false, arrowSize: 0.45, arrowTime: 5, lineWidth: 3, glow: 1, fill: 0.06, hud: true, walls: true,
 };
 export const MODE_DEFAULTS = {
@@ -61,7 +69,7 @@ export function createSqueeze({ pics = {} } = {}) {
     seed: 1, hudText: "", arrowT0: 0,   // arrowT0: when the arrows' time starts (the run's start in the lab; a video clip's first frame)
     mode: 1, orient: "v", view: "screen", paused: false, speed: 1,
     P: null, t: 0, blobs: [], electrons: [], captures: [], flashes: [], pops: [], frags: [], bridges: [], events: { pop: 0, fuse: 0, break: 0 }, maxSq: 0,
-    W: SHORT, H: LONG, box: 0, shrinkT: 0, floor: 0, jam: 0, nextId: 1, fps: 0, burst: null, groupsFused: false, vcx: 0, vcy: 0,
+    W: SHORT, H: LONG, box: 0, shrinkT: 0, floor: 0, jam: 0, nextId: 1, fps: 0, burst: null, groupsFused: false, vcx: 0, vcy: 0, bx: 0, by: 0, hex: null,
   };
   // seeded, so a seed always gives the same run (the video's renders step it on the take's clock, each worker from the
   // start); reset by build()
@@ -70,6 +78,7 @@ export function createSqueeze({ pics = {} } = {}) {
     x = (x + Math.imul(x ^ (x >>> 7), 61 | x)) ^ x; return ((x ^ (x >>> 14)) >>> 0) / 4294967296; };
   const rnd = (a, b) => a + random() * (b - a);
   const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
+  const smooth01 = (v) => { const u = clamp(v, 0, 1); return u * u * (3 - 2 * u); };
   const TAU = Math.PI * 2;
 
   // ---------- the crowd ----------
@@ -91,7 +100,7 @@ export function createSqueeze({ pics = {} } = {}) {
     const P = S.P;
     seedState = S.seed >>> 0;
     S.t = 0; S.blobs = []; S.electrons = []; S.captures = []; S.flashes = []; S.pops = []; S.frags = []; S.bridges = []; S.events = { pop: 0, fuse: 0, break: 0 }; S.maxSq = 0;
-    S.box = P.startBox * Math.max(S.W, S.H); S.shrinkT = 0; S.floor = 0; S.jam = 0; S.burst = null; S.groupsFused = false; S.vcx = 0; S.vcy = 0; S.cycle = 0; S.pending = null; S.cycleGroup = null;
+    S.box = P.startBox * Math.max(S.W, S.H); S.shrinkT = 0; S.floor = 0; S.jam = 0; S.burst = null; S.groupsFused = false; S.vcx = 0; S.vcy = 0; S.bx = 0; S.by = 0; S.hex = null; S.cycle = 0; S.pending = null; S.cycleGroup = null;
     const half = S.box / 2 - P.radius * 1.05, R = P.radius;
     if (P.groups4 && S.mode === 2) {   // diamonds of four on a jittered hexagonal lattice, the middle first
       const sp = P.groupSpacing * R, rowH = sp * 0.866, cols = Math.ceil(2 * half / sp) + 1, rows = Math.ceil(2 * half / rowH) + 1, cs = [];
@@ -190,11 +199,15 @@ export function createSqueeze({ pics = {} } = {}) {
     S.shrinkT += dt;
     const u = clamp(S.shrinkT / P.shrinkTime, 0, 1), e = u * u * (3 - 2 * u), big = Math.max(S.W, S.H);
     const open = S.burst && (!P.cycles || S.t - S.burst.t0 < P.expandTime);
-    const goal = open ? P.burstBox * big : Math.max((P.startBox + (P.endBox - P.startBox) * e) * big, S.floor);
+    let goal = open ? P.burstBox * big : Math.max((P.startBox + (P.endBox - P.startBox) * e) * big, S.floor);
+    if (P.popAllAt != null && P.endBox2 != null && S.t > P.popAllAt && !open) {
+      const v = clamp((S.t - P.popAllAt) / P.shrink2Time, 0, 1);
+      goal = Math.min(goal, (P.endBox + (P.endBox2 - P.endBox) * v * v * (3 - 2 * v)) * big);
+    }
     S.box += (goal - S.box) * Math.min(1, (open ? P.burstRate : S.burst ? P.contractRate : 3) * dt);
     const half = S.box / 2;
 
-    for (const b of blobs) { measure(b); for (const p of b.nodes) { p.fx = 0; p.fy = 0; } for (const k of b.nuclei) { k.fx = 0; k.fy = 0; } }
+    for (const b of blobs) { untangle(b); measure(b); for (const p of b.nodes) { p.fx = 0; p.fy = 0; } for (const k of b.nuclei) { k.fx = 0; k.fy = 0; } }
 
     // neighbours: pairs of blobs whose centres are within a cell of each other (a grid, so a thousand circles stay cheap);
     // the cell covers two radii plus the farthest the repulsion or a contact reaches
@@ -282,6 +295,9 @@ export function createSqueeze({ pics = {} } = {}) {
         }
         bodyForce(hero, -hero.vx * 8 - hero.cx * 0, -hero.vy * 8);
         S.vcx += (hero.cx - S.vcx) * Math.min(1, 6 * dt); S.vcy += (hero.cy - S.vcy) * Math.min(1, 6 * dt);
+        // (the box centred where the view is, so closing back it closes round the helium: its wall came into the
+        // picture below it, the rings flattened on it, the author, 2026-11-22: "a moment we see the bottom of the sim")
+        S.bx = S.vcx; S.by = S.vcy;
       }
     }
 
@@ -433,10 +449,12 @@ export function createSqueeze({ pics = {} } = {}) {
       if (b.state !== "intact") continue;
       if (b.sq > S.maxSq) S.maxSq = b.sq;
       const thr = thresholdOf(b);
-      if (!onScreen(b)) continue;
+      if (!onScreen(b) && !(S.mode === 1 && P.popAllAt != null && S.t >= P.popAllAt + P.popAllSpread)) continue;
       if (S.mode === 1 && b.sq > thr) pop(b);
+      else if (S.mode === 1 && P.popAllAt != null && S.t >= P.popAllAt + P.popAllSpread * Math.min(1, Math.hypot(b.cx - S.vcx, b.cy - S.vcy) / (Math.min(S.W, S.H) * 0.6))) pop(b);
       else if (S.mode === 3 && b.sq > thr) breakBlob(b);
     }
+    if (P.hexAt != null && !S.hex && S.t >= P.hexAt) buildHex();
     if (S.mode === 2) {
       const free = b => !b.bridge && b.state === "intact" && onScreen(b);
       const groups = [];
@@ -605,11 +623,66 @@ export function createSqueeze({ pics = {} } = {}) {
     S.t += dt;
   }
 
+  // A ring thrown about (the fusion's burst) can fold over itself and wind round its centre two or three times, a spiral
+  // that never unwinds (the author, 2026-11-22: "a nucleus that has a weird spiral around it"): its nodes are put back in
+  // order round the centre, one loop, and the springs smooth it from there
+  function untangle(b) {
+    const n = b.nodes.length; if (n < 4) return;
+    let cx = 0, cy = 0; for (const p of b.nodes) { cx += p.x; cy += p.y; } cx /= n; cy /= n;
+    const ang = b.nodes.map(p => Math.atan2(p.y - cy, p.x - cx));
+    let turn = 0;
+    for (let i = 0; i < n; i++) { let d = ang[(i + 1) % n] - ang[i]; if (d > Math.PI) d -= TAU; else if (d < -Math.PI) d += TAU; turn += d; }
+    if (Math.abs(Math.abs(turn) - TAU) < 0.5) return;   // one loop round the centre (a dent in it is fine)
+    const dir = turn < 0 ? -1 : 1, idx = b.nodes.map((p, i) => i).sort((i, j) => dir * (ang[i] - ang[j]));
+    b.nodes = idx.map(i => b.nodes[i]);
+  }
+  function looseAt(k, seed, j) {
+    const a = k.rot + j * TAU / 4 + 0.32 * Math.sin(S.t * 1.25 + seed + j * 2.1), off = k.r * 0.47 * (1 + 0.2 * Math.sin(S.t * 1.6 + seed * 1.3 + j * 1.7));
+    return [k.x + Math.cos(a) * off, k.y + Math.sin(a) * off];
+  }
+  // The hexagonal grid the neutrons settle into: spaced so they touch (or as dense as they already are, if denser), centred
+  // where the view is; each nucleon, nearest the middle first, takes the free site nearest it
+  function buildHex() {
+    const items = [];
+    for (const b of S.blobs) b.nuclei.forEach((k, ki) => { if (b.nuclei.length === 1) for (let j = 0; j < 4; j++) items.push([`${b.id}:${ki}:${j}`, ...looseAt(k, b.id * 7.3 + ki * 13.1, j), k.r]); });
+    if (!items.length) return;
+    const cx = S.vcx, cy = S.vcy, qw = S.W / 4, qh = S.H / 4;
+    const inner = items.filter(([, x, y]) => Math.abs(x - cx) < qw && Math.abs(y - cy) < qh).length || 1;
+    const rn = items[0][3] * 0.5, a = Math.max(2 * rn, Math.sqrt(2 * (4 * qw * qh) / (Math.sqrt(3) * inner))), h = a * Math.sqrt(3) / 2;
+    // sites from the middle out, each taking the nearest nucleon still free: a grid with no holes in it (the other way
+    // round, each nucleon taking the site nearest it, left gaps where none was near)
+    const cell = new Map(), key2 = (i, j) => i * 100003 + j, free = new Set(items.map((_, n) => n));
+    items.forEach(([, x, y], n) => { const k = key2(Math.floor(x / a), Math.floor(y / a)); (cell.get(k) || cell.set(k, []).get(k)).push(n); });
+    const Rmax = Math.max(...items.map(([, x, y]) => Math.hypot(x - cx, y - cy))) + 2 * a, J = Math.ceil(Rmax / h), sites = [];
+    for (let j = -J; j <= J; j++) for (let i = -Math.ceil(Rmax / a) - 1; i <= Math.ceil(Rmax / a) + 1; i++) {
+      const sx = cx + (i + (j & 1) / 2) * a, sy = cy + j * h, d = Math.hypot(sx - cx, sy - cy);
+      if (d <= Rmax) sites.push([d, sx, sy]);
+    }
+    sites.sort((p, q) => p[0] - q[0]);
+    const at = {};
+    for (const [, sx, sy] of sites) {
+      if (!free.size) break;
+      const ci = Math.floor(sx / a), cj = Math.floor(sy / a);
+      let best = -1, bd = Infinity;
+      for (let w = 0; w < 400; w++) {
+        for (let i = ci - w; i <= ci + w; i++) for (let j = cj - w; j <= cj + w; j++) {
+          if (Math.max(Math.abs(i - ci), Math.abs(j - cj)) !== w) continue;
+          for (const n of cell.get(key2(i, j)) || []) if (free.has(n)) { const d = Math.hypot(items[n][1] - sx, items[n][2] - sy); if (d < bd) { bd = d; best = n; } }
+        }
+        if (best >= 0 && bd < (w - 0.5) * a) break;   // nothing nearer can be in a farther ring
+        if (w > 3 && best >= 0) break;
+      }
+      if (best < 0) break;
+      free.delete(best); at[items[best][0]] = [sx, sy];
+    }
+    S.hex = { t0: S.t, a, at };
+  }
   function relieve() { S.shrinkT = Math.max(0, S.shrinkT - S.P.relief); }
   function bodyForce(b, ax, ay) { for (const p of b.nodes) { p.fx += ax; p.fy += ay; } for (const k of b.nuclei) { k.fx += ax; k.fy += ay; } }
-  function wallClamp(p, half) {   // the box's walls are hard
-    if (p.x < -half) { p.x = -half; if (p.vx < 0) p.vx = 0; } else if (p.x > half) { p.x = half; if (p.vx > 0) p.vx = 0; }
-    if (p.y < -half) { p.y = -half; if (p.vy < 0) p.vy = 0; } else if (p.y > half) { p.y = half; if (p.vy > 0) p.vy = 0; }
+  function wallClamp(p, half) {   // the box's walls are hard (round the box's centre, S.bx/by)
+    const x0 = S.bx, y0 = S.by;
+    if (p.x < x0 - half) { p.x = x0 - half; if (p.vx < 0) p.vx = 0; } else if (p.x > x0 + half) { p.x = x0 + half; if (p.vx > 0) p.vx = 0; }
+    if (p.y < y0 - half) { p.y = y0 - half; if (p.vy < 0) p.vy = 0; } else if (p.y > y0 + half) { p.y = y0 + half; if (p.vy > 0) p.vy = 0; }
   }
   // A's nodes against B's segments: a push apart within the contact distance, shared by the segment's ends.
   // Returns whether any node pressed in deeper than touchD (two rings touching, for fusion).
@@ -831,7 +904,7 @@ export function createSqueeze({ pics = {} } = {}) {
     if (P.walls) {
       const h = S.box / 2;
       ctx.strokeStyle = "rgba(123,135,154,0.55)"; ctx.lineWidth = lw * 0.8;
-      ctx.strokeRect(-h, -h, S.box, S.box);
+      ctx.strokeRect(S.bx - h, S.by - h, S.box, S.box);
     }
 
     // electrons: plain dots
@@ -856,10 +929,7 @@ export function createSqueeze({ pics = {} } = {}) {
     };
     // helium's four nucleons, each loose on its own slow wander about its place (the author, 2026-11-20, 5:00: "not stuck
     // to each other but still sort of gravitate, captured by the strong force"): where nucleon j of nucleus k is now
-    const nucleonAt = (k, seed, j) => {
-      const a = k.rot + j * TAU / 4 + 0.32 * Math.sin(S.t * 1.25 + seed + j * 2.1), off = k.r * 0.47 * (1 + 0.2 * Math.sin(S.t * 1.6 + seed * 1.3 + j * 1.7));
-      return [k.x + Math.cos(a) * off, k.y + Math.sin(a) * off];
-    };
+    const nucleonAt = looseAt;
     for (const b of S.blobs) {
       const fill = "#ff3b30";
       for (let ki = 0; ki < b.nuclei.length; ki++) { const k = b.nuclei[ki], seed = b.id * 7.3 + ki * 13.1;
@@ -871,9 +941,16 @@ export function createSqueeze({ pics = {} } = {}) {
         // ring clenches and its two electrons fall in
         if (P.helium && P.pictures && nucleon("proton", 0) && nucleon("neutron", 0)) {
           const rn = k.r * 0.5, off = k.r * 0.47, d = rn * 2 / 0.78;
+          const hs = S.hex && S.hex.at, hu = hs ? smooth01((S.t - S.hex.t0) / P.hexTime) : 0;
           for (let j = 0; j < 4; j++) {
-            const [x, y] = nucleonAt(k, seed, j), pj = grey || j % 2 ? "neutron" : "proton";
-            ctx.save(); ctx.translate(x, y); ctx.rotate(k.rot + j * 1.3); ctx.drawImage(nucleon(pj, seed + j * 5.7), -d / 2, -d / 2, d, d); ctx.restore();
+            let [x, y] = nucleonAt(k, seed, j), dd = d;
+            const site = hs && hs[`${b.id}:${ki}:${j}`];
+            if (site) {   // on its way to its site in the grid, then a small tremble there; drawn to touch its neighbours
+              const sx = site[0] + S.hex.a * 0.03 * Math.sin(S.t * 1.9 + seed + j * 2.3), sy = site[1] + S.hex.a * 0.03 * Math.cos(S.t * 1.6 + seed * 0.7 + j);
+              x += (sx - x) * hu; y += (sy - y) * hu; dd = d + (S.hex.a / 0.78 - d) * hu;
+            }
+            const pj = grey || j % 2 ? "neutron" : "proton";
+            ctx.save(); ctx.translate(x, y); ctx.rotate(k.rot + j * 1.3); ctx.drawImage(nucleon(pj, seed + j * 5.7), -dd / 2, -dd / 2, dd, dd); ctx.restore();
           }
           if (flash > 0) { ctx.beginPath(); ctx.arc(k.x, k.y, k.r, 0, TAU); ctx.fillStyle = `rgba(255,255,255,${flash})`; ctx.fill(); }
           continue;
