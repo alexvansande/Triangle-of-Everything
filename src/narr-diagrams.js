@@ -72,49 +72,77 @@ function nucleonSprites() {
 }
 // The proton as a three-sided die (the author, 2026-11-22: "protons and neutrons are still too similar … make them be made
 // of the 3 basic colors and switch around quickly as if it was some sort three sided dice … and then only becomes gray
-// once it's a neutron"): three lobes, red, green and blue, added together so where all three overlap it's white (the
-// quarks' colours making no colour); it tumbles, and every third of a second it rolls a third of a turn while two lobes
-// trade colours with a flash between them, a gluon going across. 72 frames played at 18 a second (`fps`), a loop: twelve
-// rolls make four turns and the swaps come back to where they began.
+// once it's a neutron"; then, with a photo of a twisted ring die: "Make it a sphere with 3 lobes but a twist like this"):
+// a ball of three lobes, red, green and blue, running pole to pole and twisted a third of a turn on the way like that
+// band, ray-traced and lit. It tumbles, and every third of a second it rolls a third of a turn while two lobes trade
+// colours, a white flash along the seam between them (a gluon going across). 72 frames played at 18 a second (`fps`), a
+// loop: twelve rolls make four turns, and the swaps come back to where they began. Traced a few frames at a time, so
+// the page doesn't stall; spritesPending waits for all of them.
 function protonDice() {
-  const TAU = Math.PI * 2, N = 72, STEP = 6, S = SPRITE_PX, frames = [], C = [[255, 40, 40], [40, 235, 70], [50, 110, 255]];
+  const TAU = Math.PI * 2, N = 72, STEP = 6, S = SPRITE_PX, PX = 192, frames = [], C = [[255, 45, 45], [45, 225, 80], [55, 115, 255]];
   const swaps = [[0, 1], [1, 2], [2, 0]], ease = (u) => u * u * (3 - 2 * u);
-  let perm = [0, 1, 2];
-  const perms = [];
+  const LOBE = 0.15, TWIST = 2.1, SC = 1.25;            // lobe depth, twist (rad per unit height: 240° pole to pole, so all three colours show from any side), view half-width
+  const perms = []; let perm = [0, 1, 2];
   for (let k = 0; k < N / STEP; k++) { perms.push(perm.slice()); const [i, j] = swaps[k % 3]; [perm[i], perm[j]] = [perm[j], perm[i]]; }
-  for (let f = 0; f < N; f++) {
-    const k = Math.floor(f / STEP), v = (f % STEP) / STEP, roll = ease(Math.min(1, v / 0.55));
-    const P0 = perms[k], P1 = perms[(k + 1) % perms.length], mix = ease(Math.min(1, Math.max(0, (v - 0.3) / 0.5)));
-    const ang = (k + roll) * TAU / 3 + 0.3 * Math.sin(f / N * TAU * 2);
-    const tilt = 0.84 + 0.16 * Math.cos(f / N * TAU * 3), axis = f / N * TAU;   // a tumble: squashed along a turning axis
+  const radius = (x, y, z) => { const r = Math.hypot(x, y, z) || 1e-9, zz = z / r, sxy = Math.sqrt(Math.max(0, 1 - zz * zz));
+    return 1 + LOBE * Math.cos(3 * (Math.atan2(y, x) - TWIST * zz)) * sxy ** 1.5; };
+  const f = (x, y, z) => Math.hypot(x, y, z) - radius(x, y, z);
+  const rot = (ax, ay, az) => { const [ca, sa, cb, sb, cc, sc] = [Math.cos(ax), Math.sin(ax), Math.cos(ay), Math.sin(ay), Math.cos(az), Math.sin(az)];
+    // view = Rx(ax)·Ry(ay)·Rz(az), rows
+    const Rz = [[cc, -sc, 0], [sc, cc, 0], [0, 0, 1]], Ry = [[cb, 0, sb], [0, 1, 0], [-sb, 0, cb]], Rx = [[1, 0, 0], [0, ca, -sa], [0, sa, ca]];
+    const mul = (A, B) => A.map(r => [0, 1, 2].map(j => r[0] * B[0][j] + r[1] * B[1][j] + r[2] * B[2][j]));
+    return mul(Rx, mul(Ry, Rz)); };
+  const L = (() => { const v = [-0.45, -0.6, 0.66], n = Math.hypot(...v); return v.map(q => q / n); })();
+  const Hh = (() => { const v = [L[0], L[1], L[2] + 1], n = Math.hypot(...v); return v.map(q => q / n); })();
+  function frame(fi) {
+    const k = Math.floor(fi / STEP), v = (fi % STEP) / STEP, roll = ease(Math.min(1, v / 0.55));
+    const P0 = perms[k], P1 = perms[(k + 1) % perms.length], mix = ease(Math.min(1, Math.max(0, (v - 0.45) / 0.12)));
+    const M = rot(1.05 + 0.3 * Math.sin(fi / N * TAU * 2), 0.45 * Math.sin(fi / N * TAU), (k + roll) * TAU / 3);
+    const flash = Math.max(0, 1 - Math.abs(v - 0.5) / 0.28), [fa, fb] = swaps[k % 3];
+    const img = new ImageData(PX, PX), d = img.data, Rb = 1 + LOBE;
+    for (let py = 0; py < PX; py++) for (let px = 0; px < PX; px++) {
+      const X = ((px + 0.5) / PX * 2 - 1) * SC, Y = ((py + 0.5) / PX * 2 - 1) * SC, rr = X * X + Y * Y;
+      if (rr >= Rb * Rb) continue;
+      // the ray (view space: from the viewer, z toward them) in the ball's own frame: Mᵀ
+      const zf = Math.sqrt(Rb * Rb - rr), o = (vx, vy, vz) => [M[0][0] * vx + M[1][0] * vy + M[2][0] * vz, M[0][1] * vx + M[1][1] * vy + M[2][1] * vz, M[0][2] * vx + M[1][2] * vy + M[2][2] * vz];
+      const [ox, oy, oz] = o(X, Y, zf), [dx, dy, dz] = o(0, 0, -1);
+      let t0 = 0, t = 0, hit = false;
+      for (; t <= 2 * zf; t += 0.07) { if (f(ox + dx * t, oy + dy * t, oz + dz * t) < 0) { hit = true; break; } t0 = t; }
+      if (!hit) continue;
+      let a = t0, b = t; for (let i = 0; i < 7; i++) { const m = (a + b) / 2; if (f(ox + dx * m, oy + dy * m, oz + dz * m) < 0) b = m; else a = m; }
+      const x = ox + dx * b, y = oy + dy * b, z = oz + dz * b, e = 0.004;
+      let nx = f(x + e, y, z) - f(x - e, y, z), ny = f(x, y + e, z) - f(x, y - e, z), nz = f(x, y, z + e) - f(x, y, z - e);
+      const nn = Math.hypot(nx, ny, nz) || 1; nx /= nn; ny /= nn; nz /= nn;
+      const vnx = M[0][0] * nx + M[0][1] * ny + M[0][2] * nz, vny = M[1][0] * nx + M[1][1] * ny + M[1][2] * nz, vnz = M[2][0] * nx + M[2][1] * ny + M[2][2] * nz;
+      // which lobe: the third of the twisted turn it's in; near a seam, a thin bright line
+      const zz = z / Math.hypot(x, y, z), u = ((Math.atan2(y, x) - TWIST * zz) / (TAU / 3) % 3 + 3) % 3, li = Math.floor(u) % 3, fr = u - Math.floor(u);
+      const c0 = C[P0[li]], c1 = C[P1[li]], base = c0.map((q, n) => q + (c1[n] - q) * mix);
+      const diff = Math.max(0, vnx * L[0] + vny * L[1] + vnz * L[2]), spec = Math.max(0, vnx * Hh[0] + vny * Hh[1] + vnz * Hh[2]) ** 28, rim = (1 - Math.max(0, vnz)) ** 2;
+      const seam = Math.max(0, 1 - Math.min(fr, 1 - fr) / 0.035);
+      const sl = (li + (fr > 0.5 ? 1 : 0)) % 3, sr = (sl + 2) % 3;   // the seam's two lobes
+      const glu = flash * seam * ((sl === fa && sr === fb) || (sl === fb && sr === fa) || ((sl + 1) % 3 === fa && sl === fb) ? 1 : 0.35);
+      const j = (py * PX + px) * 4;
+      for (let n = 0; n < 3; n++) {
+        let c = base[n] * (0.22 + 0.9 * diff) + 255 * 0.55 * spec + base[n] * 0.35 * rim;
+        c = c * (1 - 0.55 * seam) + 255 * (0.45 * seam + glu);
+        d[j + n] = Math.min(255, c);
+      }
+      d[j + 3] = 255;
+    }
+    const tmp = document.createElement("canvas"); tmp.width = tmp.height = PX; tmp.getContext("2d").putImageData(img, 0, 0);
+    // into the sprite's frame, the ball the same share of it as the neutron's picture (its body ~78% across)
     const c = document.createElement("canvas"); c.width = c.height = S; const g = c.getContext("2d");
-    g.translate(S / 2, S / 2); g.rotate(axis); g.scale(1, tilt); g.rotate(ang - axis);
-    g.globalCompositeOperation = "lighter";
-    const off = S * 0.13, rl = S * 0.27;
-    const at = (i) => [Math.cos(i * TAU / 3 - Math.PI / 2) * off, Math.sin(i * TAU / 3 - Math.PI / 2) * off];
-    for (let i = 0; i < 3; i++) {
-      const a = C[P0[i]], b = C[P1[i]], col = a.map((x, n) => Math.round(x + (b[n] - x) * mix)), [x, y] = at(i);
-      const gr = g.createRadialGradient(x - rl * 0.25, y - rl * 0.3, rl * 0.05, x, y, rl);
-      gr.addColorStop(0, `rgba(${col.map(q => Math.min(255, q + 90)).join(",")},1)`);
-      gr.addColorStop(0.6, `rgba(${col.join(",")},0.95)`);
-      gr.addColorStop(0.9, `rgba(${col.join(",")},0.35)`);
-      gr.addColorStop(1, `rgba(${col.join(",")},0)`);
-      g.fillStyle = gr; g.beginPath(); g.arc(x, y, rl, 0, TAU); g.fill();
-    }
-    // the gluon: a bright stroke between the two lobes trading colours, at the swap's middle
-    const flash = Math.max(0, 1 - Math.abs(v - 0.5) / 0.28);
-    if (flash > 0) {
-      const [i, j] = swaps[k % 3], [x1, y1] = at(i), [x2, y2] = at(j);
-      g.strokeStyle = `rgba(255,255,230,${0.85 * flash})`; g.lineWidth = S * 0.03; g.lineCap = "round";
-      g.beginPath(); g.moveTo(x1, y1); g.quadraticCurveTo(0, 0, x2, y2); g.stroke();
-    }
-    frames.push(c);
+    const w = S * 0.78 / 2 * SC / 1.06 * 2; g.drawImage(tmp, (S - w) / 2, (S - w) / 2, w, w);
+    return c;
   }
-  frames.fps = 18;
+  frames.fps = 18; frames.total = N;
+  let next = 0;
+  const work = () => { const t0 = performance.now(); while (next < N && performance.now() - t0 < 30) frames.push(frame(next++)); if (next < N) setTimeout(work, 0); };
+  work();
   return frames;
 }
 export const nucleonFrames = () => nucleonSprites();
-export const spritesPending = () => { const s = nucleonSprites(); return s.failed || (s.proton && s.neutron) ? 0 : 1; };
+export const spritesPending = () => { const s = nucleonSprites(); return (s.proton && s.proton.length < s.proton.total ? 1 : 0) + (s.failed || s.neutron ? 0 : 1); };
 const picsPending = (slugs) => slugs.map(pic).filter(im => im.__ok && !(im.complete && im.naturalWidth)).length;
 // the chart's own particles (the author, 2026-11-07: "the proton isn't a red dot, we have a nice image of it"):
 // drawn centred at (x, y), `d` wide; a dot of the given colour until the picture has arrived
