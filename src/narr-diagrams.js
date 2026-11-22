@@ -49,6 +49,7 @@ let _sprites = null;
 function nucleonSprites() {
   if (_sprites) return _sprites;
   _sprites = { proton: null, neutron: null, failed: false };
+  const dice = protonDice(); let hopfProton = null;
   (async () => {
     try {
       const { core, renderer } = await hopfCore(); renderer.resize(SPRITE_PX);
@@ -63,23 +64,43 @@ function nucleonSprites() {
           renderer.render(view, HOPF_OPTS, [c.getContext("2d"), 0, 0, SPRITE_PX, SPRITE_PX]);
           frames.push(c);
         }
-        if (name === "neutron") _sprites[name] = frames;
+        if (name === "neutron") _sprites[name] = frames; else hopfProton = frames;
       }
-    } catch (err) { console.warn("live neutrons unavailable, keeping the stills:", err.message); _sprites.failed = true; }
+      _sprites.proton = tintProton(hopfProton, await dice);
+    } catch (err) { console.warn("live nucleons unavailable, keeping the stills:", err.message); _sprites.failed = true; _sprites.proton = await dice; }
   })();
-  _sprites.proton = protonDice();
   return _sprites;
+}
+// the old proton's shape coloured by the twisted die, blurred (the author, 2026-11-22: "Pick the shape you just did, blur
+// it and use that to color over the old proton shape"): each of the die's 120 frames over the proton's turning picture
+// (three die frames to each of its 40, so both loops meet), in the die's colours and the picture's light, cut to its outline
+function tintProton(hopf, dice) {
+  const S = SPRITE_PX, out = [];
+  dice.forEach((D, i) => {
+    const H = hopf[Math.floor(i / 3) % hopf.length], c = document.createElement("canvas"); c.width = c.height = S; const g = c.getContext("2d");
+    g.drawImage(H, 0, 0);
+    // (blurred, a little larger than the picture so its rim takes colour too; multiplied in, then its colour on top: the
+    // picture is nearly white, so colour alone came out pastel)
+    const k = 1.18, o = -S * (k - 1) / 2;
+    g.filter = `blur(${S * 0.035}px)`;
+    g.globalCompositeOperation = "multiply"; g.globalAlpha = 0.8; g.drawImage(D, o, o, S * k, S * k);
+    g.globalCompositeOperation = "color"; g.globalAlpha = 1; g.drawImage(D, o, o, S * k, S * k);
+    g.filter = "none"; g.globalCompositeOperation = "destination-in"; g.drawImage(H, 0, 0);
+    out.push(c);
+  });
+  out.fps = dice.fps; out.total = out.length;
+  return out;
 }
 // The proton as a three-sided die (the author, 2026-11-22: "protons and neutrons are still too similar … make them be made
 // of the 3 basic colors and switch around quickly as if it was some sort three sided dice … and then only becomes gray
 // once it's a neutron"; then, with a photo of a twisted ring die: "Make it a sphere with 3 lobes but a twist like this"):
 // a ball of three lobes, red, green and blue, running pole to pole and twisted a third of a turn on the way like that
 // band, ray-traced and lit. It tumbles, and every third of a second it rolls a third of a turn while two lobes trade
-// colours, a white flash along the seam between them (a gluon going across). 72 frames played at 18 a second (`fps`), a
-// loop: twelve rolls make four turns, and the swaps come back to where they began. Traced a few frames at a time, so
+// colours, a white flash along the seam between them (a gluon going across). 120 frames played at 18 a second (`fps`), a
+// loop: twenty-four rolls make eight turns, and the swaps come back to where they began. Traced a few frames at a time, so
 // the page doesn't stall; spritesPending waits for all of them.
 function protonDice() {
-  const TAU = Math.PI * 2, N = 72, STEP = 6, S = SPRITE_PX, PX = 192, frames = [], C = [[255, 45, 45], [45, 225, 80], [55, 115, 255]];
+  const TAU = Math.PI * 2, N = 120, STEP = 5, S = SPRITE_PX, PX = 128, frames = [], C = [[255, 45, 45], [45, 225, 80], [55, 115, 255]];
   const swaps = [[0, 1], [1, 2], [2, 0]], ease = (u) => u * u * (3 - 2 * u);
   const LOBE = 0.15, TWIST = 2.1, SC = 1.25;            // lobe depth, twist (rad per unit height: 240° pole to pole, so all three colours show from any side), view half-width
   const perms = []; let perm = [0, 1, 2];
@@ -137,12 +158,13 @@ function protonDice() {
   }
   frames.fps = 18; frames.total = N;
   let next = 0;
-  const work = () => { const t0 = performance.now(); while (next < N && performance.now() - t0 < 30) frames.push(frame(next++)); if (next < N) setTimeout(work, 0); };
-  work();
-  return frames;
+  return new Promise((done) => {
+    const work = () => { const t0 = performance.now(); while (next < N && performance.now() - t0 < 30) frames.push(frame(next++)); next < N ? setTimeout(work, 0) : done(frames); };
+    work();
+  });
 }
 export const nucleonFrames = () => nucleonSprites();
-export const spritesPending = () => { const s = nucleonSprites(); return (s.proton && s.proton.length < s.proton.total ? 1 : 0) + (s.failed || s.neutron ? 0 : 1); };
+export const spritesPending = () => { const s = nucleonSprites(); return (s.proton ? 0 : 1) + (s.failed || s.neutron ? 0 : 1); };
 const picsPending = (slugs) => slugs.map(pic).filter(im => im.__ok && !(im.complete && im.naturalWidth)).length;
 // the chart's own particles (the author, 2026-11-07: "the proton isn't a red dot, we have a nice image of it"):
 // drawn centred at (x, y), `d` wide; a dot of the given colour until the picture has arrived

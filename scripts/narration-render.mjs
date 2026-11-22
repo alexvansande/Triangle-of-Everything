@@ -154,7 +154,7 @@ async function renderRange(t0, t1, file, label) {
   // twice in video 2, 2026-10-29: at the workers' joins, 1:07.7 and 3:23.2)
   const PRE = 2, tw = Math.max(0, t0 - PRE);
   await drawAt(tw, `; window.__narr.settle(${tw})`);
-  for (let i = 0; i < 60 && await pendingAll(); i++) await new Promise(r => setTimeout(r, 250));
+  for (let i = 0; i < 120 && await pendingAll(); i++) await new Promise(r => setTimeout(r, 250));   // (up to 30 s: the proton's traced die takes a few)
   await drawAt(tw, `; window.__narr.settle(${tw})`);
   await new Promise(r => setTimeout(r, 1500));   // the pop-ins started by the cold start finish in real time
   await page.evaluate("window.__vclock.freeze()");

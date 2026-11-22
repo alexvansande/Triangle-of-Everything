@@ -27,7 +27,7 @@ const missing = await p.evaluate("window.__narrMissing");
 console.log(missing.length ? `${take}: phrases not found: ${JSON.stringify(missing)}` : `${take}: every cue found`);
 for (const t of times) {
   await p.evaluate(`window.__narr.renderAt(${t}); window.__narr.settle(${t})`);
-  for (let i = 0; i < 20 && await p.evaluate("window.__narr.pending()"); i++) await new Promise(r => setTimeout(r, 150));
+  for (let i = 0; i < 100 && await p.evaluate("window.__narr.pending()"); i++) await new Promise(r => setTimeout(r, 150));   // (up to 15 s, as the render: the nucleon loops take a few)
   await new Promise(r => setTimeout(r, 1200));   // highlights finish easing in
   await p.evaluate(`window.__narr.renderAt(${t})`);
   await p.screenshot({ path: `${out}/${take}-${t}.png` });
