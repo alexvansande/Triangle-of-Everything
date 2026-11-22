@@ -436,6 +436,18 @@ width, keeping its scale). The nightly render skips the whole takes `video/rende
 "…this series of videos", a 2 s pause while the camera moves on to Eois stantonae, then video 2
 whole). Recording nothing again; re-run the tool when a source take changes.
 
+**False starts and restarts.** Whisper writes what the speaker meant: a line said twice comes out once, the dropped
+try glued into one long word, so a cut by phrase can't find it. `scripts/narration-verbatim.py <take>` runs a CTC
+model with no language model (wav2vec2, `uv run --with torch --with transformers --with soundfile --with numpy`,
+about a minute for ten minutes of voice) that writes every try, lines it up against Whisper's words and lists each
+run Whisper left out, with its time in the take (numbers spelt out and names misheard show up too: read the list).
+With `--write` it moves Whisper's words onto the try the speaker finished, so the words of the line that stays
+survive the cut. A piece's `"drop": [[t0, t1], …]` (take seconds) then cuts each false start out, from its first
+word to just before the clean try: the piece plays on in sub-pieces with no gap, and the player brings any cue
+inside a dropped stretch to the next sub-piece. A sim or a zoom keyed on seconds after its cue loses those seconds:
+check its timing (long video 2's weak force, 2026-11-22). Run the script on the cut afterwards: a run left over is
+a restart still in.
+
 ## Reference figures
 
 - **What has been ruled out as dark matter**: [`img/dark-matter-constraints.png`](img/dark-matter-constraints.png)
