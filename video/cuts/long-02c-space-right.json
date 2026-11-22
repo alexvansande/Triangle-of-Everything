@@ -5,7 +5,53 @@
   "gap": 0.6,
   "segments": [
     {
-      "take": "long-02b-right"
+      "take": "long-02b-right",
+      "drop": [
+        [
+          0.0,
+          1.62
+        ],
+        [
+          61.14,
+          62.82
+        ],
+        [
+          127.4,
+          130.2
+        ],
+        [
+          188.22,
+          189.86
+        ],
+        [
+          192.16,
+          195.1
+        ],
+        [
+          207.18,
+          209.42
+        ],
+        [
+          238.34,
+          240.54
+        ],
+        [
+          251.2,
+          256.1
+        ],
+        [
+          335.58,
+          337.58
+        ],
+        [
+          385.56,
+          388.96
+        ],
+        [
+          393.02,
+          393.66
+        ]
+      ]
     }
   ],
   "_note": "Part two of long video 2 (the author, 2026-11-20: a 12- and a 6-minute video instead of one of 18): rec76 (long-02b-right), from the nebulae to the furthest light. Part one is long-02b-space.",
@@ -18,5 +64,6 @@
       "after": true
     }
   ],
-  "_music": "One piece after another, no changes at the joins: Dreamer, then Soaring to the credits (part one plays Immersed, Fresh Air and Mesmerize)."
+  "_music": "One piece after another, no changes at the joins: Dreamer, then Soaring to the credits (part one plays Immersed, Fresh Air and Mesmerize).",
+  "_drop": "False starts and restarts cut (take seconds), found by scripts/narration-verbatim.py: Whisper smoothed them away (the author, 2026-11-22)"
 }

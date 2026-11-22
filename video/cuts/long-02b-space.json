@@ -11,7 +11,53 @@
     {
       "take": "long-02b-opening",
       "from": "What's happening is that everything",
-      "carry": "glide"
+      "carry": "glide",
+      "drop": [
+        [
+          230.1,
+          230.6
+        ],
+        [
+          302.38,
+          305.38
+        ],
+        [
+          347.3,
+          348.96
+        ],
+        [
+          358.96,
+          360.02
+        ],
+        [
+          424.38,
+          426.5
+        ],
+        [
+          458.08,
+          459.52
+        ],
+        [
+          530.6,
+          532.58
+        ],
+        [
+          583.96,
+          585.04
+        ],
+        [
+          629.4,
+          630.74
+        ],
+        [
+          652.88,
+          654.9
+        ],
+        [
+          678.24,
+          681.54
+        ]
+      ]
     }
   ],
   "_note": "Part one of long video 2 (the author, 2026-11-20: \"we should end the video at the 'lucky few survivors' line and cut the second part separatedly. It will be a 12 and 6 minutes video\"): rec75 (long-02b-opening), from the map of every single thing to the lucky few survivors, the forces Short's own opening left out (its 'intro' clips, after 'What is it?'). Part two, from the nebulae to the furthest light (rec76), is long-02c-space-right. Until 2026-11-20 the two were one 18-minute video; that cut is in git history.",
@@ -28,5 +74,6 @@
       "after": true
     }
   ],
-  "_music": "One piece after another under the whole video, no changes at the joins (the author, 2026-11-17: 'the long videos should not have music cuts'): Immersed, Fresh Air, then Mesmerize to the credits (part two plays Dreamer and Soaring)."
+  "_music": "One piece after another under the whole video, no changes at the joins (the author, 2026-11-17: 'the long videos should not have music cuts'): Immersed, Fresh Air, then Mesmerize to the credits (part two plays Dreamer and Soaring).",
+  "_drop": "False starts and restarts cut (take seconds), found by scripts/narration-verbatim.py: Whisper smoothed them away (the author, 2026-11-22)"
 }

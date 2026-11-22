@@ -118,17 +118,30 @@ def main(name):
         # a piece's own `speed` (atempo, voice and mix): a take recorded at a different pace from the others, played at
         # theirs (the author, 2026-11-09: rec59's ending at video 4's 1.1×); its words and its scene's cues move with it
         sp = s.get("speed", 1)
-        words += [[w, round((t0 - a) / sp + at, 3), round((t1 - a) / sp + at, 3)] for w, t0, t1 in ws[i:j + 1]]
-        seg = {"take": s["take"], "scene": src.get("scene", s["take"]), "from": round(a, 3), "to": round(b, 3),
-               "at": round(at, 3), "tempo": round(src.get("tempo", 1) * sp, 3)}
-        if sp != 1: seg["speed"] = sp
-        # `carry: false`: the piece keeps the camera and marks of the one before instead of starting from its own scene's
-        # (a jump at the join where the two scenes framed the moment differently: the author, 2026-11-09)
-        # `carry: "glide"`: the camera glides (2.5 s) to its own scene's framing, and the marks of before are dropped
-        if "carry" in s: seg["carry"] = s["carry"]
-        segments.append(seg)
-        pieces.append((s["take"], src, a, b, at, (b - a) / sp, sp, s.get("room")))
-        at += (b - a) / sp
+        # `drop`: [[t0, t1], …] take seconds cut out of the piece: the false starts and restarts Whisper smoothed away,
+        # found by scripts/narration-verbatim.py (the author, 2026-11-22: "We have lots of double takes and false
+        # starts … we need a better system"). The piece plays on in sub-pieces joined with no gap; the player carries
+        # the cues of a dropped stretch to the next sub-piece (`dropJoin`)
+        spans, x = [], a
+        for d0, d1 in sorted(s.get("drop", [])):
+            if d1 <= x or d0 >= b: continue
+            if d0 > x: spans.append((x, d0))
+            x = max(x, d1)
+        spans.append((x, b))
+        for k, (pa, pb) in enumerate(spans):
+            words += [[w, round((t0 - pa) / sp + at, 3), round((t1 - pa) / sp + at, 3)] for w, t0, t1 in ws[i:j + 1]
+                      if pa <= (t0 + t1) / 2 < pb]
+            seg = {"take": s["take"], "scene": src.get("scene", s["take"]), "from": round(pa, 3), "to": round(pb, 3),
+                   "at": round(at, 3), "tempo": round(src.get("tempo", 1) * sp, 3)}
+            if sp != 1: seg["speed"] = sp
+            # `carry: false`: the piece keeps the camera and marks of the one before instead of starting from its own scene's
+            # (a jump at the join where the two scenes framed the moment differently: the author, 2026-11-09)
+            # `carry: "glide"`: the camera glides (2.5 s) to its own scene's framing, and the marks of before are dropped
+            if "carry" in s and k == 0: seg["carry"] = s["carry"]
+            if k: seg["dropJoin"] = True
+            segments.append(seg)
+            pieces.append((s["take"], src, pa, pb, at, (pb - pa) / sp, sp, s.get("room")))
+            at += (pb - pa) / sp
     last_src = pieces[-1][1]
     credits = last_src.get("credits") or 3
     speech_end = round(at - (credits if pieces[-1][3] > last_src["duration"] else 0), 3)

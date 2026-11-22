@@ -168,7 +168,9 @@ async function cutCues(take, name) {
     // (a piece that goes straight on from the one before in the same take carries nothing: it's already there; the
     // first piece's state is in place from the cut's first frame, through its lead)
     const prev = parts[i - 1]?.s;
-    const joined = prev && prev.take === s.take && Math.abs(prev.to - s.from) < 0.05;
+    // (a piece after a dropped restart, cut `drop`, goes straight on too: the cues of the dropped stretch come at its start)
+    const joined = prev && prev.take === s.take && (Math.abs(prev.to - s.from) < 0.05 || s.dropJoin);
+    const lo = s.dropJoin && prev ? prev.to : s.from - 0.01;
     const at0 = s === first.s ? 0 : s.at, glide = s.carry === "glide";
     if (s.from > 0 && cam && s.carry !== false && !joined) all.push({ cam: { ...cam.cam, glide: false, whip: false }, dur: glide && s !== first.s ? (s.glideDur ?? 2.5) : 0.05, drift: cam.drift, time: at0 });
     if (s.from > 0 && hl?.hl && s.carry !== false && !glide && !joined) all.push({ hl: hl.hl.map(h => ({ ...h, delay: 0, draw: 0.01 })), time: at0 + 0.001 });
@@ -184,13 +186,13 @@ async function cutCues(take, name) {
       // the forces Short opened on a black frame, the author, 2026-11-18)
       all.push({ [f]: { to: v, dur: glide && s !== first.s ? 1.5 : 0.01 }, time: s === first.s ? -0.05 : at0 });
     }
-    for (const c of rc) if (c.time >= s.from - 0.01 && c.time < s.to) all.push({ ...c, time: move(c.time) });
+    for (const c of rc) if (c.time >= lo && c.time < s.to) all.push({ ...c, time: Math.max(s.at, move(c.time)) });
     // a piece over the powers-of-ten zoom (5d in long video 2): the zoom's script keys its moves on its own take's
     // clock (Earth at 0, its stops a few seconds after each mark), so it's handed that clock, not the cut's
     if (scene.zoom && all.zoomShift == null) all.zoomShift = s.at - s.from;
     // its sound cues inside it too, for a cut whose mix is made whole (narration-sound.mjs: a cut
     // with its own music, words.json "music")
-    for (const c of rc.sound || []) if (c.s >= s.from - 0.01 && c.s < s.to) sound.push({ ...c, s: move(c.s), e: move(Math.min(c.e, s.to)) });
+    for (const c of rc.sound || []) if (c.s >= lo && c.s < s.to) sound.push({ ...c, s: Math.max(s.at, move(c.s)), e: move(Math.min(c.e, s.to)) });
   }
   // the cut's own scene (src/narration-scenes/<cut>.js, if any): cues on the cut's own words,
   // on top of its pieces' (short-02b-planets introduces the axes and the line)
