@@ -83,10 +83,13 @@ function tintProton(hopf, dice) {
     // picture is nearly white, so colour alone came out pastel)
     const k = 1.18, o = -S * (k - 1) / 2;
     g.filter = `blur(${S * 0.035}px)`;
-    g.globalCompositeOperation = "multiply"; g.globalAlpha = 0.8; g.drawImage(D, o, o, S * k, S * k);
+    g.globalCompositeOperation = "multiply"; g.globalAlpha = 0.7; g.drawImage(D, o, o, S * k, S * k);
     g.globalCompositeOperation = "color"; g.globalAlpha = 1; g.drawImage(D, o, o, S * k, S * k);
     g.filter = "none"; g.globalCompositeOperation = "destination-in"; g.drawImage(H, 0, 0);
-    out.push(c);
+    // (then more saturated and brighter: the author, 2026-11-22, "I like the new proton but saturate and brighten it a bit more")
+    const c2 = document.createElement("canvas"); c2.width = c2.height = S; const g2 = c2.getContext("2d");
+    g2.filter = "saturate(1.6) brightness(1.3)"; g2.drawImage(c, 0, 0);
+    out.push(c2);
   });
   out.fps = dice.fps; out.total = out.length;
   return out;
