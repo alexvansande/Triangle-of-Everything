@@ -447,6 +447,8 @@ word to just before the clean try: the piece plays on in sub-pieces with no gap,
 inside a dropped stretch to the next sub-piece. A sim or a zoom keyed on seconds after its cue loses those seconds:
 check its timing (long video 2's weak force, 2026-11-22). Run the script on the cut afterwards: a run left over is
 a restart still in.
+It's a standing step now (the author, 2026-11-23, after long video 2's draft: it caught all but one false start): `narration-cut.py` warns for every take in a cut that hasn't had `--write` run
+on it, and the check on the finished cut is read in full before the draft goes out.
 
 ## Reference figures
 

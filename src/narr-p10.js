@@ -31,7 +31,7 @@ const clamp01 = x => Math.max(0, Math.min(1, x));
 const smooth = x => { x = clamp01(x); return x * x * (3 - 2 * x); };
 const LOG2_10 = Math.log2(10);
 
-const DEFAULT_SIM = { at: "a new player enters", mode: 3, from: 11.5, P: { helium: true, hexAt: 23.7 }, zoom: [[0, 2.4], [34, 3.0]] };
+const DEFAULT_SIM = { at: "a new player enters", mode: 3, from: 11.5, P: { helium: true, hexAt: 21.6, hexTime: 1.6 }, zoom: [[0, 2.4], [34, 3.0]] };
 
 export function p10Pending() { return spritesPending(); }
 
@@ -340,8 +340,9 @@ function strokeGrid(ctx, W, H, sp, a, lw) {
   ctx.strokeStyle = `rgba(225,235,255,${a})`; ctx.lineWidth = lw;
   ctx.beginPath();
   const nx = Math.ceil(cx / sp), ny = Math.ceil(cy / sp);
-  for (let i = -nx; i <= nx; i++) { const x = Math.round(cx + i * sp) + 0.5; ctx.moveTo(x, 0); ctx.lineTo(x, H); }
-  for (let j = -ny; j <= ny; j++) { const y = Math.round(cy + j * sp) + 0.5; ctx.moveTo(0, y); ctx.lineTo(W, y); }
+  // (offset half a square, so one square sits right in the middle of the frame)
+  for (let i = -nx - 1; i <= nx; i++) { const x = Math.round(cx + (i + 0.5) * sp) + 0.5; ctx.moveTo(x, 0); ctx.lineTo(x, H); }
+  for (let j = -ny - 1; j <= ny; j++) { const y = Math.round(cy + (j + 0.5) * sp) + 0.5; ctx.moveTo(0, y); ctx.lineTo(W, y); }
   ctx.stroke();
 }
 
@@ -366,20 +367,23 @@ function drawGrid(ctx, W, H, logF, dS, fade, Z) {
       strokeGrid(ctx, W, H, sp, a, lw);
     }
   }
-  // the square up and left of the centre, outlined, and named on it while it's slow enough to read
+  // the square in the middle of the frame, outlined, its name riding on it as it shrinks (the author, 2026-11-23: "The
+  // square zooming out showing the units should be in the center. Try moving the text with it like we do in the powers
+  // of 10"): the words keep their size and stay on the square's top edge, inside while it's roomy, then just above it
   const cx = W / 2, cy = H / 2;
   for (let d = -15; d <= 3; d += 3) {
     const sp = sideOf(d, logF, W);
     const a = fade * squareA(sp, H);
     if (a < 0.01) continue;
     ctx.lineWidth = 1.6 * lw; ctx.strokeStyle = `rgba(240,245,255,${0.55 * a})`;
-    ctx.strokeRect(Math.round(cx - sp) + 0.5, Math.round(cy - sp) + 0.5, Math.round(sp), Math.round(sp));
+    ctx.strokeRect(Math.round(cx - sp / 2) + 0.5, Math.round(cy - sp / 2) + 0.5, Math.round(sp), Math.round(sp));
     if (!Z.onSquare(d)) continue;
     const r = sp / H, la = a * smooth((Math.log10(LBL_HI) - Math.log10(r)) / 0.1) * smooth((Math.log10(r) - Math.log10(LBL_LO)) / 0.1);
     if (la < 0.01) continue;
     // inside the square while it's roomy, just above its corner once it's small
-    const inside = sp > size * 4, pad = Math.max(size * 0.45, 0.06 * sp);
-    label(ctx, unitLabel(d), cx - sp + (inside ? pad : 0), cy - sp + (inside ? pad * 0.8 : -size * 1.25), size, la);
+    // (glides from inside the top edge to just above it as the square closes in on the words, so it never jumps)
+    const pad = Math.max(size * 0.45, 0.06 * sp), k = smooth((sp / size - 3) / 3);
+    label(ctx, unitLabel(d), cx, cy - sp / 2 + k * pad * 0.8 - (1 - k) * size * 1.25, size, la, "center");
   }
   // the readout on top: once the squares pass too fast to be named on them, the current square's size stays here
   const dn = levelNow(logF, W, H);
@@ -512,7 +516,9 @@ export function drawP10(ctx, W, H, o, t, dpr = 1) {
   // the squares, coming in over the first moments (so the cut from the run is clean), dimmed once the star is whole
   const plan = labelPlan(L0, L1, dur, W, H);
   const Z = {
-    flow: 1, onSquare: d => d < plan.firstFast, readout: d => d >= plan.firstFast,
+    // every 1000× is named on its own square now ("I think at every 1000s it will be slow enough"); the readout on top
+    // only if Z.readout is asked for (o.readout)
+    flow: 1, onSquare: d => !o.readout || d < plan.firstFast, readout: d => !!o.readout && d >= plan.firstFast,
     readIn: smooth((u - plan.readFrom + 0.15) / 0.3),
   };
   drawGrid(ctx, W, H, logF, Math.max(0, dS), smooth(u / 0.6) * (1 - 0.45 * smooth((u - dur + 0.5) / 1.5)), Z);

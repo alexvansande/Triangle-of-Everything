@@ -103,9 +103,12 @@ def main(name):
     gap = cut.get("gap", 0.6)
     lead = cut.get("lead", 0.0)      # s of silence before the first piece (a Short's visual opener: the axes, the author, 2026-11-05)
     pieces, words, segments, at = [], [], [], lead
+    unchecked = []   # takes the CTC restart check hasn't been run on (it caught all but one in long video 2, the author, 2026-11-23)
     for n, s in enumerate(cut["segments"]):
         src = json.load(open(os.path.join(NARR, s["take"], "words.json")))
         ws = src["words"]
+        if not src.get("verbatim") and s["take"] not in unchecked:
+            unchecked.append(s["take"])
         i = find(ws, s["from"])[0] if s.get("from") else 0
         j = find(ws, s["to"], i - 1)[1] if s.get("to") else len(ws) - 1
         # cut in the pauses: halfway to the neighbouring words, at most 0.25 s before / 0.45 s after
@@ -226,6 +229,9 @@ def main(name):
         meta["music"] = [{k: v for k, v in x.items() if k != "len"} for x in music]
         print("  music: " + ", ".join(f"{x['track']} at {x['at']:.1f} s" for x in meta["music"]) + " (then: node scripts/narration-sound.mjs " + name + ")")
     json.dump(meta, open(os.path.join(out, "words.json"), "w"), ensure_ascii=False)
+    for t in unchecked:
+        print(f"  ! {t}: no restart check yet. Run scripts/narration-verbatim.py {t} (then --write), cut its false starts"
+              " with the piece's \"drop\" list, and re-run the check on this cut")
     print(f"{name}: {len(segments)} pieces, {len(words)} words, {speech_end:.1f} s + {credits} s credits")
     for s in segments:
         print(f"  {s['at']:7.2f}  {s['take']} {s['from']:.2f}–{s['to']:.2f}")
