@@ -63,3 +63,19 @@ Imprecise, as in rec77: fusion's "gravity squeezes the nuclei so close" (it's th
 after the hydrogen runs out (it comes later, at iron); "no longer than the nuclei" (a nucleus). Left out but worth a
 note: "an orbit of velocity measured over a hundred thousand km/s" (said for the escape velocity; both are over 100,000
 km/s at a neutron star's surface, so it's right either way, but the word is escape velocity).
+
+### Re-cut after the author's review (2026-11-23, afternoon)
+The author on the first draft: "heavier still" read as a splice; "that equilibrium" had nothing before it; "But our
+universe does have a speed limit" had no line before it either; and too much was packed into 3:00, so the dark matter
+should come down to one phrase. Re-cut from the same take, 2:54 + 3 s credits: "And heavier still" out (the clip now starts
+"Gravity squeezes…"); the main sequence line back ("That energy creates a new balance…"); the escape speed back ("In order
+to escape the gravity of a neutron star, you need to have an orbital velocity measured over a hundred thousand
+kilometers per second"); "So gravity adds up…" back; the primordial black holes' lines and "We found none so far" out, so
+"formed by dying stars" goes straight into "but I find it fascinating…". Pauses a little longer (0.45/0.5 s, gaps 0.35/0.65).
+
+### Fact check (the re-cut)
+Wrong word, back in with the escape line: "an orbital velocity" (it's the escape velocity; both are over 100,000 km/s at a
+neutron star's surface, so the number holds). Re-word for a re-record: "To escape a neutron star, you'd need to go faster
+than a hundred thousand kilometers per second." Imprecise, as before: "gravity squeezes the nuclei so close" (it's the
+heat too), and the collapse straight after the hydrogen. The ending no longer names dark matter; "turning most of the
+matter in the universe into black holes" stands for it. The take-3 script (Script Word Counter artifact) fixes all three.
