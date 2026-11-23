@@ -25,7 +25,7 @@ went silent after a minute when it ran out.
 | 3 · planets into stars | `short-03-stars` | 2:13 (re-recorded 2026-10-27, rec36) |
 | Long 2 · the opening to the black holes | `long-02-intro` | 8:09 (re-recorded 2026-11-06, rec57, natural speed, the second pass; the first piece of `long-02-space`, 19:14) |
 | Long 2 · the new script (draft) | `long-02b-space` (a cut) | 17:38 + 3 s credits (one music track list under it all, no changes at the joins): the new opening and the forces (`long-02b-opening`, rec74, 2026-11-17, natural speed, 6:14), then the Black Hole Slope from its horizon, the Smallest Black Holes, the Largest Structures and the Cosmic Event Horizon without their Short openings, and the Furthest Light whole |
-| The dance of the forces (Short, rec78) | `short-l2d-dance-of-the-forces` | 2:54 + 3 s credits, from rec78 (2026-11-23), re-cut the same day round three seams ("heavier still", "that equilibrium", "But our universe") with the primordial black holes out; the take-3 script to re-record (one dark-matter sentence, 445 words) is in the Script Word Counter artifact, section "Short · Dance of the forces, take 3" |
+| The dance of the forces (Short, rec78) | `short-l2d-dance-of-the-forces` | 2:54 + 3 s credits, from rec78 (2026-11-23), re-cut the same day round three seams ("heavier still", "that equilibrium", "But our universe") with the primordial black holes out; the author chose to re-record (2026-11-23): the take-3 script (one dark-matter sentence, 450 words, about 2:45) is under "The dance of the forces, take 3" below and in the Script Word Counter artifact |
 | The dance of the forces (Short, new) | `short-l2b-dance-of-the-forces` (a cut) | 3:47 + 3 s credits, from rec75 (2026-11-18), from its own opening to "the strangest of objects is born, a black hole", every simulation in; over 3:00, lines to drop with the author; the old one (rec58) stays beside it |
 | The dance of the forces (Short) | `short-l2-dance-of-the-forces` | 2:45 (recorded on its own 2026-11-08, rec58, natural speed; cut from 3:19 on 2026-11-09) |
 | 4 · black holes and dark matter | `short-04-black-holes` | 4:31 at 1.1× (re-recorded 2026-10-29, rec48) |
@@ -2070,3 +2070,25 @@ about a third of the CMB's) or drop that line: the opening is then 49 words, abo
   1, a last tag after the gliders could point to it: *"Next: the chart where all of this fits."*
 - **Silence is fine.** The terrain from 1:24 to 1:50 is sixteen powers of ten where nothing is
   known; one line and then quiet says that better than more words.
+
+## The dance of the forces, take 3 (to record, 2026-11-23)
+
+Replaces rec78. Every line follows from the one before; the primordial black holes are one sentence about dark matter; "escape velocity" (rec78 said "orbital"); fusion squeezes and heats; a black hole is mass in a small enough space; the black holes we know come from dying stars (not "every one we found"). 450 words, about 2:45 at 164 wpm.
+
+Everything in the universe is a delicate dance between four fundamental forces.
+
+At the atomic level, electrons are attracted to the protons next door, but the electron layers push back when they get too close, so atoms settle where the two balance. These are the chemical bonds that hold most things around you together, and they're all variations of the electromagnetic force.
+
+So if you plot objects on a chart of mass and size, they all fall around one diagonal: the density of ordinary matter.
+
+But make something big enough, and it will crush under its own weight. Unlike electromagnetism, there's no negative gravity. Everything attracts, nothing repels. So gravity adds up, and past this point on the line, everything is round.
+
+Beyond Jupiter, planets don't get any bigger, they just get denser: the pressure in their cores beats the electrons' push, and the atoms are stripped down to bare nuclei in a sea of electrons.
+
+Add even more mass, and a new force comes into play. The strong force, as the name implies, is the strongest of all, but it reaches no farther than a nucleus. Inside a star, the nuclei are squeezed so close, and heated so much, that the strong force captures them and makes them into one. That releases a huge burst of energy, an outward pressure that finally holds gravity back. That's fusion. And that balance is the main sequence, where stars spend most of their lives.
+
+But it only lasts while there's fuel to burn. When it runs out, the core of a massive star collapses, and the star explodes in a supernova. In that collapsing core, a new player enters: the weak force, which decides what a nucleus even is. Squeeze a proton and an electron hard enough, and you get a neutron. Neutrons have no charge pushing them apart, so they pack shoulder to shoulder. The result is a neutron star: one giant atomic nucleus, held together not by the strong force but by gravity alone.
+
+To escape a neutron star, you'd need to go faster than a hundred thousand kilometers per second. But our universe has a speed limit: the speed of light. Squeeze enough mass into a small enough space that its escape velocity is higher than that, and nothing, not even light, gets out. That's a black hole: gravity winning over everything.
+
+We know dying stars make black holes. But the Big Bang might have made many more, enough to be the dark matter that outweighs everything we can see. If so, then in the first moments of the universe gravity won most of the matter, and the galaxies, the stars and us are just the lucky few survivors.
