@@ -39,3 +39,27 @@ Imprecise:
   together hard enough, not the electrons giving way (that's the giant planets). As in the earlier takes.
 - "makes them into one atom" (2:02): one nucleus. "they form under the collapsing core" (3:49): in. "reaches no longer
   than a nuclei", "a loose nuclei": nucleus.
+
+## rec78: "O2 Corporate Offices 5" (the forces Short again, tighter)
+
+An iPhone voice memo sent in the chat, ALAC 48 kHz stereo (used as mono), 13:32, recorded from the marked script (the
+doc "Dance of the Forces · Short script"): tighter and more energetic, the fixes in (the neutrons, the shorter giant
+planets, fusion and main sequence lines). The author: *"I really want to try to include the final bit about dark matter
+in the 3 minute mark."* Words: `rec78.ctc.json` only (the CTC pass, every try; no Whisper pass on the raw take, to save
+time on a loaded machine).
+
+The edit: `video/short-l2d-dance-of-the-forces/edl.py`, 24 clips, **2:56** after `enhance.py --plain`, pauses capped at
+0.4 s and gaps of 0.3 / 0.5 s (tighter than rec77's 0.75). To fit the dark-matter ending, these lines are out (each marked
+in the edit list, easy to put back): "This diagonal is the density of things made of ordinary matter…", "The chemical
+bonds can try to shape things, but gravity will eventually win", "So gravity adds up, and at this point everything just
+looks like spheres", "That energy creates a new balance, which is the main sequence…", "and only quantum effects prevent
+them from being squeezed any further", the escape velocity in km/s, "All the black holes we know of have been formed by
+dying stars", and "something like the mass of an asteroid compressed to the size of a virus". The CTC check on the edit
+finds no try left twice.
+
+### Fact check
+Nothing wrong as cut. The neutrons are fixed ("no charge pushing them apart, so they pack shoulder to shoulder").
+Imprecise, as in rec77: fusion's "gravity squeezes the nuclei so close" (it's the heat), and the core collapse straight
+after the hydrogen runs out (it comes later, at iron); "no longer than the nuclei" (a nucleus). Left out but worth a
+note: "an orbit of velocity measured over a hundred thousand km/s" (said for the escape velocity; both are over 100,000
+km/s at a neutron star's surface, so it's right either way, but the word is escape velocity).
