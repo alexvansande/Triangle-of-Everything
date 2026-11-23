@@ -1,25 +1,26 @@
 source,beat,out_start,out_end,src_start,src_end,text
-rec78,forces,0.00,22.26,23.54,45.80,everything in the universe is a delicate dance between four fundamental forces at atomic level electrons are attracted to the prodene next door but the electron layers push back when they get you clothed so atoms settle where they cow balance these are the chemical bones that hold most things around you together from a stick to a buting undher all variations of the electro magnetic force
-rec78,diagonal,22.76,27.80,57.15,62.19,so if you plot objects on a short of mass and size they will be all around tha diagonal
-rec78,gravity,28.30,31.75,184.72,188.16,make something big enough and it will crush under its own weight
-rec78,gravity,32.05,37.70,191.95,197.59,that's because unlike electromagnetism there is no negative gravity everything attracts so nothing repels
-rec78,giants,38.20,62.27,214.34,242.54,but beyond jupiter planets don't get any bigger they just get denser the pressure in their course beats the electron spush and the atoms are stripped down to loose nuclei in a sea of electronsbut if you add even more mass a new force comes into play the strong force as the name implies is the strongest of all but it has very limited range it reaches no longer than the nuclei
-rec78,fusion,62.77,70.32,252.36,259.91,and heavier still gravity squeezes the nuclei so close that a strong force captures them and makes them into one
-rec78,fusion,70.62,78.56,261.92,269.87,that releases a huge burst of energy creating an outward pressure that finall is able to counterbalance gravity that's fusion
-rec78,main,79.06,82.42,293.13,296.50,but that equilibrium only lasts while there's hydrogen to fuse
-rec78,supernova,82.92,89.37,318.92,325.37,and once it runs out a massive stor can undergo a catastrophic cors collapse called a super nove
-rec78,weak,89.87,96.29,328.26,334.68,and in that collapsing cors a new player enters it's he weak force which decides what a nucleus even is
-rec78,weak,96.59,100.09,335.34,338.84,if you squeeze a proton an an electron hard enough you get a neutron
-rec78,neutron,100.59,104.89,343.76,348.07,and neutrals have no charge pushing them apart so they pack shoulder to shoulder
-rec78,neutron,105.19,113.59,359.40,367.80,the result is a new trun star which is really one giant atomic nucleus held together not by the strong force but by gravity alone
-rec78,light,114.09,118.58,452.81,457.30,but our universe does have a speed limit on everything it's the speed of light
-rec78,light,118.88,125.53,480.47,487.12,and if a star is so massive that its cape velocity is higher than it then nothing not even light will escape
-rec78,light,125.83,129.54,489.34,493.06,and you create one of the strangest objects in the universe a black hole
-rec78,pbh,130.04,134.52,630.99,635.47,but it's possible that there is another type that went completely undetected so far
-rec78,pbh,134.82,141.45,651.14,657.78,primordial black holes or smaller black holes that could have been created in the very early moments of the big bank
-rec78,pbh,141.75,147.25,675.62,681.12,they wouldn't emit any light and they would be very hard to detect except for their effects on gravity
-rec78,pbh,147.55,151.94,688.05,692.44,which is why scientists are curious about them because they could explain dark matter
-rec78,end,152.44,155.76,733.63,736.96,we found none so far but i find it fascinating to think
-rec78,end,156.06,160.16,737.69,741.78,that may be the only reason that we see that delicate balance at all
-rec78,end,160.46,168.49,742.32,750.44,is that in the early moments of the universe gravity dominated everything turning most of the matter in the universe into black holes
-rec78,end,168.79,175.28,802.23,808.72,and everything else the ordinary matter that makes up the galaxies and ourselves are just the lucky few survivors
+rec78,forces,0.00,20.66,23.54,45.80,everything in the universe is a delicate dance between four fundamental forces at atomic level electrons are attracted to the prodene next door but the electron layers push back when they get you clothed so atoms settle where they cow balance these are the chemical bones that hold most things around you together from a stick to a buting undher all variations of the electro magnetic force
+rec78,diagonal,21.16,26.20,57.15,62.19,so if you plot objects on a short of mass and size they will be all around tha diagonal
+rec78,gravity,26.70,30.14,184.72,188.16,make something big enough and it will crush under its own weight
+rec78,gravity,30.45,36.09,191.95,197.59,that's because unlike electromagnetism there is no negative gravity everything attracts so nothing repels
+rec78,giants,36.59,58.98,214.34,242.54,but beyond jupiter planets don't get any bigger they just get denser the pressure in their course beats the electron spush and the atoms are stripped down to loose nuclei in a sea of electronsbut if you add even more mass a new force comes into play the strong force as the name implies is the strongest of all but it has very limited range it reaches no longer than the nuclei
+rec78,fusion,59.48,67.04,252.36,259.91,and heavier still gravity squeezes the nuclei so close that a strong force captures them and makes them into one
+rec78,fusion,67.34,75.28,261.92,269.87,that releases a huge burst of energy creating an outward pressure that finall is able to counterbalance gravity that's fusion
+rec78,main,75.78,79.14,293.13,296.50,but that equilibrium only lasts while there's hydrogen to fuse
+rec78,supernova,79.64,86.09,318.92,325.37,and once it runs out a massive stor can undergo a catastrophic cors collapse called a super nove
+rec78,weak,86.59,93.01,328.26,334.68,and in that collapsing cors a new player enters it's he weak force which decides what a nucleus even is
+rec78,weak,93.31,96.81,335.34,338.84,if you squeeze a proton an an electron hard enough you get a neutron
+rec78,neutron,97.31,101.61,343.76,348.07,and neutrals have no charge pushing them apart so they pack shoulder to shoulder
+rec78,neutron,101.91,110.31,359.40,367.80,the result is a new trun star which is really one giant atomic nucleus held together not by the strong force but by gravity alone
+rec78,light,110.81,115.30,452.81,457.30,but our universe does have a speed limit on everything it's the speed of light
+rec78,light,115.60,122.25,480.47,487.12,and if a star is so massive that its cape velocity is higher than it then nothing not even light will escape
+rec78,light,122.55,126.26,489.34,493.06,and you create one of the strangest objects in the universe a black hole
+rec78,pbh,126.76,130.53,538.76,542.54,all the black holes we know of have been formed by dying stars
+rec78,pbh,130.83,135.31,630.99,635.47,but it's possible that there is another type that went completely undetected so far
+rec78,pbh,135.61,142.25,651.14,657.78,primordial black holes or smaller black holes that could have been created in the very early moments of the big bank
+rec78,pbh,142.55,148.05,675.62,681.12,they wouldn't emit any light and they would be very hard to detect except for their effects on gravity
+rec78,pbh,148.35,152.74,688.05,692.44,which is why scientists are curious about them because they could explain dark matter
+rec78,end,153.24,156.56,733.63,736.96,we found none so far but i find it fascinating to think
+rec78,end,156.86,160.95,737.69,741.78,that may be the only reason that we see that delicate balance at all
+rec78,end,161.25,169.28,742.32,750.44,is that in the early moments of the universe gravity dominated everything turning most of the matter in the universe into black holes
+rec78,end,169.58,176.07,802.23,808.72,and everything else the ordinary matter that makes up the galaxies and ourselves are just the lucky few survivors

@@ -13,14 +13,14 @@ GAPS = {"same": 0.3, "beat": 0.5}
 ROOM = True
 
 EDL = [
- ("rec78", "forces", 23.76, 45.32),  # Everything in the universe is a delicate dance between four fundamental forces. At the atomic level, electrons are attracted to the protons next door, but the electron layers push back when they get too close, so atoms settle where the two balance. These are the chemical bonds that hold most things around you together, from a stick to a building, and they're all variations of the electromagnetic force.
+ ("rec78", "forces", 23.76, 45.32, {"cut": [(41.42, 43.02)]}),  # Everything in the universe is a delicate dance between four fundamental forces. At the atomic level, electrons are attracted to the protons next door, but the electron layers push back when they get too close, so atoms settle where the two balance. These are the chemical bonds that hold most things around you together, from a stick to a building, and they're all variations of the electromagnetic force.   # ("from a stick to a building" out for time)
  ("rec78", "diagonal", 57.4, 61.44),  # So if you plot objects on a chart of mass and size, they will be all around a diagonal.
  #("rec78", "diagonal", 145.52, 152.2),  # This diagonal is the density of things made of ordinary matter. It's the equilibrium point between the electromagnetic force and gravity.   # (cut for 3:00)
  #("rec78", "gravity", 178.24, 182.46),  # The chemical bonds can try to shape things, but gravity will eventually win:   # (cut for 3:00)
  ("rec78", "gravity", 185.08, 187.68),  # make something big enough, and it will crush under its own weight.
  ("rec78", "gravity", 191.98, 197.04),  # That's because unlike electromagnetism, there is no negative gravity. Everything attracts, nothing repels.
  #("rec78", "gravity", 201.72, 205.22),  # So gravity adds up, and at this point everything just looks like spheres.   # (cut for 3:00)
- ("rec78", "giants", 214.6, 241.94),  # But beyond Jupiter, planets don't get any bigger, they just get denser: the pressure in their cores beats the electrons' push, and the atoms are stripped down to loose nuclei in a sea of electrons. But if you add even more mass, a new force comes into play. The strong force, as the name implies, is the strongest of all, but it has a very limited range: it reaches no longer than a nucleus.
+ ("rec78", "giants", 214.6, 241.94, {"cut": [(238.76, 240.44)]}),  # But beyond Jupiter, planets don't get any bigger, they just get denser: the pressure in their cores beats the electrons' push, and the atoms are stripped down to loose nuclei in a sea of electrons. But if you add even more mass, a new force comes into play. The strong force, as the name implies, is the strongest of all, but it has a very limited range: it reaches no longer than a nucleus.   # ("it has a very limited range" out for time: "but it reaches no longer than a nucleus")
  ("rec78", "fusion", 252.74, 259.5),  # And heavier still, gravity squeezes the nuclei so close that the strong force captures them and makes them into one.
  ("rec78", "fusion", 262.02, 269.2),  # That releases a huge burst of energy, creating an outward pressure that finally is able to counterbalance gravity. That's fusion.
  #("rec78", "main", 278.1, 283.54),  # That energy creates a new balance, which is the main sequence, where stars spend most of their lives.   # (cut for 3:00)
@@ -36,7 +36,7 @@ EDL = [
  ("rec78", "light", 452.88, 456.82),  # But our universe does have a speed limit on everything: it's the speed of light.
  ("rec78", "light", 480.54, 486.7),  # And if a star is so massive that its escape velocity is higher than it, then nothing, not even light, will escape,
  ("rec78", "light", 489.4, 492.76),  # and you create one of the strangest objects in the universe: a black hole.
- #("rec78", "pbh", 538.84, 541.88),  # All the black holes we know of have been formed by dying stars,   # (cut for 3:00)
+ ("rec78", "pbh", 538.84, 541.88),  # All the black holes we know of have been formed by dying stars,   # (back in: "another type" needs it, the author, 2026-11-23)
  ("rec78", "pbh", 631.02, 635.06),  # but it's possible that there is another type that went completely undetected so far.
  ("rec78", "pbh", 651.2, 657.38),  # Primordial black holes are smaller black holes that could have been created in the very early moments of the Big Bang.
  #("rec78", "pbh", 670.14, 674.42),  # And if they're out there, they would be something like the mass of an asteroid compressed to the size of a virus.   # (cut for 3:00)
