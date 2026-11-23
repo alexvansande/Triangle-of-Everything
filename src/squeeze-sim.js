@@ -922,10 +922,18 @@ export function createSqueeze({ pics = {} } = {}) {
     // (live nucleons: PICS.frames.proton / .neutron, the Hopf particles turning, a loop each nucleus plays from its own
     // place, so none is a still stamp; the author, 2026-11-20, 3:00: "not static images but dynamic images that rotate in
     // many directions and change"; the stills until they're made)
+    // (half speed, each frame blended into the next: the author, 2026-11-23, the proton's colours turned "too fast and seems
+    // to be in a low framerate"; its picture changed only every third die frame, 6 times a second, in steps)
+    const NUC_SPEED = 0.5;
     const nucleon = (name, seed) => {
       const F = PICS.frames?.[name];
-      if (F?.length) return F[(((Math.floor(S.t * (F.fps ?? SPRITE_FPS) + seed)) % F.length) + F.length) % F.length];   // (the proton's die plays faster: F.fps)
+      if (F?.length) { const u = S.t * (F.fps ?? SPRITE_FPS) * NUC_SPEED + seed, i = Math.floor(u), n = F.length;
+        const im = F[((i % n) + n) % n]; im._next = F[(((i + 1) % n) + n) % n]; im._f = u - i; return im; }
       return picReady(name) ? PICS[name] : null;
+    };
+    const drawNucleon = (im, d) => {
+      ctx.drawImage(im, -d / 2, -d / 2, d, d);
+      if (im._next && im._f > 0.02) { const a = ctx.globalAlpha; ctx.globalAlpha = a * im._f; ctx.drawImage(im._next, -d / 2, -d / 2, d, d); ctx.globalAlpha = a; }
     };
     // helium's four nucleons, each loose on its own slow wander about its place (the author, 2026-11-20, 5:00: "not stuck
     // to each other but still sort of gravitate, captured by the strong force"): where nucleon j of nucleus k is now
@@ -950,7 +958,7 @@ export function createSqueeze({ pics = {} } = {}) {
               x += (sx - x) * hu; y += (sy - y) * hu; dd = d + (S.hex.a / 0.78 - d) * hu;
             }
             const pj = grey || j % 2 ? "neutron" : "proton";
-            ctx.save(); ctx.translate(x, y); ctx.rotate(k.rot + j * 1.3); ctx.drawImage(nucleon(pj, seed + j * 5.7), -dd / 2, -dd / 2, dd, dd); ctx.restore();
+            ctx.save(); ctx.translate(x, y); ctx.rotate(k.rot + j * 1.3); drawNucleon(nucleon(pj, seed + j * 5.7), dd); ctx.restore();
           }
           if (flash > 0) { ctx.beginPath(); ctx.arc(k.x, k.y, k.r, 0, TAU); ctx.fillStyle = `rgba(255,255,255,${flash})`; ctx.fill(); }
           continue;
@@ -958,7 +966,7 @@ export function createSqueeze({ pics = {} } = {}) {
         const im = P.pictures && nucleon(pic, seed);
         if (im) {
           const d = k.r * 2 / 0.78;
-          ctx.save(); ctx.translate(k.x, k.y); ctx.rotate(k.rot); ctx.drawImage(im, -d / 2, -d / 2, d, d); ctx.restore();
+          ctx.save(); ctx.translate(k.x, k.y); ctx.rotate(k.rot); drawNucleon(im, d); ctx.restore();
           if (flash > 0) { ctx.beginPath(); ctx.arc(k.x, k.y, k.r, 0, TAU); ctx.fillStyle = `rgba(255,255,255,${flash})`; ctx.fill(); }
           continue;
         }
@@ -1139,16 +1147,21 @@ export function createSqueeze({ pics = {} } = {}) {
         }
       }
       if (P.arrowsIn) {
-        const Lr = L * 1.6, inset = 24, step = P.radius * 1.6, pts = [];
+        // (inArrowsView: round the edges of what the camera shows, their size on screen kept through the zoom, and over
+        // the nuclei, not hidden by them: the forces Short's crushed atoms, zoomed in 3×, showed only the few that fell
+        // inside the frame, the author, 2026-11-23, 0:49: "the gravity red lines are not all appearing")
+        const V = P.inArrowsView, z = V ? (S.zoom || 1) : 1, hw = S.W / 2 / z, hh = S.H / 2 / z;
+        const vx0 = V ? (S.camX ?? S.vcx) : S.vcx, vy0 = V ? (S.camY ?? S.vcy) : S.vcy;
+        const Lr = L * 1.6 / z, inset = 24 / z, step = P.radius * 1.6, pts = [];
         const nx = Math.max(2, Math.round(S.W / step)), ny = Math.max(2, Math.round(S.H / step));
-        for (let i = 0; i < nx; i++) { const x = -S.W / 2 + (i + 0.5) * S.W / nx; pts.push([x, -S.H / 2 + inset, 0, 1]); pts.push([x, S.H / 2 - inset, 0, -1]); }
-        for (let j = 0; j < ny; j++) { const y = -S.H / 2 + (j + 0.5) * S.H / ny; pts.push([-S.W / 2 + inset, y, 1, 0]); pts.push([S.W / 2 - inset, y, -1, 0]); }
+        for (let i = 0; i < nx; i++) { const x = -hw + (i + 0.5) * 2 * hw / nx; pts.push([x, -hh + inset, 0, 1]); pts.push([x, hh - inset, 0, -1]); }
+        for (let j = 0; j < ny; j++) { const y = -hh + (j + 0.5) * 2 * hh / ny; pts.push([-hw + inset, y, 1, 0]); pts.push([hw - inset, y, -1, 0]); }
         for (const [x0, y0, ux, uy] of pts) {
-          const x = x0 + S.vcx, y = y0 + S.vcy, mx = x + ux * Lr / 2, my = y + uy * Lr / 2;   // (the screen's edge, where the view is)
+          const x = x0 + vx0, y = y0 + vy0, mx = x + ux * Lr / 2, my = y + uy * Lr / 2;   // (the screen's edge, where the view is)
           let room = Infinity;   // the nearest circle's edge to the arrow's middle
-          for (const o of S.blobs) { const d = Math.hypot(o.cx - mx, o.cy - my) - (o.nodes.length ? o.rm : o.nuclei[0].r); if (d < room) room = d; }
+          if (!V) for (const o of S.blobs) { const d = Math.hypot(o.cx - mx, o.cy - my) - (o.nodes.length ? o.rm : o.nuclei[0].r); if (d < room) room = d; }
           const a = clamp((room - Lr * 0.1) / (Lr * 0.5), 0, 1) * inLife;
-          arrow(x, y, x + ux * Lr, y + uy * Lr, "255,80,70", a, aw * 1.2);
+          arrow(x, y, x + ux * Lr, y + uy * Lr, "255,80,70", a, (V ? Math.max(lw * 0.9, L * 0.06 / z) : aw) * 1.2);
         }
       }
     }

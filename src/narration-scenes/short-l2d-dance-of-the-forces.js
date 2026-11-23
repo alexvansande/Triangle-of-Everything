@@ -4,20 +4,18 @@
 // the diagonal and gravity rounding things, the giant planets' column, then the simulations one after the other (the
 // author, 2026-11-23: "a lot of these simulations can just run right one after the other. We probably don't need to
 // keep zooming out into the triangle scenes"): the atoms crushed, fusion, a short look at the dying star, the weak force
-// and the neutrons' grid, the powers-of-ten zoom out to the neutron star; then the black hole, the ones we know and the
-// primordial ones, their window, dark matter, and the lucky few survivors. The shots and simulation settings are long
+// and the neutrons' grid, the powers-of-ten zoom out to the neutron star; then the escape speed and the black hole, the ones we know
+// from dying stars, and the ending in one breath: the lucky few survivors (re-cut 2026-11-23, 2:57 with credits: the
+// primordial black holes' lines out, the main sequence and the escape speed back in, so no line hangs on one left out). The shots and simulation settings are long
 // video 2's (long-02b-opening.js), retimed to this take's words.
 // =============================================================
 // Field reference: docs/narration.md, "Scene fields". Rules: video/plans/visual-rules.md.
-
-import { W5, ML, HAW, NS_OPEN, SRC_NS, DM_PBH } from "./short-04-black-holes.js";
 
 const WATER = { line: "water" };
 const ON_LINE = (m) => (m - 0.62) / 3;
 const force = (m, dir, color) => ({ arrow: true, solid: true, width: 4, color, from: { r: ON_LINE(m) + dir * 1.5, m }, to: { r: ON_LINE(m) + dir * 0.2, m } });
 const GRAV_AT = (m, named = true) => [force(m + 0.9, 1, "#ffab40"), force(m - 0.9, 1, "#ffab40"), ...(named ? [{ text: "gravity\npushes in", at: [ON_LINE(m) + 0.85, m], size: 22, color: "#ffab40" }] : [])];
 const EM_AT = (m, named = true) => [force(m + 0.9, -1, "#4fc3f7"), force(m - 0.9, -1, "#4fc3f7"), ...(named ? [{ text: "electro-\nmagnetism\npushes out", at: [ON_LINE(m) - 1.05, m], size: 22, color: "#4fc3f7" }] : [])];
-const UP = (m, span = 4.6) => ({ r: ON_LINE(m), m, span, glide: true });
 const COLUMN = { trend: [[9.84, 29.9], [9.84, 32.4]], color: "#ffd54f" };
 const G = (r, m, span = 1.7) => ({ r, m, span });
 const BD = [{ obj: "Y Brown Dwarf", label: false }, { obj: "T Brown Dwarf", label: false }];
@@ -27,7 +25,16 @@ const SCHW = { line: "schwarzschild" };
 const NS = { obj: "PSR J0030+0451", label: false };
 const ROUND_M = 22.45;
 const ROUND_GRAV = { side: "above", mass: ROUND_M, label: "round", labelX: 0.22 };
-const WINDOW = { window: W5, cuts: [ML, HAW, NS_OPEN], label: "still open?", dist: 40 };
+// the two forces held on the screen while the chart pans slowly up the line under them (the author, 2026-11-23, 0:28: "add
+// just two arrows with labels and let these stick on the screen instead of moving with the line"): electromagnetism from
+// the less dense side above, gravity from the denser side below, each pointing at the line where it crosses the screen
+// (the camera stays on the line; the stage is 9:16 and the line rises 3 : 1)
+const EM_SCREEN = (delay) => [
+  { arrow: true, screen: true, solid: true, width: 5, color: "#4fc3f7", from: { x: 0.04, y: 0.34 }, to: { x: 0.61, y: 0.34 }, padEnd: 0, delay },
+  { text: "electromagnetism\nprevents atoms from\ngetting too dense", screen: true, at: [0.32, 0.255], size: 21, sub: 0.72, color: "#4fc3f7", delay: delay + 0.3 }];
+const GRAV_SCREEN = (delay) => [
+  { arrow: true, screen: true, solid: true, width: 5, color: "#ffab40", from: { x: 0.96, y: 0.66 }, to: { x: 0.44, y: 0.66 }, padEnd: 0, delay },
+  { text: "gravity\nwants to crush\natoms together", screen: true, at: [0.70, 0.585], size: 21, sub: 0.72, color: "#ffab40", delay: delay + 0.3 }];
 
 // the simulations (src/squeeze-sim.js), long video 2's settings; `from` and the P times are seconds into each run, set
 // so the moments land on this take's words
@@ -36,7 +43,7 @@ const BONDS = { squeeze: { mode: 1, from: 0, P: { count: 34, startBox: 1.12, end
   bondPullFrom: 1.6, bondPushFrom: 4.6 },
   labels: [["electrons and protons attract", "#b39ddb", 1.6], ["electrons repel electrons", "#4fc3f7", 4.6]] } };
 // the atoms crushed: every shell left pops on "stripped" (3.8 s after "the pressure in their cores": run 17.1 + 3.8 = 20.9)
-const CRUSH = { squeeze: { mode: 1, from: 17.1, zoom: [[2.5, 1], [8.3, 3.2]], follow: [0, 99], boxFollow: true, P: { nucleus: 0.25, arrowsOut: false, arrowsBonds: true, arrowTime: 30, bondPushFrom: 13.4, bondPullFrom: 14.5, bondShare: 0.25,
+const CRUSH = { squeeze: { mode: 1, from: 17.1, zoom: [[2.5, 1], [8.3, 3.2]], follow: [0, 99], boxFollow: true, P: { nucleus: 0.25, inArrowsView: true, arrowsOut: false, arrowsBonds: true, arrowTime: 30, bondPushFrom: 13.4, bondPullFrom: 14.5, bondShare: 0.25,
   popAllAt: 20.9, popAllSpread: 0.8, endBox2: 0.6, shrink2Time: 4 } } };
 const FUSION_P = { groups4: true, fourAtOnce: false, count: 200, radius: 100, groupSpacing: 5.0, groupGap: 1.6, groupSpring: 4, startBox: 1.6, endBox: 1.2,
   relief: 0, jitter: 12, initSpeed: 40, damping: 1, hugRate: 1.4, bridgeTime: 0.15, neutrons: 2, arrowTime: 7,
@@ -52,7 +59,7 @@ export default {
   iconBoost: { from: 21.2, k: 0.6, slugs: { "laniakea-galaxy-supercluster": 0.55 } },
   icons: "all",
   forceIcons: ["Sun", "L Brown Dwarf", "T Brown Dwarf", "Y Brown Dwarf"],
-  captionFixes: { nuclei: "nucleus", "electrons'": "electrons'" },
+  captionFixes: { "electrons'": "electrons'" },
   credits: 3,
 
   backing: "Promises to Keep",
@@ -72,13 +79,11 @@ export default {
     { at: "electromagnetic force", offset: 0.3, cam: { obj: "Human", span: 6 }, dur: 0.05, clear: true, hl: [WATER, { obj: "Human", label: "held by chemical bonds" }, ...EM_AT(6.2)] },
     { at: "so if you plot", cam: { r: 3.0, m: 9.3, span: 13, glide: true }, hl: [WATER] },
     { at: "around the diagonal", hl: [{ line: "water", label: "the diagonal" }] },
-    // one pan up the line: crushed under its own weight, then gravity named, then the round worlds
-    { at: "make something big", cam: UP(8), clear: true, hl: [WATER, { ellipse: [ON_LINE(9.5) + 1.2, 9.5, 0.6, 0.6], rot: 0, label: false, color: "#ffab40" },
-      { arrow: true, solid: true, width: 4, color: "#ffab40", from: { r: ON_LINE(9.5) + 1.2, m: 9.5 }, to: { r: ON_LINE(9.5), m: 9.5 }, padEnd: 0, delay: 0.4 },
-      { text: "crushes\nunder its\nown weight", at: [ON_LINE(9.5) + 1.0, 10.75], size: 22, color: "#ffab40", delay: 0.5 }] },
-    { at: "no negative gravity", cam: UP(17), hl: [WATER, ...GRAV_AT(18.5)] },
-    { at: "everything attracts", cam: { r: 7.75, m: 24.1, span: 4.6, glide: true }, hl: [ROUND_GRAV, { obj: "Ceres", label: "Ceres · round", delay: 0.3 }, { obj: "Pluto", label: false, delay: 0.6 }] },
-    { at: "nothing repels", cam: { r: 8.6, m: 27.0, span: 4.6, glide: true }, hl: [ROUND_GRAV, { obj: "Earth", label: "shaped by gravity" }, { obj: "Moon", label: false }] },
+    // one slow pan up the line, wide, the two forces held on the screen: gravity named on "crush", electromagnetism on
+    // "unlike electromagnetism" (3.8 s on), then the round worlds
+    { at: "make something big", cam: { r: ON_LINE(10.5), m: 10.5, span: 8 }, dur: 1.6, clear: true, hl: [WATER, ...GRAV_SCREEN(1.2), ...EM_SCREEN(4.0)] },
+    { at: "crush under", cam: { r: ON_LINE(20.5), m: 20.5, span: 8, glide: true }, dur: 10, ease: "gentle" },
+    { at: "looks like spheres", cam: { r: 8.2, m: 25.4, span: 5, glide: true }, dur: 1.6, clear: true, hl: [ROUND_GRAV, { obj: "Ceres", label: "Ceres · round", delay: 0.2 }, { obj: "Earth", label: "shaped by gravity", delay: 0.6 }, { obj: "Moon", label: false, delay: 0.6 }] },
     // the giant planets' column
     { at: "beyond jupiter", cam: G(9.85, 30.9, 2.4), dur: 2.2, clear: true, hl: [{ obj: "Jupiter", label: "Jupiter", place: "left" }] },
     { at: "any bigger", hl: [{ obj: "Jupiter", label: false, place: "left" }, ...BD, COLUMN] },
@@ -87,11 +92,13 @@ export default {
     // ── The simulations, one after the other ──
     // the atoms crushed (every shell pops on "stripped"), the box following the crowd, pushing in on the bare nuclei
     { at: "the pressure in their", hold: 999, hl: [CRUSH] },
+    // no cut into fusion: the bare nuclei slide to fusion's opening, gravity's arrows doubling on "add even more mass"
+    { at: "add even more", hold: 999, hl: [{ morph: true, instant: true }] },
     // fusion: the protons, the strong force's reach, the push, the fours captured, the burst, the balance
     ...[["a new force", "start"], ["reaches no longer", "reach"], ["gravity squeezes", "push"], ["captures them", "capture"], ["burst of energy", "energy"], ["counterbalance", "balance"], ["that's fusion", "fusion"]]
       .map(([at, phase], i) => ({ at, hold: 999, hl: [{ fusionSim: { phase, P: FUSION_P }, instant: true, out: phase === "fusion" ? 1.6 : 0.6 }] })),
     // the star running out, close on the chart (one cut, no flight): the main sequence, the fire going out, the supernova
-    { at: "that equilibrium", cam: { r: 11.1, m: 33.2, span: 3.0, glide: true }, dur: 0.05, clear: true, hl: [MS, { obj: "Sun", label: "fusing hydrogen" }] },
+    { at: "a new balance", cam: { r: 11.1, m: 33.2, span: 3.0, glide: true }, dur: 0.05, clear: true, hl: [MS, { obj: "Sun", label: "fusing hydrogen" }] },
     { at: "once it runs out", cam: { r: 11.85, m: 33.4, span: 3.6, glide: true }, hl: [{ swing: [{ obj: "Sun" }, { obj: "Red Giant" }], period: 1.2, core: true }, { obj: "Red Giant", label: "out of hydrogen", delay: 0.6 }] },
     { at: "catastrophic core collapse", cam: { r: 12.7, m: 35.0, span: 5 }, dur: 1.5, clear: true, hl: [HIGH, { obj: "Crab Nebula", label: "supernova", delay: 0.6 }, { obj: "PSR J0030+0451", label: "the core", delay: 1.2 }] },
     // the weak force: the cores turn to neutrons, which settle into their grid; then straight on, the zoom out to the star
@@ -100,23 +107,18 @@ export default {
       hl: [{ p10: { sim: { at: "a new player enters", ...WEAK } }, instant: true, out: 1.0 }] },
 
     // ── The black hole ──
-    { at: "speed limit on everything", cam: { obj: "PSR J0030+0451", span: 3.4 }, dur: 0.05, clear: true, hl: [{ obj: "PSR J0030+0451", label: "neutron star" }] },
+    { at: "in order to escape", cam: { obj: "PSR J0030+0451", span: 3.4 }, dur: 0.05, clear: true, hl: [{ obj: "PSR J0030+0451", label: "neutron star" }] },
+    { at: "kilometers per second", hl: [{ obj: "PSR J0030+0451", label: "escape: over 100,000 km/s" }] },
+    { at: "speed limit on everything", hl: [{ obj: "PSR J0030+0451", label: "neutron star" }] },
     { at: "speed of light", hl: [{ obj: "PSR J0030+0451", label: "nothing goes faster than light" }] },
     { at: "escape velocity", cam: { r: 8.6, m: 33.7, span: 8 }, dur: 3, clear: true, hl: [NS, { obj: "Stellar BH", label: "?", delay: 0.6 }] },
     { at: "not even light", hl: [NS, { obj: "Stellar BH", label: "not even light gets out" }] },
     { at: "strangest objects", hl: [NS, { obj: "Stellar BH", label: "a black hole" }, SCHW] },
 
-    // ── The other type: primordial black holes, and dark matter ──
+    // ── The ones we know, and the ending ──
     { at: "all the black holes we know", cam: { obj: "Stellar BH", span: 10 }, dur: 2, clear: true, hl: [SCHW, { obj: "Stellar BH", label: "from dying stars" }] },
-    { at: "another type", cam: { r: -2, m: 25, span: 28 }, dur: 3.5, clear: true, hl: [{ ...SCHW, label: "smaller ones?" }] },
-    { at: "primordial black holes", hl: [SCHW, { ...DM_PBH, label: "primordial black holes", delay: 0.2 }] },
-    { at: "moments of the big bang", hl: [SCHW, DM_PBH, { density: 40, label: "the first instants:\nall of it this dense" }] },
-    { at: "wouldn't emit any light", cam: { r: -8.6, m: 19.4, span: 12 }, dur: 2.5, clear: true, hl: [WINDOW, SRC_NS] },
-    { at: "effects on gravity", cam: { obj: "Milky Way", span: 7 }, dur: 2.5, clear: true, hl: [{ obj: "Milky Way", label: "more mass than we can see" }] },
-    { at: "dark matter", hl: [{ obj: "Milky Way", label: "dark matter?" }] },
-    { at: "we found none", cam: { r: -8.6, m: 19.4, span: 12 }, dur: 2.5, clear: true, hl: [{ ...WINDOW, label: "none found yet" }, SRC_NS] },
     // the ending: the whole chart, most of the matter on the black-hole line, the rest, ordinary matter, the survivors
-    { at: "the early moments", cam: { r: 6, m: 24, span: 46 }, dur: 5, ease: "gentle", clear: true, hl: [{ line: "triangle" }] },
+    { at: "delicate balance", cam: { r: 6, m: 24, span: 46 }, dur: 6, ease: "gentle", clear: true, hl: [{ line: "triangle" }] },
     { at: "into black holes", hl: [{ line: "triangle" }, { ...SCHW, label: "most of the matter?" }] },
     { at: "ordinary matter", hl: [{ line: "triangle" }, SCHW, { line: "water", label: "ordinary matter" }, { obj: "Milky Way", label: false, delay: 0.4 }, { obj: "Human", label: false, delay: 0.7 }] },
     { at: "lucky few survivors", hl: [{ line: "triangle" }, SCHW, { line: "water", label: "the lucky few survivors" }, { obj: "Milky Way", label: false }, { obj: "Human", label: false }] },

@@ -861,6 +861,9 @@ export function drawSqueeze(ctx, W, H, o, t, pixelRatio) {
     const k = sim.S.camSm;
     if (k) { const w = Math.min(1, (z - 1) / 0.6); sim.S.camX = sim.S.vcx + (k.x - sim.S.vcx) * w; sim.S.camY = sim.S.vcy + (k.y - sim.S.vcy) * w; }
   }
+  // (peek: the run stepped to t and its camera set, nothing drawn: the forces Short's hand-over from the crushed atoms to
+  // fusion reads where each run's nuclei are on screen, src/narration.js drawMorph)
+  if (o.peek) { const S = sim.S, sc = W / S.W * (S.zoom || 1); return { S, scale: sc, ox: W / 2 - (S.camX ?? S.vcx) * sc, oy: H / 2 - (S.camY ?? S.vcy) * sc }; }
   sim.draw(ctx, W, H, pixelRatio);
   // (where the run's units land on screen, and its hexagonal grid if the neutrons have one: src/narr-p10.js picks its
   // lattice up from here, so the zoom out starts on the same grid)

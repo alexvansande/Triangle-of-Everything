@@ -24,7 +24,7 @@
 import { blackHoleFilter } from "./black-hole-palette.js";
 import * as d3 from "d3";
 import { iconUrls } from "./assets.js";
-import { drawHorizons, drawCenter, drawOwn, drawCosmos, drawCrush, drawFuse, drawWeak, drawDeut, drawSqueeze, drawDiamonds, drawEdge, drawObservable, edgePending, diagramsPending, drawAtoms, atomsPending } from "./narr-diagrams.js";
+import { drawHorizons, drawCenter, drawOwn, drawCosmos, drawCrush, drawFuse, drawWeak, drawDeut, drawSqueeze, drawDiamonds, drawEdge, drawObservable, edgePending, diagramsPending, drawAtoms, atomsPending, nucleonFrames } from "./narr-diagrams.js";
 import { drawCatalogue, cataloguePending } from "./narr-catalogue.js";
 import { drawP10, p10Pending } from "./narr-p10.js";
 import {
@@ -2295,8 +2295,93 @@ export async function startNarration(app) {
   const CATALOGUE_T = phaseTimes("catalogue"), CRUSH_T = phaseTimes("crush"), FUSE_T = phaseTimes("fuse"), WEAK_T = phaseTimes("weak"), DEUT_T = phaseTimes("deut"), EDGE_T = phaseTimes("edge"), OBS_T = phaseTimes("obs"), DIAMONDS_T = phaseTimes("diamonds"), FUSION_T = phaseTimes("fusionSim"), ATOMS_T = phaseTimes("atoms");
   const DIAGRAM_KINDS = { own: cues.some(c => c.hl?.some(q => q.own)), center: cues.some(c => c.hl?.some(q => q.center)), cosmos: cues.some(c => c.hl?.some(q => q.cosmos)),
     particles: cues.some(c => c.hl?.some(q => q.crush || q.fuse || q.weak || q.deut || q.squeeze || q.diamonds || q.fusionSim)), edge: cues.some(c => c.hl?.some(q => q.edge || q.obs)), catalogue: cues.some(c => c.hl?.some(q => q.catalogue)), p10: cues.some(c => c.hl?.some(q => q.p10)), atoms: cues.some(c => c.hl?.some(q => q.atoms)) };
+  // fusion as the lab's run (mode 2) in fours, its events on the cues' words (the author, 2026-11-18: a simulation, not
+  // an animation): { fusionSim: { phase, P } }, phases start, capture (the fours join), energy (the burst), balance
+  // (gravity's arrows back), fusion (the word); the run's settings for highlight h
+  function fusionOpts(h) {
+    const T = FUSION_T, t0 = T.start ?? h.t0, rel = (k) => T[k] != null ? T[k] - t0 : null;
+
+      // the camera: opening close in, its protons the size and spacing of the degenerate matter's nuclei at its last zoom (on
+      // the proton nearest the middle), out to the
+      // whole run by 8 s; at the end, 2.4 s closing in on the last helium while it fades (the author, 2026-11-20)
+      const end = Number.isFinite(h.t1) ? h.t1 - t0 : null, Z0 = h.fusionSim.zoom ?? 1.4;
+      const zoom = [[0, Z0], [1.5, Z0], [8, 1], ...(end != null ? [[end, 1], [end + (h.out ?? 0.6), h.fusionSim.endZoom ?? 2.4]] : [])];
+      // (the protons alone at first, pushing each other apart, the strong force's yellow reach on "doesn't reach very far",
+      // the push out and the squeeze in from "so strong" to just before the capture: the author, 2026-11-20, 3:42–3:50)
+      const staged = rel("reach") != null ? { ringsFrom: rel("reach"), repelWindow: [0.6, rel("reach") - 0.3], arrowsStrong: false,
+        outWindow: rel("push") != null && rel("capture") != null ? [rel("push"), rel("capture") - 0.5] : null } : {};
+      return { mode: 2, start: t0, from: 0, exact: RENDER, zoom, follow: [0, 8], P: { shrinkTime: Math.max(4, (rel("capture") ?? 14) - 1), ...h.fusionSim.P, ...staged, ...(h.fusionSim.P?.cycles ? { cycles: [rel("capture"), rel("capture") + 0.2], groupFuseAt: null, burstAt: null, inArrowsAt: null } : { groupFuseAt: rel("capture"), burstAt: rel("energy"), inArrowsAt: rel("balance") }) },
+        tlabels: [["helium", "#ffd54a", (rel("capture") ?? 99) + (h.fusionSim.P?.cycles ? 0.4 : 1.4), h.fusionSim.P?.cycles ? (rel("capture") ?? 99) + 3.4 : rel("energy")], ["fusion", "#ff8a5c", rel("fusion") ?? 999, null]] };
+  }
+  // The crushed atoms carried into fusion's opening ({ morph: true }, from its cue to the fusion run's start): both runs
+  // read without drawing (drawSqueeze's peek), each nucleus of the crush still on screen paired with the nearest proton of
+  // fusion's first frame, and slid there, its size and turn eased over; the ones left over fade, the electrons fade out,
+  // and gravity's red arrows round the edge double up ("if you add even more mass").
+  function drawMorph(ctx, W, H, h, t, dpr) {
+    const sc = cues.filter(c => c.time < h.t0 && c.hl?.some(q => q.squeeze)).at(-1), sq = sc?.hl.find(q => q.squeeze).squeeze;
+    const fh = highlights.find(q => q.fusionSim && q.t0 >= h.t0 - 0.01);
+    if (!sq || !fh) return;
+    const T1 = FUSION_T.start ?? fh.t0, u = smooth((t - h.t0) / Math.max(0.1, T1 - h.t0));
+    const A = drawSqueeze(ctx, W, H, { ...sq, start: sc.time, exact: RENDER, peek: true }, t, dpr);
+    const B = h._target || (h._target = (() => { const g = drawSqueeze(ctx, W, H, { ...fusionOpts(fh), peek: true }, T1, dpr);
+      const out = []; for (const b of g.S.blobs) b.nuclei.forEach((k, ki) => out.push({ x: g.ox + k.x * g.scale, y: g.oy + k.y * g.scale, r: k.r * g.scale, rot: k.rot, seed: b.id * 7.3 + ki * 13.1 }));
+      return out; })());
+    const src = []; for (const b of A.S.blobs) b.nuclei.forEach((k, ki) => src.push({ x: A.ox + k.x * A.scale, y: A.oy + k.y * A.scale, r: k.r * A.scale, rot: k.rot, seed: b.id * 7.3 + ki * 13.1 }));
+    // (the pairs, made once: the targets on screen, each taking the nearest crush nucleus not yet taken)
+    if (!h._pairs) {
+      const m = W * 0.15, on = (p) => p.x > -m && p.x < W + m && p.y > -m && p.y < H + m, taken = new Set();
+      h._pairs = B.map((q, j) => { if (!on(q)) return [-1, j]; let best = -1, bd = Infinity;
+        src.forEach((p, i) => { if (taken.has(i) || !on(p)) return; const d = Math.hypot(p.x - q.x, p.y - q.y); if (d < bd) { bd = d; best = i; } });
+        if (best >= 0) taken.add(best); return [best, j]; });
+      h._left = src.map((_, i) => i).filter(i => !taken.has(i));
+    }
+    const F = nucleonFrames()?.proton, n = F?.length, fps = (F?.fps ?? 6) * 0.5;
+    const nuc = (x, y, r, rot, fu, a) => {
+      if (a <= 0.01) return; const d = r * 2 / 0.78;
+      ctx.save(); ctx.globalAlpha = a; ctx.translate(x, y); ctx.rotate(rot);
+      if (n) { const i = Math.floor(fu), f = fu - i; ctx.drawImage(F[((i % n) + n) % n], -d / 2, -d / 2, d, d);
+        if (f > 0.02) { ctx.globalAlpha = a * f; ctx.drawImage(F[(((i + 1) % n) + n) % n], -d / 2, -d / 2, d, d); } }
+      else { ctx.fillStyle = "#ff3b30"; ctx.beginPath(); ctx.arc(0, 0, r, 0, 6.2832); ctx.fill(); }
+      ctx.restore();
+    };
+    ctx.setTransform(1, 0, 0, 1, 0, 0);
+    // the electrons, fading
+    const er = Math.max(1.2 * A.S.P.lineWidth * dpr, A.S.P.radius * A.S.P.electronSize * A.scale);
+    ctx.globalAlpha = 1 - u; ctx.fillStyle = "#b3e5fc"; ctx.beginPath();
+    for (const e of A.S.electrons) if (!e.nu) { const x = A.ox + e.x * A.scale, y = A.oy + e.y * A.scale; ctx.moveTo(x + er, y); ctx.arc(x, y, er, 0, 6.2832); }
+    ctx.fill(); ctx.globalAlpha = 1;
+    // (the die's frame: the crush's clock eased over to fusion's, the nearest turn of the loop, so nothing jumps at the hand-over)
+    const ta = A.S.t, tb = t - T1;
+    for (const i of h._left) { const p = src[i]; if (p) nuc(p.x, p.y, p.r, p.rot, ta * fps + p.seed, 1 - smooth(u * 1.6)); }
+    for (const [i, j] of h._pairs) {
+      const q = B[j], fb = tb * fps + q.seed;
+      if (i < 0) { nuc(q.x, q.y, q.r, q.rot, fb, smooth((u - 0.3) / 0.7)); continue; }
+      const p = src[i]; if (!p) continue;
+      let fa = ta * fps + p.seed; if (n) fa += Math.round((fb - fa) / n) * n;
+      let dr = q.rot - p.rot; dr -= Math.round(dr / 6.2832) * 6.2832;
+      nuc(p.x + (q.x - p.x) * u, p.y + (q.y - p.y) * u, p.r + (q.r - p.r) * u, p.rot + dr * u, fa + (fb - fa) * u, 1);
+    }
+    // gravity's arrows round the edge: the crush's own (squeeze-sim's inArrowsView, the same places and size on screen, so
+    // nothing jumps as this takes over), then as many again between them from the cue on, all gone as fusion opens
+    const P = A.S.P, u0 = W / A.S.W, L = P.radius * P.arrowSize, len = L * 1.6 * u0, inset = 24 * u0;
+    const lwid = Math.max(0.9 * P.lineWidth * dpr, L * 0.06 * u0) * 1.2, step = P.radius * 1.6;
+    const nx = Math.max(2, Math.round(A.S.W / step)), ny = Math.max(2, Math.round(A.S.H / step)), k = 1 - smooth((t - T1 + 0.4) / 0.4);
+    const edge = (off, a) => { if (a <= 0.01) return;
+      const pts = [];
+      for (let i = 0; i < nx; i++) { const x = (i + off) / nx * W; pts.push([x, inset, 0, 1], [x, H - inset, 0, -1]); }
+      for (let j = 0; j < ny; j++) { const y = (j + off) / ny * H; pts.push([inset, y, 1, 0], [W - inset, y, -1, 0]); }
+      ctx.globalAlpha = a; ctx.strokeStyle = ctx.fillStyle = "rgb(255,80,70)"; ctx.lineWidth = lwid; ctx.lineCap = "round";
+      for (const [x, y, ux, uy] of pts) {
+        const x1 = x + ux * len, y1 = y + uy * len, hd = len * 0.65, hw = hd * 0.5;
+        ctx.beginPath(); ctx.moveTo(x, y); ctx.lineTo(x1 - ux * hd * 0.8, y1 - uy * hd * 0.8); ctx.stroke();
+        ctx.beginPath(); ctx.moveTo(x1, y1); ctx.lineTo(x1 - ux * hd - uy * hw, y1 - uy * hd + ux * hw); ctx.lineTo(x1 - ux * hd + uy * hw, y1 - uy * hd - ux * hw); ctx.closePath(); ctx.fill();
+      }
+      ctx.globalAlpha = 1; };
+    edge(0.5, k);
+    edge(1, k * smooth((t - h.t0) / 0.5));
+  }
   function drawDiagram(live, t) {
-    const cv = layer.querySelector("#narr-diagram"), h = live.filter(q => q.horizons || q.center || q.own || q.cosmos || q.crush || q.fuse || q.weak || q.deut || q.squeeze || q.diamonds || q.fusionSim || q.edge || q.obs || q.catalogue || q.p10 || q.atoms).sort((a, b) => b.t0 - a.t0)[0];   // the newest: an older one may still be live for its fade
+    const cv = layer.querySelector("#narr-diagram"), h = live.filter(q => q.horizons || q.center || q.own || q.cosmos || q.crush || q.fuse || q.weak || q.deut || q.squeeze || q.diamonds || q.fusionSim || q.morph || q.edge || q.obs || q.catalogue || q.p10 || q.atoms).sort((a, b) => b.t0 - a.t0)[0];   // the newest: an older one may still be live for its fade
     if (!h) { cv.hidden = true; return; }
     cv.hidden = false;
     const dpr = Math.min(2, devicePixelRatio || 1), W = Math.round(layer.clientWidth * dpr), H = Math.round(layer.clientHeight * dpr);
@@ -2326,20 +2411,11 @@ export async function startNarration(app) {
     // fusion as the lab's run (mode 2) in fours, its events on the cues' words (the author, 2026-11-18: a simulation, not
     // an animation): { fusionSim: { phase, P } }, phases start, capture (the fours join), energy (the burst), balance
     // (gravity's arrows back), fusion (the word)
-    else if (h.fusionSim) {
-      const T = FUSION_T, t0 = T.start ?? h.t0, rel = (k) => T[k] != null ? T[k] - t0 : null;
-      // the camera: opening close in, its protons the size and spacing of the degenerate matter's nuclei at its last zoom (on
-      // the proton nearest the middle), out to the
-      // whole run by 8 s; at the end, 2.4 s closing in on the last helium while it fades (the author, 2026-11-20)
-      const end = Number.isFinite(h.t1) ? h.t1 - t0 : null, Z0 = h.fusionSim.zoom ?? 1.4;
-      const zoom = [[0, Z0], [1.5, Z0], [8, 1], ...(end != null ? [[end, 1], [end + (h.out ?? 0.6), h.fusionSim.endZoom ?? 2.4]] : [])];
-      // (the protons alone at first, pushing each other apart, the strong force's yellow reach on "doesn't reach very far",
-      // the push out and the squeeze in from "so strong" to just before the capture: the author, 2026-11-20, 3:42–3:50)
-      const staged = rel("reach") != null ? { ringsFrom: rel("reach"), repelWindow: [0.6, rel("reach") - 0.3], arrowsStrong: false,
-        outWindow: rel("push") != null && rel("capture") != null ? [rel("push"), rel("capture") - 0.5] : null } : {};
-      drawSqueeze(ctx, W, H, { mode: 2, start: t0, from: 0, exact: RENDER, zoom, follow: [0, 8], P: { shrinkTime: Math.max(4, (rel("capture") ?? 14) - 1), ...h.fusionSim.P, ...staged, ...(h.fusionSim.P?.cycles ? { cycles: [rel("capture"), rel("capture") + 0.2], groupFuseAt: null, burstAt: null, inArrowsAt: null } : { groupFuseAt: rel("capture"), burstAt: rel("energy"), inArrowsAt: rel("balance") }) },
-        tlabels: [["helium", "#ffd54a", (rel("capture") ?? 99) + (h.fusionSim.P?.cycles ? 0.4 : 1.4), h.fusionSim.P?.cycles ? (rel("capture") ?? 99) + 3.4 : rel("energy")], ["fusion", "#ff8a5c", rel("fusion") ?? 999, null]] }, t, dpr);
-    }
+    else if (h.fusionSim) drawSqueeze(ctx, W, H, fusionOpts(h), t, dpr);
+    // the crushed atoms carried over into fusion's opening (the author, 2026-11-23, the forces Short, 0:50: "instead of the
+    // cut between these scenes can we just move the atoms so they reach the new position we want them to? And when I say,
+    // if you add more mass, then add more red arrows pointing inwards"): { morph: true } from its cue to the next
+    else if (h.morph) drawMorph(ctx, W, H, h, t, dpr);
     else if (h.catalogue) drawCatalogue(ctx, W, H, { ...CATALOGUE_T }, t, (slug, r, m) => {
       // where the chart puts it now, so the pictures land on the chart's own (a catalogue dot: its numbers)
       const ob = objBySlug.get(slug); return { X: sx(ob ? ob.logR : r) * dpr, Y: sy(ob ? ob.logM : m) * dpr };
@@ -2554,14 +2630,21 @@ export async function startNarration(app) {
   }
   /** A big free-standing word on the chart: { text, at: [r, m], color?, size? (px, 30), rotate? (°) } (a hub that
    *  arrows point out from); "\n" stacks lines, centred on `at` */
+  // screen: true — `at` (text) and from/to { x, y } (arrows) are shares of the screen, not chart places: the thing
+  // stays put while the camera moves under it (the author, 2026-11-23, the forces Short's two forces: "let these stick on
+  // the screen instead of moving with the line")
+  const onScreen = (fx, fy) => [layer.clientWidth * fx, layer.clientHeight * fy];
   function drawText(el, h, age) {
-    const t = el.append("text").attr("class", "narr-tag narr-hub").attr("x", sx(h.at[0])).attr("y", sy(h.at[1]))
+    const [X, Y] = h.screen ? onScreen(h.at[0], h.at[1]) : [sx(h.at[0]), sy(h.at[1])];
+    const t = el.append("text").attr("class", "narr-tag narr-hub").attr("x", X).attr("y", Y)
       .attr("text-anchor", "middle").attr("fill", h.color || "#ffe9a3").attr("opacity", h.instant ? 1 : smooth(age / 0.6));
-    if (h.rotate) t.attr("transform", `rotate(${h.rotate},${sx(h.at[0])},${sy(h.at[1])})`);   // degrees (-90: reads upwards)
+    if (h.rotate) t.attr("transform", `rotate(${h.rotate},${X},${Y})`);   // degrees (-90: reads upwards)
     if (h.size) t.style("font-size", `${h.size}px`);
+    // (sub: the lines after the first smaller and lighter, a heading over its explanation)
     const lines = h.text.toUpperCase().split("\n");
     if (lines.length === 1) { t.text(lines[0]); return; }
-    lines.forEach((s, i) => t.append("tspan").attr("x", sx(h.at[0])).attr("dy", i ? "1.15em" : `${-0.575 * (lines.length - 1)}em`).text(s));
+    lines.forEach((s, i) => { const sp = t.append("tspan").attr("x", X).attr("dy", i ? "1.15em" : `${-0.575 * (lines.length - 1)}em`).text(s);
+      if (h.sub && i) sp.style("font-size", `${Math.round((h.size || 22) * h.sub)}px`).attr("fill", h.subColor || "#e6e9f0"); });
   }
   /** A particle's picture anywhere on the chart: { pic: "deuterium", at: [r, m], size? (px, 140),
    *  label?, sub? }. The still content/icons/<pic>.webp, which the videos draw live and
@@ -2653,7 +2736,8 @@ export async function startNarration(app) {
     const to = h.to.obj ? objByName.get(h.to.obj) : null;
     const A = from ? [from.logR, from.logM] : [h.from.r, h.from.m];
     const B = to ? [to.logR, to.logM] : [h.to.r, h.to.m];
-    const [x1, y1, x2r, y2r] = [sx(A[0]) + (h.from.dx || 0), sy(A[1]) + (h.from.dy || 0), sx(B[0]) + (h.to.dx || 0), sy(B[1]) + (h.to.dy || 0)];
+    const [x1, y1, x2r, y2r] = h.screen ? [...onScreen(h.from.x, h.from.y), ...onScreen(h.to.x, h.to.y)]
+      : [sx(A[0]) + (h.from.dx || 0), sy(A[1]) + (h.from.dy || 0), sx(B[0]) + (h.to.dx || 0), sy(B[1]) + (h.to.dy || 0)];
     const prog = d3.easeCubicInOut(clamp01(age / (h.draw ?? 1.4)));
     // via: [[r, m] | { obj, dr?, dm? }, …]: a curved arrow through those points (a smooth spline), drawn on
     // from its start; the head follows the curve's last stretch
