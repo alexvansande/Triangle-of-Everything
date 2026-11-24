@@ -1,26 +1,28 @@
 source,beat,out_start,out_end,src_start,src_end,text
-rec78,forces,0.00,20.66,23.54,45.80,everything in the universe is a delicate dance between four fundamental forces at atomic level electrons are attracted to the prodene next door but the electron layers push back when they get you clothed so atoms settle where they cow balance these are the chemical bones that hold most things around you together from a stick to a buting undher all variations of the electro magnetic force
-rec78,diagonal,21.31,26.35,57.15,62.19,so if you plot objects on a short of mass and size they will be all around tha diagonal
-rec78,gravity,27.00,30.44,184.72,188.16,make something big enough and it will crush under its own weight
-rec78,gravity,30.79,36.45,191.95,197.59,that's because unlike electromagnetism there is no negative gravity everything attracts so nothing repels
-rec78,gravity,36.80,40.94,201.66,205.80,so gravity adds up and at this point everything just looks like spears
-rec78,giants,41.59,64.17,214.34,242.54,but beyond jupiter planets don't get any bigger they just get denser the pressure in their course beats the electron spush and the atoms are stripped down to loose nuclei in a sea of electronsbut if you add even more mass a new force comes into play the strong force as the name implies is the strongest of all but it has very limited range it reaches no longer than the nuclei
-rec78,fusion,64.82,70.71,254.03,259.91,gravity squeezes the nuclei so close that a strong force captures them and makes them into one
-rec78,fusion,71.06,79.00,261.92,269.87,that releases a huge burst of energy creating an outward pressure that finall is able to counterbalance gravity that's fusion
-rec78,main,79.65,85.74,278.02,284.10,that energy creates a new balance which is the main sequence where stars spend most of their lives
-rec78,main,86.09,89.45,293.13,296.50,but that equilibrium only lasts while there's hydrogen to fuse
-rec78,supernova,90.10,96.54,318.92,325.37,and once it runs out a massive stor can undergo a catastrophic cors collapse called a super nove
-rec78,weak,97.19,103.61,328.26,334.68,and in that collapsing cors a new player enters it's he weak force which decides what a nucleus even is
-rec78,weak,103.96,107.46,335.34,338.84,if you squeeze a proton an an electron hard enough you get a neutron
-rec78,neutron,108.11,112.41,343.76,348.07,and neutrals have no charge pushing them apart so they pack shoulder to shoulder
-rec78,neutron,112.76,121.16,359.40,367.80,the result is a new trun star which is really one giant atomic nucleus held together not by the strong force but by gravity alone
-rec78,escape,121.81,126.27,440.56,445.02,in order to escape the gravity of a neutron star you need to have an orbit of velocity
-rec78,escape,126.62,130.36,445.97,449.72,measured over a hundred thousand kilometers per second
-rec78,light,131.01,135.50,452.81,457.30,but our universe does have a speed limit on everything it's the speed of light
-rec78,light,135.85,142.50,480.47,487.12,and if a star is so massive that its cape velocity is higher than it then nothing not even light will escape
-rec78,light,142.85,146.56,489.34,493.06,and you create one of the strangest objects in the universe a black hole
-rec78,pbh,147.22,150.99,538.76,542.54,all the black holes we know of have been formed by dying stars
-rec78,end,151.64,153.47,735.12,736.96,but i find it fascinating to think
-rec78,end,153.82,157.92,737.69,741.78,that may be the only reason that we see that delicate balance at all
-rec78,end,158.27,166.35,742.32,750.44,is that in the early moments of the universe gravity dominated everything turning most of the matter in the universe into black holes
-rec78,end,166.70,173.19,802.23,808.72,and everything else the ordinary matter that makes up the galaxies and ourselves are just the lucky few survivors
+rec79,forces,0.00,4.64,46.52,51.16,everything in the universe is a delicate dance between four fundamental forces
+rec79,forces,4.99,13.27,57.86,66.13,at the atomic level electrons are attracted to the produncs next door but electron leers push back when they get too close so atoms settle where the tu balance
+rec79,forces,13.62,19.91,68.54,74.84,these are the chemical bonds that hold most things around you together and there are all variations of the electromagnetic force
+rec79,diagonal,20.56,27.92,77.11,84.47,so if you plot objects on a short of mass and size they all fall round is one diagonal it's the density of ordinary matter
+rec79,gravity,28.57,34.95,108.23,114.62,but make something big enough and t will crush under its own weight unlike electromagnetism there is no negative gravityeverything
+rec79,gravity,35.30,42.59,131.95,139.24,everything attracts nothing repel so gravity adds up and past this point on the line gravity dominates and everything is round
+rec79,giants,43.24,54.01,140.59,151.36,beyond jupiter planets don't get any bigger they just get denser the pressure in their core beats the electron spush and the atoms are stripped down to a bare nuclei in a sea of electrons
+rec79,strong,54.66,60.64,153.81,159.79,add even more mass and a new force comes into play it's a strong force and as the name implies it e strongest of all
+rec79,strong,60.99,63.18,163.11,165.30,but it reaches no farther than a nucleus
+rec79,fusion,63.83,70.40,175.25,181.82,inside the star the nuclei are squeezed so close and heated so much that te strong force captures them and makes them into one
+rec79,fusion,70.75,82.03,187.79,199.07,that releaves a huge burst of energy an outward pressure that finally holds gravity back that's fusion and that balance is the main sequence where stars spend most of their lives
+rec79,supernova,82.68,97.14,216.85,231.32,but it only lasts while there's few to burn when hydrogen runs out the core of a massive star collapses and the star explodes inthe super nove in that collapsing corps a new player enters it's the weak force which decides what the nucleus even is
+rec79,neutron,97.79,105.76,233.01,240.98,squeeze a proton and an electron hard enough and you get a neutron neutrons have no charge pushing them apart so they pack shoulder to shoulder
+rec79,neutron,106.11,109.73,245.86,249.48,only quantum effects preventing them from being compressed any further
+rec79,neutron,110.08,117.43,250.12,257.46,the result is a neutron star one giant atomic nucleus held together not by the strong force but by gravity alone
+rec79,escape,118.08,119.97,281.25,283.14,to escape the gravity of anybody
+rec79,escape,120.32,123.23,295.37,298.66,your orbitol velocity needs to be higher than te scape velocity
+rec79,escape,123.58,128.01,304.98,309.41,in the case of a neutral star that can be a hundred thousand kilometers per second
+rec79,light,128.66,132.07,323.52,326.93,but our universe has a speed limit this bit of light
+rec79,light,132.42,137.37,343.84,348.79,and if the matter of any body is so dense that the scape velocity is higher than that
+rec79,light,137.72,140.43,350.40,353.11,then nothing not even light gets out
+rec79,light,140.78,144.20,394.38,397.80,that's a black hole where gravity is unescapablewe
+rec79,pbh,144.85,151.17,416.83,423.14,we know dying stars make black holes but the big bank might have made many more enough
+rec79,pbh,151.52,155.10,427.73,431.31,to be the dark matter that outweighs everything we can see
+rec79,end,155.75,162.27,497.86,504.39,if so then it means that in the first moments of the universe gravity dominated most of the matter
+rec79,end,162.62,165.99,537.45,540.82,and everything else that makes up that delicate equilibrium
+rec79,end,166.34,169.16,541.47,544.29,is just a very few lucky survivors
