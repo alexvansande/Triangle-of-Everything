@@ -186,7 +186,7 @@ const SCENE = {
     { at: ["at some point", "becomes round"], cam: { r: 7.75, m: 24.1, span: 4.6, glide: true }, hl: [ROUND_BONDS, ROUND_GRAV, { obj: "Mimas" }, { obj: "Ceres", label: "Ceres · round", delay: 0.4 }, { obj: "Pluto", label: false, delay: 0.7 }] },
     { at: "gravity shapes everything", cam: { r: 8.6, m: 27.0, span: 4.6, glide: true }, hl: [ROUND_GRAV, { obj: "Earth", label: "shaped by gravity" }, { obj: "Moon", label: false }] },
     // the giant planets' column
-    { at: "atomic scale", cam: G(9.85, 30.9, 2.4), dur: 2.5, clear: true, hl: [{ obj: "Jupiter", label: "Jupiter", place: "left" }] },
+    { at: "atomic scale", cam: { ...G(9.85, 30.9, 2.4), glide: true }, dur: 3.4, ease: "gentle", clear: true, hl: [{ obj: "Jupiter", label: "Jupiter", place: "left" }] },
     { at: ["go up a column", "go up on a column"], hl: [{ obj: "Jupiter", label: false, place: "left" }, ...BD, COLUMN] },
     { at: "not made of ordinary matter", hl: [{ obj: "Jupiter", label: "not ordinary matter inside", place: "left" }, ...BD, { ...COLUMN, draw: 0.01 }] },
     // the atoms crushed: the Squeeze Lab's mode 1 ("show that sim of the degenerate matter forming")
@@ -241,13 +241,12 @@ const SCENE = {
     { at: "like a battery", hold: 999, hl: [{ atoms: { phase: "battery" }, instant: true, out: 0.8 }] },
     // escape velocity: the tug of war against gravity, half the speed of light on a neutron star
     { at: "they are thrown out", cam: { obj: "PSR J0030+0451", span: 3.4 }, dur: 2.5, clear: true, hl: [{ obj: "PSR J0030+0451", label: "neutron star" }] },
-    { at: "escape velocity", offset: 0.05, hl: [{ obj: "PSR J0030+0451", label: "escape velocity" }] },   // (on the word: the Short starts its piece on "its escape velocity")
-    { at: "half the speed of light", hl: [{ obj: "PSR J0030+0451", label: "escape: half the speed of light" }] },
-    { at: "universal speed limit", hl: [{ obj: "PSR J0030+0451", label: "nothing goes faster than light" }] },
-    // more mass: escape faster than light, and a black hole
-    { at: "faster than the speed of light", cam: { r: 8.6, m: 33.7, span: 8 }, dur: 3, clear: true, hl: [NS, { obj: "Stellar BH", label: "?", delay: 0.6 }] },
-    { at: "not even light", hl: [NS, { obj: "Stellar BH", label: "not even light gets out" }] },
-    { at: "strangest of objects", hl: [NS, { obj: "Stellar BH", label: "a black hole" }] },
+    // the escape speed as the forces Short has it (src/narration.js drawEscape; the author, 2026-11-24: "port the same changes
+    // to the long video"): the neutron star's model close, its escape speed ring by ring as we pull out, back in on the speed
+    // limit with the rings kept, squeezed and shaking till its escape speed is light's, a flash, a black disk
+    { at: "its escape velocity", cam: { obj: "PSR J0030+0451", span: 3.4 }, dur: 0.05, clear: true, hold: 999, hl: [{ escape: { phase: "start" } }] },
+    ...[["works as a universal", "limit"], ["universal speed limit", "light"], ["if you add even more", "dense"], ["will be faster than", "c"], ["strangest of objects", "hole"]]
+      .map(([at, phase]) => ({ at, hold: 999, hl: [{ escape: { phase }, instant: true, out: phase === "hole" ? 0.8 : 0.6 }] })),
     { at: "so far our", cam: SO_FAR, dur: 2.6, ease: "gentle", icons: false, forceIcons: [], clear: true, hl: [] },
     { at: "around bands", hl: [WATER] },
     // then in along the line to its groups, up to the super-Jupiters, on to the stars (the author, 2026-11-20)

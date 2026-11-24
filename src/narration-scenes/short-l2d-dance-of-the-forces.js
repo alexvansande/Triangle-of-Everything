@@ -87,7 +87,7 @@ export default {
     // and jumped on in 1.6 s on "gravity dominates", which read as a cut: the author, 2026-11-24, video/plans/visual-rules.md)
     { at: "gravity dominates", clear: true, hl: [ROUND_GRAV, { obj: "Ceres", label: "Ceres · round", delay: 0.2 }, { obj: "Earth", label: "shaped by gravity", delay: 0.6 }, { obj: "Moon", label: false, delay: 0.6 }] },
     // the giant planets' column
-    { at: "beyond jupiter", cam: G(9.85, 30.9, 2.4), dur: 2.2, clear: true, hl: [{ obj: "Jupiter", label: "Jupiter", place: "left" }] },
+    { at: "beyond jupiter", cam: { ...G(9.85, 30.9, 2.4), glide: true }, dur: 3.2, ease: "gentle", clear: true, hl: [{ obj: "Jupiter", label: "Jupiter", place: "left" }] },
     { at: "any bigger", hl: [{ obj: "Jupiter", label: false, place: "left" }, ...BD, COLUMN] },
     { at: "just get denser", hl: [{ obj: "Jupiter", label: "denser, not bigger", place: "left" }, ...BD, { ...COLUMN, draw: 0.01 }] },
 
