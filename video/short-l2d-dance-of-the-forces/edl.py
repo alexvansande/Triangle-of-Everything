@@ -11,6 +11,8 @@ PAUSES = {"word": 0.45, ",": 0.45, ".": 0.5}   # (the CTC words carry no punctua
 GAPS = {"same": 0.35, "beat": 0.65}
 ROOM = True
 
+# The three splices inside a sentence ("of any body, | your", "enough | to", "equilibrium | is") closed to 0.32 s (the author,
+# 2026-11-24: a second's pause in a phrase); done on the cut's audio by hand, so gap 0 here only approximates it.
 EDL = [
  ("rec79", "forces", 46.62, 50.4),  # Everything in the universe is a delicate dance between four fundamental forces.
  ("rec79", "forces", 57.9, 65.56),  # At the atomic level, electrons are attracted to the protons next door, but the electron layers push back when they get too close, so atoms settle where the two balance.
@@ -28,15 +30,15 @@ EDL = [
  ("rec79", "neutron", 246.18, 248.94),  # only quantum effects preventing them from being compressed any further.
  ("rec79", "neutron", 250.4, 256.98),  # The result is a neutron star, one giant atomic nucleus, held together not by the strong force but by gravity alone.
  ("rec79", "escape", 281.26, 282.44),  # To escape the gravity of any body,
- ("rec79", "escape", 295.64, 298.04, {"cut": [(295.8, 296.18)]}),  # your velocity needs to be higher than the escape velocity.   # ("orbital" cut out: "your [orbital] velocity")
+ ("rec79", "escape", 295.64, 298.04, {"cut": [(295.8, 296.18)], "gap": 0.0}),  # your velocity needs to be higher than the escape velocity.   # ("orbital" cut out: "your [orbital] velocity")
  ("rec79", "escape", 305.36, 308.9),  # In the case of a neutron star, that can be a hundred thousand kilometers per second.
  ("rec79", "light", 323.7, 326.42),  # But our universe has a speed limit: the speed of light.
  ("rec79", "light", 343.9, 348.44),  # And if the matter of any body is so dense that the escape velocity is higher than that,   # (from the second "and if")
  ("rec79", "light", 350.48, 352.64),  # then nothing, not even light, gets out.
  ("rec79", "light", 394.66, 396.76, {"e": 397.8}),  # That's a black hole, where gravity is unescapable.   # (CTC glued "unescapable" to the next "we": cut by hand)
  ("rec79", "pbh", 416.9, 422.58),  # We know dying stars make black holes, but the Big Bang might have made many more, enough
- ("rec79", "pbh", 428.04, 430.96),  # to be the dark matter that outweighs everything we can see.
+ ("rec79", "pbh", 428.04, 430.96, {"gap": 0.0}),  # to be the dark matter that outweighs everything we can see.
  ("rec79", "end", 497.96, 503.88),  # If so, then it means that in the first moments of the universe, gravity dominated most of the matter,
  ("rec79", "end", 537.5, 540.04),  # and everything else that makes up that delicate equilibrium
- ("rec79", "end", 541.58, 543.42),  # is just a very few lucky survivors.
+ ("rec79", "end", 541.58, 543.42, {"gap": 0.0}),  # is just a very few lucky survivors.
 ]

@@ -82,8 +82,10 @@ export default {
     // one slow pan up the line, wide, the two forces held on the screen: gravity named on "crush", electromagnetism on
     // "unlike electromagnetism" (3.8 s on), then the round worlds
     { at: "make something big", cam: { r: ON_LINE(10.5), m: 10.5, span: 8 }, dur: 1.6, clear: true, hl: [WATER, ...GRAV_SCREEN(1.2), ...EM_SCREEN(4.0)] },
-    { at: "crush under", cam: { r: ON_LINE(20.5), m: 20.5, span: 8, glide: true }, dur: 10, ease: "gentle" },
-    { at: "gravity dominates", cam: { r: 8.2, m: 25.4, span: 5, glide: true }, dur: 1.6, clear: true, hl: [ROUND_GRAV, { obj: "Ceres", label: "Ceres · round", delay: 0.2 }, { obj: "Earth", label: "shaped by gravity", delay: 0.6 }, { obj: "Moon", label: false, delay: 0.6 }] },
+    { at: "crush under", cam: { r: 8.2, m: 25.4, span: 5, glide: true }, dur: 11.4, ease: "gentle" },
+    // (no cut on the line: one pan from "crush" up to the round worlds, there by "everything is round"; it stopped at m 20.5
+    // and jumped on in 1.6 s on "gravity dominates", which read as a cut: the author, 2026-11-24, video/plans/visual-rules.md)
+    { at: "gravity dominates", clear: true, hl: [ROUND_GRAV, { obj: "Ceres", label: "Ceres · round", delay: 0.2 }, { obj: "Earth", label: "shaped by gravity", delay: 0.6 }, { obj: "Moon", label: false, delay: 0.6 }] },
     // the giant planets' column
     { at: "beyond jupiter", cam: G(9.85, 30.9, 2.4), dur: 2.2, clear: true, hl: [{ obj: "Jupiter", label: "Jupiter", place: "left" }] },
     { at: "any bigger", hl: [{ obj: "Jupiter", label: false, place: "left" }, ...BD, COLUMN] },
