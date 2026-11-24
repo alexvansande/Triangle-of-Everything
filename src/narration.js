@@ -2425,6 +2425,24 @@ export async function startNarration(app) {
       const L = Math.cos(g) < 0, dx = L ? -css(7) : css(7), al = L ? "right" : "left";
       label(`${km.toLocaleString("en-US")} km`, x + dx, y - css(11), "#cfe6ff", a, 13, al);
       label(fmt(vAt(km)), x + dx, y + css(9), col, a, 15, al); };
+    // dots in circular orbit on each outer ring (the author, 2026-11-24: "add some dots orbiting those circles"): the
+    // orbital speed, escape / √2, in slow motion by SLOW so the orbits can be seen (at true speed the 20 km one turns in
+    // 1.3 ms, the 1000 km one in 0.46 s), every ring slowed alike so Kepler's ratios stay true: the inner ones race, the
+    // outer ones crawl. Only the outer rings: inside 12.4 km (three Schwarzschild radii) no circular orbit is stable.
+    const SLOW = 1000;
+    const orbiters = (km, a) => { const r = km * kp; if (a <= 0.01 || r < css(6)) return;
+      const P = 2 * Math.PI * km / (vAt(km) / Math.SQRT2) * SLOW, w = 2 * Math.PI / P;   // seconds an orbit (slowed), rad/s
+      const n = km <= 50 ? 3 : 2, trail = Math.min(1.1, w * 0.12);   // the streak: the last 0.12 s of the path, at most a sixth of a turn
+      for (let i = 0; i < n; i++) {
+        const ph = (Math.sin(km * 12.9898 + i * 78.233) * 43758.5453 % 1 + 1) % 1, g = -(ph * 2 * Math.PI + w * t + i * 2 * Math.PI / n);
+        ctx.lineCap = "round";
+        for (let s = 0; s < 6; s++) { const g0 = g + trail * s / 6, g1 = g + trail * (s + 1) / 6;
+          ctx.globalAlpha = a * 0.55 * (1 - s / 6); ctx.strokeStyle = "#cfe6ff"; ctx.lineWidth = css(2.2) * (1 - s / 8);
+          ctx.beginPath(); ctx.arc(cx, cy, r, g1, g0, true); ctx.stroke(); }
+        ctx.globalAlpha = a; ctx.fillStyle = "#ffffff"; ctx.shadowColor = "rgba(160,210,255,0.9)"; ctx.shadowBlur = css(6);
+        ctx.beginPath(); ctx.arc(cx + Math.cos(g) * r, cy + Math.sin(g) * r, css(2.4), 0, Math.PI * 2); ctx.fill();
+        ctx.shadowBlur = 0; ctx.globalAlpha = 1; } };
+    label(`orbits slowed ${SLOW.toLocaleString("en-US")}×`, W / 2, H * 0.12 + css(46), "#7fa8cc", smooth((t - t0 - 4.0) / 0.6) * (1 - smooth((t - tL) / 0.5)), 11, "center");
     // the outer rings: each comes in once the zoom brings it on screen, while zooming out, and stays on the way back in
     // (the author, 2026-11-24: "don't fade them, instead start zooming in again (keep the escape velocities already there)")
     const out = 1;
@@ -2434,7 +2452,7 @@ export async function startNarration(app) {
         if (css(km * kAt(lo)) <= Math.min(W, H) * 0.47) return lo; if (css(km * kAt(Math.min(t, hi))) > Math.min(W, H) * 0.47) return null;
         for (let i = 0; i < 24; i++) { const m = (lo + hi) / 2; if (css(km * kAt(m)) > Math.min(W, H) * 0.47) lo = m; else hi = m; } return hi; })();
       if (since == null || t < since) continue; const a = smooth((t - since) / 0.6) * out;
-      ring(km, a); ringLabel(km, a); }
+      ring(km, a); orbiters(km, a); ringLabel(km, a); }
     // the inner rings, as the star passes them, and the light-speed one
     const INNER = [10, 8, 6, 5];
     for (const km of INNER) { if (R >= km && t < tC) continue;
