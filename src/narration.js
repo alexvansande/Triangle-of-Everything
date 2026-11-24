@@ -2292,7 +2292,7 @@ export async function startNarration(app) {
   // the phases of the crush and fusion diagrams: the time of each cue carrying { crush: { phase } } / { fuse: { phase } }
   // (the first one, without a phase, is "start"), so the drawing runs on the take's clock whatever cue is live
   const phaseTimes = (key) => Object.fromEntries(cues.filter(c => c.hl?.some(q => q[key])).map(c => [c.hl.find(q => q[key])[key].phase || "start", c.time]));
-  const CATALOGUE_T = phaseTimes("catalogue"), CRUSH_T = phaseTimes("crush"), FUSE_T = phaseTimes("fuse"), WEAK_T = phaseTimes("weak"), DEUT_T = phaseTimes("deut"), EDGE_T = phaseTimes("edge"), OBS_T = phaseTimes("obs"), DIAMONDS_T = phaseTimes("diamonds"), FUSION_T = phaseTimes("fusionSim"), ATOMS_T = phaseTimes("atoms");
+  const CATALOGUE_T = phaseTimes("catalogue"), CRUSH_T = phaseTimes("crush"), FUSE_T = phaseTimes("fuse"), WEAK_T = phaseTimes("weak"), DEUT_T = phaseTimes("deut"), EDGE_T = phaseTimes("edge"), OBS_T = phaseTimes("obs"), DIAMONDS_T = phaseTimes("diamonds"), FUSION_T = phaseTimes("fusionSim"), ATOMS_T = phaseTimes("atoms"), ESCAPE_T = phaseTimes("escape");
   const DIAGRAM_KINDS = { own: cues.some(c => c.hl?.some(q => q.own)), center: cues.some(c => c.hl?.some(q => q.center)), cosmos: cues.some(c => c.hl?.some(q => q.cosmos)),
     particles: cues.some(c => c.hl?.some(q => q.crush || q.fuse || q.weak || q.deut || q.squeeze || q.diamonds || q.fusionSim)), edge: cues.some(c => c.hl?.some(q => q.edge || q.obs)), catalogue: cues.some(c => c.hl?.some(q => q.catalogue)), p10: cues.some(c => c.hl?.some(q => q.p10)), atoms: cues.some(c => c.hl?.some(q => q.atoms)) };
   // fusion as the lab's run (mode 2) in fours, its events on the cues' words (the author, 2026-11-18: a simulation, not
@@ -2381,8 +2381,113 @@ export async function startNarration(app) {
     edge(0.5, k);
     edge(1, k * smooth((t - h.t0) / 0.5));
   }
+  // Escape velocity round a neutron star, then the star squeezed into a black hole (the author, 2026-11-24, the forces
+  // Short, 1:58: "we zoom out the Neutron star, and then we show a series of circles around it with distance … the escape
+  // velocities in all of them … a very slow zoom out … when you say the universe has a speed limit … start zooming in again
+  // … the neutron star starts compressing and jiggling a little bit as if it's crushing under pressure … you show the
+  // escape velocities inside it … at some point it's the speed of light … the star like explodes or something, and then
+  // it's just a black hole … just put a black circle on it"). { escape: { phase } } cues: start (the dive in, then the slow
+  // zoom out, a ring coming in at each distance), limit (back in), dense (the squeeze), c (light: the burst, the black
+  // disk), hole (its name). A star of 1.4 suns, 12 km across its radius; v = √(2GM/r).
+  function drawEscape(ctx, W, H, t, dpr) {
+    const T = ESCAPE_T, t0 = T.start; if (t0 == null) return;
+    const GM = 1.4 * 1.32712e20, C = 299792.458, vAt = (km) => Math.sqrt(2 * GM / (km * 1000)) / 1000, RS = 2 * GM / (C * 1000) ** 2 / 1000;
+    const R0 = 12, lerp = (a, b, u) => a + (b - a) * u, lg = (a, b, u) => Math.exp(lerp(Math.log(a), Math.log(b), u));
+    const tL = T.limit ?? t0 + 11, tD = T.dense ?? tL + 4.6, tC = T.c ?? tD + 2.8, tH = T.hole;
+    const css = (v) => v * dpr, cx = W / 2, cy = H * 0.46;
+    // the view, CSS px a km: in from the chart's dot, out slowly as the rings come in, back in on the limit, a little more in the squeeze
+    let k;
+    if (t < t0 + 1.6) k = lg(0.25, 6, smooth((t - t0) / 1.6));
+    else if (t < tL) k = lg(6, 0.17, smooth((t - t0 - 1.6) / Math.max(1, tL - t0 - 1.6)) * 0.85 + (t - t0 - 1.6) / Math.max(1, tL - t0 - 1.6) * 0.15);
+    else if (t < tD) k = lg(0.17, 10, smooth((t - tL) / Math.min(2.6, tD - tL)));
+    else k = lg(10, 11.5, smooth((t - tD) / Math.max(0.5, tC - tD)));
+    const kp = css(k);
+    // the star: its radius (the squeeze speeding up to the Schwarzschild radius), shaking more as it goes
+    const u = clamp01((t - tD) / Math.max(0.5, tC - tD)), R = t < tD ? R0 : lerp(R0, RS, smooth(u) * 0.6 + u * 0.4);
+    const shake = t >= tD && t < tC ? (0.4 + 2.6 * u) : 0, jx = shake * Math.sin(t * 71) * dpr, jy = shake * Math.cos(t * 53) * dpr;
+    // (a few stars behind, still)
+    ctx.save();
+    for (let i = 0; i < 140; i++) { const a = Math.sin(i * 127.1) * 43758.5, b = Math.sin(i * 311.7) * 24634.6, x = (a - Math.floor(a)) * W, y = (b - Math.floor(b)) * H;
+      ctx.fillStyle = `rgba(200,215,255,${0.15 + 0.35 * ((a * 7) % 1 + 1) % 1})`; ctx.fillRect(x, y, css(1.1), css(1.1)); }
+    const font = (px, w = 700) => `${w} ${css(px)}px "Barlow Condensed", "Arial Narrow", sans-serif`;
+    const fmt = (v) => Math.round(v / 1000) * 1000 >= 1000 ? Math.round(v / 1000).toLocaleString("en-US") + ",000 km/s" : Math.round(v) + " km/s";
+    const label = (text, x, y, col, a, px = 15, align = "left") => { px *= 1.35; if (a <= 0.01) return; ctx.globalAlpha = a; ctx.font = font(px); ctx.textAlign = align; ctx.textBaseline = "middle";
+      ctx.lineWidth = css(3); ctx.strokeStyle = "rgba(0,0,0,0.85)"; ctx.strokeText(text, x, y); ctx.fillStyle = col; ctx.fillText(text, x, y); ctx.globalAlpha = 1; };
+    const ring = (km, a, col = "rgba(120,190,255,0.8)", dash = true) => { const r = km * kp; if (a <= 0.01 || r < css(2)) return r;
+      ctx.globalAlpha = a; ctx.strokeStyle = col; ctx.lineWidth = css(1.3); ctx.setLineDash(dash ? [css(5), css(5)] : []);
+      ctx.beginPath(); ctx.arc(cx, cy, r, 0, Math.PI * 2); ctx.stroke(); ctx.setLineDash([]); ctx.globalAlpha = 1; return r; };
+    // ring labels to the right of the star, each at its own angle so close rings don't stack
+    const ANG = { 20: -0.95, 50: -0.95, 100: -0.95, 200: -0.95, 500: -0.95, 1000: -0.95, 10: -1.0, 8: -0.1, 6: 0.85, 5: Math.PI + 0.45 };
+    const ringLabel = (km, a, col = "#9fd3ff") => { const r = km * kp; if (r < css(30) || r > Math.min(W, H) * 0.62) return;
+      const g = ANG[km] ?? -0.95, x = cx + Math.cos(g) * r, y = cy + Math.sin(g) * r;
+      ctx.globalAlpha = a; ctx.fillStyle = col; ctx.beginPath(); ctx.arc(x, y, css(2.6), 0, Math.PI * 2); ctx.fill(); ctx.globalAlpha = 1;
+      const L = Math.cos(g) < 0, dx = L ? -css(7) : css(7), al = L ? "right" : "left";
+      label(`${km.toLocaleString("en-US")} km`, x + dx, y - css(11), "#cfe6ff", a, 13, al);
+      label(fmt(vAt(km)), x + dx, y + css(9), col, a, 15, al); };
+    // the outer rings: each comes in once the zoom brings it on screen, while zooming out; gone on the way back in
+    const out = t < tL + 0.8 ? 1 - smooth((t - tL) / 0.8) : 0;
+    const RINGS = [20, 50, 100, 200, 500, 1000];
+    for (const km of RINGS) { const since = (() => { // when it first fitted on screen (its fade in)
+        let lo = t0 + 3.0, hi = tL; if (t < lo) return null; const kAt = (tt) => lg(6, 0.17, smooth((tt - t0 - 1.6) / Math.max(1, tL - t0 - 1.6)) * 0.85 + (tt - t0 - 1.6) / Math.max(1, tL - t0 - 1.6) * 0.15);
+        if (css(km * kAt(lo)) <= Math.min(W, H) * 0.47) return lo; if (css(km * kAt(Math.min(t, hi))) > Math.min(W, H) * 0.47) return null;
+        for (let i = 0; i < 24; i++) { const m = (lo + hi) / 2; if (css(km * kAt(m)) > Math.min(W, H) * 0.47) lo = m; else hi = m; } return hi; })();
+      if (since == null || t < since) continue; const a = smooth((t - since) / 0.6) * out;
+      ring(km, a); ringLabel(km, a); }
+    // the inner rings, as the star passes them, and the light-speed one
+    const INNER = [10, 8, 6, 5];
+    for (const km of INNER) { if (R >= km && t < tC) continue;
+      const a = (t < tC ? smooth((km - R) / 0.6) : 1) * (1 - smooth((t - tC - 0.4) / 0.8));
+      ring(km, a); ringLabel(km, a); }
+    // the star (or the black hole)
+    const burst = t >= tC ? (t - tC) : -1;
+    if (burst < 0 || burst < 0.12) {
+      const r = Math.max(css(1.6), R * kp), x = cx + jx, y = cy + jy;
+      const glow = ctx.createRadialGradient(x, y, r * 0.6, x, y, r * 3.2 + css(6));
+      glow.addColorStop(0, `rgba(150,195,255,${0.55 + 0.35 * u})`); glow.addColorStop(1, "rgba(150,195,255,0)");
+      ctx.fillStyle = glow; ctx.beginPath(); ctx.arc(x, y, r * 3.2 + css(6), 0, Math.PI * 2); ctx.fill();
+      const body = ctx.createRadialGradient(x - r * 0.3, y - r * 0.3, r * 0.1, x, y, r);
+      body.addColorStop(0, "#ffffff"); body.addColorStop(0.55, lerp(0, 1, u) > 0.5 ? "#e8f0ff" : "#cfe2ff"); body.addColorStop(1, "#6f9be8");
+      ctx.fillStyle = body; ctx.beginPath(); ctx.arc(x, y, r, 0, Math.PI * 2); ctx.fill();
+    }
+    if (burst >= 0) {
+      const rs = RS * kp;
+      // the black disk, a thin glow of bent light round it
+      const halo = ctx.createRadialGradient(cx, cy, rs, cx, cy, rs * 2.2);
+      halo.addColorStop(0, `rgba(255,190,120,${0.55 * smooth(burst / 0.6)})`); halo.addColorStop(0.25, `rgba(255,150,80,${0.18 * smooth(burst / 0.6)})`); halo.addColorStop(1, "rgba(255,150,80,0)");
+      ctx.fillStyle = halo; ctx.beginPath(); ctx.arc(cx, cy, rs * 2.2, 0, Math.PI * 2); ctx.fill();
+      ctx.fillStyle = "#000"; ctx.beginPath(); ctx.arc(cx, cy, rs, 0, Math.PI * 2); ctx.fill();
+      // the flash and the outer layers thrown off
+      const f = clamp01(burst / 1.1);
+      if (f < 1) { const fr = rs + css(260) * Math.sqrt(f), g = ctx.createRadialGradient(cx, cy, rs, cx, cy, fr);
+        g.addColorStop(0, `rgba(255,255,255,${0.9 * (1 - f)})`); g.addColorStop(0.6, `rgba(170,210,255,${0.35 * (1 - f)})`); g.addColorStop(1, "rgba(170,210,255,0)");
+        ctx.fillStyle = g; ctx.beginPath(); ctx.arc(cx, cy, fr, 0, Math.PI * 2); ctx.fill();
+        for (let i = 0; i < 60; i++) { const a = i / 60 * Math.PI * 2 + Math.sin(i * 12.9) * 0.2, d = rs + css(40 + 220 * ((Math.sin(i * 78.2) + 1) / 2 * 0.5 + 0.5)) * Math.sqrt(f);
+          ctx.fillStyle = `rgba(210,230,255,${1 - f})`; ctx.fillRect(cx + Math.cos(a) * d, cy + Math.sin(a) * d, css(2), css(2)); } }
+    }
+    // the words: the star's name and size, the escape speed at its surface as it shrinks, light's speed, the black hole
+    const sr = Math.max(R * kp, css(4));
+    if (burst < 0) {
+      const v = vAt(R), aName = smooth((t - t0 - 1.0) / 0.6) * (t < tD ? 1 : 1 - smooth((t - tD) / 0.5));
+      label("neutron star", cx, cy + sr + css(22), "#ffffff", aName, 18, "center");
+      label(`${R0} km radius · 1.4 suns`, cx, cy + sr + css(40), "#cfe6ff", aName * (k > 1 ? 1 : smooth((k - 0.4) / 0.6)), 13, "center");
+      const aS = (t < tL ? smooth((t - t0 - 1.4) / 0.5) * (1 - smooth((t - t0 - 2.8) / 0.4)) : 0) + (t >= tD ? smooth((t - tD) / 0.5) : 0);
+      if (t < tL) label(`surface: escape ${fmt(v)}`, cx, cy - sr - css(18), "#ffffff", Math.min(1, aS), 17, "center");
+      if (t >= tD) { const a = smooth((t - tD) / 0.5);
+        label(`radius ${R.toFixed(1)} km`, cx, cy + sr + css(24), "#cfe6ff", a, 14, "center");
+        label(`surface: escape ${fmt(v)}`, cx, cy + sr + css(48), v > C * 0.97 ? "#ffe082" : "#ffffff", a, 17, "center"); }
+    }
+    label("speed needed to escape, by distance", W / 2, H * 0.12, "#9fd3ff", smooth((t - t0 - 3.0) / 0.6) * (1 - smooth((t - tL) / 0.5)), 17, "center");
+    label("from the centre", W / 2, H * 0.12 + css(24), "#cfe6ff", smooth((t - t0 - 3.0) / 0.6) * (1 - smooth((t - tL) / 0.5)), 13, "center");
+    const aC = T.light != null ? smooth((t - T.light) / 0.5) : 0;
+    label("speed of light: 299,792 km/s", W / 2, H * 0.12, "#ffe082", aC * (burst < 0 ? 1 : 1 - smooth((burst - 1.2) / 0.6)), 19, "center");
+    if (burst >= 0) {
+      label(`${RS.toFixed(1)} km: escape = light`, cx, cy - RS * kp - css(20), "#ffe082", smooth(burst / 0.4) * (1 - smooth((burst - 2.6) / 0.6)), 16, "center");
+      label("black hole", cx, cy + RS * kp + css(26), "#ffffff", tH != null ? smooth((t - tH) / 0.5) : 0, 22, "center");
+    }
+    ctx.restore();
+  }
   function drawDiagram(live, t) {
-    const cv = layer.querySelector("#narr-diagram"), h = live.filter(q => q.horizons || q.center || q.own || q.cosmos || q.crush || q.fuse || q.weak || q.deut || q.squeeze || q.diamonds || q.fusionSim || q.morph || q.edge || q.obs || q.catalogue || q.p10 || q.atoms).sort((a, b) => b.t0 - a.t0)[0];   // the newest: an older one may still be live for its fade
+    const cv = layer.querySelector("#narr-diagram"), h = live.filter(q => q.horizons || q.center || q.own || q.cosmos || q.crush || q.fuse || q.weak || q.deut || q.squeeze || q.diamonds || q.fusionSim || q.morph || q.escape || q.edge || q.obs || q.catalogue || q.p10 || q.atoms).sort((a, b) => b.t0 - a.t0)[0];   // the newest: an older one may still be live for its fade
     if (!h) { cv.hidden = true; return; }
     cv.hidden = false;
     const dpr = Math.min(2, devicePixelRatio || 1), W = Math.round(layer.clientWidth * dpr), H = Math.round(layer.clientHeight * dpr);
@@ -2417,6 +2522,7 @@ export async function startNarration(app) {
     // cut between these scenes can we just move the atoms so they reach the new position we want them to? And when I say,
     // if you add more mass, then add more red arrows pointing inwards"): { morph: true } from its cue to the next
     else if (h.morph) drawMorph(ctx, W, H, h, t, dpr);
+    else if (h.escape) drawEscape(ctx, W, H, t, dpr);
     else if (h.catalogue) drawCatalogue(ctx, W, H, { ...CATALOGUE_T }, t, (slug, r, m) => {
       // where the chart puts it now, so the pictures land on the chart's own (a catalogue dot: its numbers)
       const ob = objBySlug.get(slug); return { X: sx(ob ? ob.logR : r) * dpr, Y: sy(ob ? ob.logM : m) * dpr };

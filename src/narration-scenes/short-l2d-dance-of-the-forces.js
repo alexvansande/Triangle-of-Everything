@@ -102,18 +102,16 @@ export default {
     { at: "when hydrogen runs out", cam: { r: 11.85, m: 33.4, span: 3.6, glide: true }, hl: [{ swing: [{ obj: "Sun" }, { obj: "Red Giant" }], period: 1.2, core: true }, { obj: "Red Giant", label: "out of hydrogen", delay: 0.6 }] },
     { at: "massive star collapses", cam: { r: 12.7, m: 35.0, span: 5 }, dur: 1.5, clear: true, hl: [HIGH, { obj: "Crab Nebula", label: "supernova", delay: 0.6 }, { obj: "PSR J0030+0451", label: "the core", delay: 1.2 }] },
     // the weak force: the cores turn to neutrons, which settle into their grid; then straight on, the zoom out to the star
-    { at: "a new player enters", hold: 16, hl: [{ squeeze: WEAK }] },
+    { at: "a new player enters", hold: 999, hl: [{ squeeze: WEAK }] },   // (999: on till the zoom out, no dip to the chart between; the author, 2026-11-24, 1:49)
     { at: "the result is a neutron star", cam: { obj: "PSR J0030+0451", span: 3.4 }, dur: 0.05, clear: true, hold: 999,
       hl: [{ p10: { sim: { at: "a new player enters", ...WEAK } }, instant: true, out: 1.0 }] },
 
     // ── The black hole ──
-    { at: "to escape the gravity", cam: { obj: "PSR J0030+0451", span: 3.4 }, dur: 0.05, clear: true, hl: [{ obj: "PSR J0030+0451", label: "neutron star" }] },
-    { at: "kilometers per second", hl: [{ obj: "PSR J0030+0451", label: "escape: over 100,000 km/s" }] },
-    { at: "has a speed limit", hl: [{ obj: "PSR J0030+0451", label: "neutron star" }] },
-    { at: "speed of light", hl: [{ obj: "PSR J0030+0451", label: "nothing goes faster than light" }] },
-    { at: "so dense that", cam: { r: 8.6, m: 33.7, span: 8 }, dur: 3, clear: true, hl: [NS, { obj: "Stellar BH", label: "?", delay: 0.6 }] },
-    { at: "not even light", hl: [NS, { obj: "Stellar BH", label: "not even light gets out" }] },
-    { at: "where gravity is unescapable", hl: [NS, { obj: "Stellar BH", label: "a black hole" }, SCHW] },
+    // the neutron star close, its escape speed ring by ring as we pull out; back in on the speed limit; squeezed till its
+    // escape speed is light's, a flash, a black disk (the author, 2026-11-24, 1:58): src/narration.js, drawEscape
+    { at: "to escape the gravity", cam: { obj: "PSR J0030+0451", span: 3.4 }, dur: 0.05, clear: true, hold: 999, hl: [{ escape: { phase: "start" } }] },
+    ...[["has a speed limit", "limit"], ["speed of light", "light"], ["so dense that", "dense"], ["than that", "c"], ["that's a black hole", "hole"]]
+      .map(([at, phase]) => ({ at, hold: 999, hl: [{ escape: { phase }, instant: true, out: phase === "hole" ? 0.8 : 0.6 }] })),
 
     // ── The ones we know, and the ending ──
     { at: "we know dying stars", cam: { obj: "Stellar BH", span: 10 }, dur: 2, clear: true, hl: [SCHW, { obj: "Stellar BH", label: "from dying stars" }] },
