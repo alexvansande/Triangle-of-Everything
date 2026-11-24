@@ -104,12 +104,14 @@ export default {
     // the weak force: the cores turn to neutrons, which settle into their grid; then straight on, the zoom out to the star
     { at: "a new player enters", hold: 999, hl: [{ squeeze: WEAK }] },   // (999: on till the zoom out, no dip to the chart between; the author, 2026-11-24, 1:49)
     { at: "the result is a neutron star", cam: { obj: "PSR J0030+0451", span: 3.4 }, dur: 0.05, clear: true, hold: 999,
-      hl: [{ p10: { sim: { at: "a new player enters", ...WEAK } }, instant: true, out: 1.0 }] },
+      // (it lands on the escape scene's star, at its size and as the next cue starts, so no chart between: the author, 2026-11-24,
+      // "Just zoom out to our model of the neutron star, and keep zooming out")
+      hl: [{ p10: { sim: { at: "a new player enters", ...WEAK }, dur: 7.3, km: 24, disc: 0.15, labels: [] }, instant: true, out: 1.0 }] },
 
     // ── The black hole ──
     // the neutron star close, its escape speed ring by ring as we pull out; back in on the speed limit; squeezed till its
     // escape speed is light's, a flash, a black disk (the author, 2026-11-24, 1:58): src/narration.js, drawEscape
-    { at: "to escape the gravity", cam: { obj: "PSR J0030+0451", span: 3.4 }, dur: 0.05, clear: true, hold: 999, hl: [{ escape: { phase: "start" } }] },
+    { at: "to escape the gravity", cam: { obj: "PSR J0030+0451", span: 3.4 }, dur: 0.05, clear: true, hold: 999, hl: [{ escape: { phase: "start" }, instant: true }] },
     ...[["has a speed limit", "limit"], ["speed of light", "light"], ["so dense that", "dense"], ["than that", "c"], ["that's a black hole", "hole"]]
       .map(([at, phase]) => ({ at, hold: 999, hl: [{ escape: { phase }, instant: true, out: phase === "hole" ? 0.8 : 0.6 }] })),
 

@@ -2397,8 +2397,9 @@ export async function startNarration(app) {
     const css = (v) => v * dpr, cx = W / 2, cy = H * 0.46;
     // the view, CSS px a km: in from the chart's dot, out slowly as the rings come in, back in on the limit, a little more in the squeeze
     let k;
-    if (t < t0 + 1.6) k = lg(0.25, 6, smooth((t - t0) / 1.6));
-    else if (t < tL) k = lg(6, 0.17, smooth((t - t0 - 1.6) / Math.max(1, tL - t0 - 1.6)) * 0.85 + (t - t0 - 1.6) / Math.max(1, tL - t0 - 1.6) * 0.15);
+    // (from the start: the zoom out of the neutrons lands on this star at 6 px a km, src/narr-p10.js; the author, 2026-11-24)
+    const kOut = (tt) => { const v = clamp01((tt - t0) / Math.max(1, tL - t0)); return lg(6, 0.17, smooth(v) * 0.85 + v * 0.15); };
+    if (t < tL) k = kOut(t);
     else if (t < tD) k = lg(0.17, 10, smooth((t - tL) / Math.min(2.6, tD - tL)));
     else k = lg(10, 11.5, smooth((t - tD) / Math.max(0.5, tC - tD)));
     const kp = css(k);
@@ -2424,11 +2425,12 @@ export async function startNarration(app) {
       const L = Math.cos(g) < 0, dx = L ? -css(7) : css(7), al = L ? "right" : "left";
       label(`${km.toLocaleString("en-US")} km`, x + dx, y - css(11), "#cfe6ff", a, 13, al);
       label(fmt(vAt(km)), x + dx, y + css(9), col, a, 15, al); };
-    // the outer rings: each comes in once the zoom brings it on screen, while zooming out; gone on the way back in
-    const out = t < tL + 0.8 ? 1 - smooth((t - tL) / 0.8) : 0;
+    // the outer rings: each comes in once the zoom brings it on screen, while zooming out, and stays on the way back in
+    // (the author, 2026-11-24: "don't fade them, instead start zooming in again (keep the escape velocities already there)")
+    const out = 1;
     const RINGS = [20, 50, 100, 200, 500, 1000];
     for (const km of RINGS) { const since = (() => { // when it first fitted on screen (its fade in)
-        let lo = t0 + 3.0, hi = tL; if (t < lo) return null; const kAt = (tt) => lg(6, 0.17, smooth((tt - t0 - 1.6) / Math.max(1, tL - t0 - 1.6)) * 0.85 + (tt - t0 - 1.6) / Math.max(1, tL - t0 - 1.6) * 0.15);
+        let lo = t0 + 3.0, hi = tL; if (t < lo) return null; const kAt = kOut;
         if (css(km * kAt(lo)) <= Math.min(W, H) * 0.47) return lo; if (css(km * kAt(Math.min(t, hi))) > Math.min(W, H) * 0.47) return null;
         for (let i = 0; i < 24; i++) { const m = (lo + hi) / 2; if (css(km * kAt(m)) > Math.min(W, H) * 0.47) lo = m; else hi = m; } return hi; })();
       if (since == null || t < since) continue; const a = smooth((t - since) / 0.6) * out;
@@ -2522,7 +2524,18 @@ export async function startNarration(app) {
     // cut between these scenes can we just move the atoms so they reach the new position we want them to? And when I say,
     // if you add more mass, then add more red arrows pointing inwards"): { morph: true } from its cue to the next
     else if (h.morph) drawMorph(ctx, W, H, h, t, dpr);
-    else if (h.escape) drawEscape(ctx, W, H, t, dpr);
+    else if (h.escape) {
+      drawEscape(ctx, W, H, t, dpr);
+      // (the zoom out of the neutrons, src/narr-p10.js, lands on this star: its last frame dissolves into it over 0.6 s)
+      const p = live.find(q => q.p10 && q.t0 < h.t0), fade = 1 - smooth((t - h.t0) / 0.6);
+      if (p && fade > 0.002) {
+        const off = drawDiagram._off || (drawDiagram._off = document.createElement("canvas")); off.width = W; off.height = H;
+        const o2 = off.getContext("2d"); o2.fillStyle = "#000"; o2.fillRect(0, 0, W, H);
+        const sc = cues.filter(c => c.time < p.t0 && c.hl?.some(q => q.squeeze)).at(-1), sq = sc?.hl.find(q => q.squeeze).squeeze;
+        drawP10(o2, W, H, { ...p.p10, sim: p.p10.sim ?? (sq && { ...sq, start: sc.time }), start: p.t0, end: p.t1, exact: RENDER }, t, dpr);
+        ctx.save(); ctx.setTransform(1, 0, 0, 1, 0, 0); ctx.globalAlpha = fade; ctx.drawImage(off, 0, 0); ctx.restore();
+      }
+    }
     else if (h.catalogue) drawCatalogue(ctx, W, H, { ...CATALOGUE_T }, t, (slug, r, m) => {
       // where the chart puts it now, so the pictures land on the chart's own (a catalogue dot: its numbers)
       const ob = objBySlug.get(slug); return { X: sx(ob ? ob.logR : r) * dpr, Y: sy(ob ? ob.logM : m) * dpr };
