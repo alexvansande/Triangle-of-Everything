@@ -26,7 +26,7 @@ import * as d3 from "d3";
 import { iconUrls } from "./assets.js";
 import { drawHorizons, drawCenter, drawOwn, drawCosmos, drawCrush, drawFuse, drawWeak, drawDeut, drawSqueeze, drawDiamonds, drawEdge, drawObservable, edgePending, diagramsPending, drawAtoms, atomsPending, nucleonFrames } from "./narr-diagrams.js";
 import { drawCatalogue, cataloguePending } from "./narr-catalogue.js";
-import { drawP10, p10Pending } from "./narr-p10.js";
+import { drawP10, p10Pending, drawStar as drawNeutronStar } from "./narr-p10.js";
 import {
   EVENT_HORIZON_LOG_R, HUBBLE_LOG_R, PLANCK_LOG_R, PLANCK_LOG_M, schwarzschildM, comptonM,
   densityLineM, DENSITY_SPHERE_C, SCHWARZSCHILD_C, COMPTON_C,
@@ -2394,7 +2394,7 @@ export async function startNarration(app) {
     const GM = 1.4 * 1.32712e20, C = 299792.458, vAt = (km) => Math.sqrt(2 * GM / (km * 1000)) / 1000, RS = 2 * GM / (C * 1000) ** 2 / 1000;
     const R0 = 12, lerp = (a, b, u) => a + (b - a) * u, lg = (a, b, u) => Math.exp(lerp(Math.log(a), Math.log(b), u));
     const tL = T.limit ?? t0 + 11, tD = T.dense ?? tL + 4.6, tC = T.c ?? tD + 2.8, tH = T.hole;
-    const css = (v) => v * dpr, cx = W / 2, cy = H * 0.46;
+    const css = (v) => v * dpr, cx = W / 2, cy = H / 2;   // (the middle, where the zoom out lands its star)
     // the view, CSS px a km: in from the chart's dot, out slowly as the rings come in, back in on the limit, a little more in the squeeze
     let k;
     // (from the start: the zoom out of the neutrons lands on this star at 6 px a km, src/narr-p10.js; the author, 2026-11-24)
@@ -2443,13 +2443,10 @@ export async function startNarration(app) {
     // the star (or the black hole)
     const burst = t >= tC ? (t - tC) : -1;
     if (burst < 0 || burst < 0.12) {
+      // the Star Forge's neutron star, the one the zoom out lands on (src/narr-p10.js), shrinking and shaking (the author,
+      // 2026-11-24: "Keep the model neutron star it looks way better", not a white ball)
       const r = Math.max(css(1.6), R * kp), x = cx + jx, y = cy + jy;
-      const glow = ctx.createRadialGradient(x, y, r * 0.6, x, y, r * 3.2 + css(6));
-      glow.addColorStop(0, `rgba(150,195,255,${0.55 + 0.35 * u})`); glow.addColorStop(1, "rgba(150,195,255,0)");
-      ctx.fillStyle = glow; ctx.beginPath(); ctx.arc(x, y, r * 3.2 + css(6), 0, Math.PI * 2); ctx.fill();
-      const body = ctx.createRadialGradient(x - r * 0.3, y - r * 0.3, r * 0.1, x, y, r);
-      body.addColorStop(0, "#ffffff"); body.addColorStop(0.55, lerp(0, 1, u) > 0.5 ? "#e8f0ff" : "#cfe2ff"); body.addColorStop(1, "#6f9be8");
-      ctx.fillStyle = body; ctx.beginPath(); ctx.arc(x, y, r, 0, Math.PI * 2); ctx.fill();
+      drawNeutronStar(ctx, W, H, r, 1, t, x, y);
     }
     if (burst >= 0) {
       const rs = RS * kp;

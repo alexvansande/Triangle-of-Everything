@@ -106,7 +106,7 @@ export default {
     { at: "the result is a neutron star", cam: { obj: "PSR J0030+0451", span: 3.4 }, dur: 0.05, clear: true, hold: 999,
       // (it lands on the escape scene's star, at its size and as the next cue starts, so no chart between: the author, 2026-11-24,
       // "Just zoom out to our model of the neutron star, and keep zooming out")
-      hl: [{ p10: { sim: { at: "a new player enters", ...WEAK }, dur: 7.3, km: 24, disc: 0.15, labels: [] }, instant: true, out: 1.0 }] },
+      hl: [{ p10: { sim: { at: "a new player enters", ...WEAK }, dur: 7.3, km: 24, disc: 0.1875, labels: [] }, instant: true, out: 1.0 }] },
 
     // ── The black hole ──
     // the neutron star close, its escape speed ring by ring as we pull out; back in on the speed limit; squeezed till its

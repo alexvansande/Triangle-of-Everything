@@ -419,7 +419,8 @@ function caption(ctx, W, H, s, y, a) {
 
 // ---------------------------------------------------------------- the star
 let forge = null, forgeDead = false, starCanvas = null;
-function drawStar(ctx, W, H, r, a, t) {
+// (exported for the escape scene, src/narration.js drawEscape, which goes on with this same star: x, y its centre)
+export function drawStar(ctx, W, H, r, a, t, x = W / 2, y = H / 2) {
   if (a <= 0.01) return;
   const s = starBySlug("neutron-star");
   if (!forgeDead && !forge) { try { forge = createStarForge(); } catch (err) { forgeDead = true; console.warn("p10: no Star Forge:", err.message); } }
@@ -427,12 +428,12 @@ function drawStar(ctx, W, H, r, a, t) {
   const size = Math.min(4096, Math.ceil(r / discFraction(s)) * 2);
   ctx.save(); ctx.globalAlpha = a;
   if (forge && !forge.lost() && forge.render(s, t, size, { target: starCanvas, alpha: true })) {
-    ctx.drawImage(starCanvas, W / 2 - size / 2, H / 2 - size / 2, size, size);
+    ctx.drawImage(starCanvas, x - size / 2, y - size / 2, size, size);
   } else {
     // no GL: a plain disc in the star's colours
-    const g = ctx.createRadialGradient(W / 2, H / 2, 0, W / 2, H / 2, r);
+    const g = ctx.createRadialGradient(x, y, 0, x, y, r);
     g.addColorStop(0, "#f2f2fa"); g.addColorStop(0.8, "#a9adc4"); g.addColorStop(1, "#6c7190");
-    ctx.fillStyle = g; ctx.beginPath(); ctx.arc(W / 2, H / 2, r, 0, Math.PI * 2); ctx.fill();
+    ctx.fillStyle = g; ctx.beginPath(); ctx.arc(x, y, r, 0, Math.PI * 2); ctx.fill();
   }
   ctx.restore();
 }
