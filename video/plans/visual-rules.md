@@ -12,6 +12,10 @@ cutaways could go is `cutaways.md`; this file is the *why*.
   before any photo or diagram.
 - A stretch where the camera holds but the chart is **animating** (a star swelling and
   shrinking, arrows drawing, a window closing) is not dead time. Don't put a cutaway on it.
+- **No cuts on the line** (the author, 2026-11-24, the forces Short going up the diagonal: "We don't make cuts on the
+  line, you're always just walking and panning and zooming, never making cuts"): moving along the chart is always a
+  pan or zoom, one continuous move. A long pan that stops and then jumps on in a second or two reads as a cut too:
+  run it as one pan to where the next line needs to be. Leaving the chart for a diagram or a dive is not "on the line".
 
 ## 2. Camera
 
