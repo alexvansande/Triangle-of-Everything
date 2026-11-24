@@ -240,11 +240,11 @@ const SCENE = {
     { at: "like gold", hold: 999, hl: [{ atoms: { phase: "start" }, instant: true, out: 0.8 }] },
     { at: "like a battery", hold: 999, hl: [{ atoms: { phase: "battery" }, instant: true, out: 0.8 }] },
     // escape velocity: the tug of war against gravity, half the speed of light on a neutron star
-    { at: "they are thrown out", cam: { obj: "PSR J0030+0451", span: 3.4 }, dur: 2.5, clear: true, hl: [{ obj: "PSR J0030+0451", label: "neutron star" }] },
     // the escape speed as the forces Short has it (src/narration.js drawEscape; the author, 2026-11-24: "port the same changes
-    // to the long video"): the neutron star's model close, its escape speed ring by ring as we pull out, back in on the speed
-    // limit with the rings kept, squeezed and shaking till its escape speed is light's, a flash, a black disk
-    { at: "its escape velocity", cam: { obj: "PSR J0030+0451", span: 3.4 }, dur: 0.05, clear: true, hold: 999, hl: [{ escape: { phase: "start" } }] },
+    // to the long video", and later "it deserves it on the neutron star and orbital part"): the neutron star's model close
+    // from "they are thrown out … they escape", its escape speed ring by ring as we pull out with dots in orbit on each, back
+    // in on the speed limit with the rings kept, squeezed and shaking till its escape speed is light's, a flash, a black disk
+    { at: "they are thrown out", cam: { obj: "PSR J0030+0451", span: 3.4 }, dur: 0.05, clear: true, hold: 999, hl: [{ escape: { phase: "start" } }] },
     ...[["works as a universal", "limit"], ["universal speed limit", "light"], ["if you add even more", "dense"], ["will be faster than", "c"], ["strangest of objects", "hole"]]
       .map(([at, phase]) => ({ at, hold: 999, hl: [{ escape: { phase }, instant: true, out: phase === "hole" ? 0.8 : 0.6 }] })),
     { at: "so far our", cam: SO_FAR, dur: 2.6, ease: "gentle", icons: false, forceIcons: [], clear: true, hl: [] },
