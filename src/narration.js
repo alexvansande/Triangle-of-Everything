@@ -2339,7 +2339,8 @@ export async function startNarration(app) {
     const nuc = (x, y, r, rot, fu, a) => {
       if (a <= 0.01) return; const d = r * 2 / 0.78;
       ctx.save(); ctx.globalAlpha = a; ctx.translate(x, y); ctx.rotate(rot);
-      if (n) { const i = Math.floor(fu), f = fu - i; ctx.drawImage(F[((i % n) + n) % n], -d / 2, -d / 2, d, d);
+      if (n && F.at) ctx.drawImage(F.at(fu), -d / 2, -d / 2, d, d);
+      else if (n) { const i = Math.floor(fu), f = fu - i; ctx.drawImage(F[((i % n) + n) % n], -d / 2, -d / 2, d, d);
         if (f > 0.02) { ctx.globalAlpha = a * f; ctx.drawImage(F[(((i + 1) % n) + n) % n], -d / 2, -d / 2, d, d); } }
       else { ctx.fillStyle = "#ff3b30"; ctx.beginPath(); ctx.arc(0, 0, r, 0, 6.2832); ctx.fill(); }
       ctx.restore();

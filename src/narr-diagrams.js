@@ -42,6 +42,7 @@ const pic = (slug) => {
 // dynamic images that rotate in many directions and change"): the Hopf proton and neutron (public/hopf/hopf-core.js, the
 // stills' own particles) rendered once as a loop of frames, turning a full turn sideways while nodding up and down twice,
 // their quark sea moving; each nucleus plays the loop from its own place (squeeze-sim.js)
+const RENDER_FRAMES = typeof location !== "undefined" && new URLSearchParams(location.search).has("render");
 const SPRITE_N = 40, SPRITE_PX = 256, HOPF_OPTS = { drift: true, flow: true, width: 1, bloom: 0.9, exposure: 1.1, core: 0.8 };
 let _hopf = null;
 const hopfCore = () => _hopf || (_hopf = import(/* @vite-ignore */ `${import.meta.env.BASE_URL}hopf/hopf-core.js`).then(core => ({ core, renderer: new core.Renderer({ alpha: true }) })));
@@ -75,23 +76,38 @@ function nucleonSprites() {
 // it and use that to color over the old proton shape"): each of the die's 120 frames over the proton's turning picture
 // (three die frames to each of its 40, so both loops meet), in the die's colours and the picture's light, cut to its outline
 function tintProton(hopf, dice) {
-  const S = SPRITE_PX, out = [];
-  dice.forEach((D, i) => {
-    const H = hopf[Math.floor(i / 3) % hopf.length], c = document.createElement("canvas"); c.width = c.height = S; const g = c.getContext("2d");
-    g.drawImage(H, 0, 0);
+  const S = SPRITE_PX;
+  const tint = (H, D, H2 = null, h2 = 0) => {
+    const c = document.createElement("canvas"); c.width = c.height = S; const g = c.getContext("2d");
+    let M = H;   // the outline: the turning picture, or (frame by frame) two of its frames mixed
+    if (H2 && h2 > 0.01) { M = document.createElement("canvas"); M.width = M.height = S; const m = M.getContext("2d");
+      m.drawImage(H, 0, 0); m.globalAlpha = h2; m.drawImage(H2, 0, 0); }
+    g.drawImage(M, 0, 0);
     // (blurred, a little larger than the picture so its rim takes colour too; multiplied in, then its colour on top: the
     // picture is nearly white, so colour alone came out pastel)
     const k = 1.18, o = -S * (k - 1) / 2;
     g.filter = `blur(${S * 0.035}px)`;
     g.globalCompositeOperation = "multiply"; g.globalAlpha = 0.7; g.drawImage(D, o, o, S * k, S * k);
     g.globalCompositeOperation = "color"; g.globalAlpha = 1; g.drawImage(D, o, o, S * k, S * k);
-    g.filter = "none"; g.globalCompositeOperation = "destination-in"; g.drawImage(H, 0, 0);
+    g.filter = "none"; g.globalCompositeOperation = "destination-in"; g.drawImage(M, 0, 0);
     // (then more saturated and brighter: the author, 2026-11-22, "I like the new proton but saturate and brighten it a bit more")
     const c2 = document.createElement("canvas"); c2.width = c2.height = S; const g2 = c2.getContext("2d");
     g2.filter = "saturate(1.6) brightness(1.3)"; g2.drawImage(c, 0, 0);
-    out.push(c2);
-  });
+    return c2;
+  };
+  const out = dice.map((D, i) => tint(hopf[Math.floor(i / 3) % hopf.length], D));
   out.fps = dice.fps; out.total = out.length;
+  // frame by frame in a video render (the author, 2026-11-24: "We will render the protons in the video frame by frame, but
+  // keep them lighter in the app"): `at(u)` gives the picture at die frame u (fractional), traced when first asked for, on
+  // a grid SUB times finer than the loop's (a new picture every video frame at the Short's half speed: 0.3 die frames a
+  // frame at 30 fps), the outline mixed from the two nearest turning frames; the app keeps the 120 and blends neighbours
+  if (RENDER_FRAMES && dice.make) {
+    const SUB = 4, n = dice.length * SUB, cache = new Map();
+    out.at = (u) => { if (!Number.isFinite(u)) u = 0; const q = ((Math.round(u * SUB) % n) + n) % n;
+      let im = cache.get(q); if (im) return im;
+      const fu = q / SUB, hu = fu / 3, h = Math.floor(hu), hn = hopf.length;
+      im = tint(hopf[h % hn], dice.make(fu), hopf[(h + 1) % hn], hu - h); cache.set(q, im); return im; };
+  }
   return out;
 }
 // The proton as a three-sided die (the author, 2026-11-22: "protons and neutrons are still too similar … make them be made
@@ -159,7 +175,7 @@ function protonDice() {
     const w = S * 0.78 / 2 * SC / 1.06 * 2; g.drawImage(tmp, (S - w) / 2, (S - w) / 2, w, w);
     return c;
   }
-  frames.fps = 18; frames.total = N;
+  frames.fps = 18; frames.total = N; frames.make = frame;
   let next = 0;
   return new Promise((done) => {
     const work = () => { const t0 = performance.now(); while (next < N && performance.now() - t0 < 30) frames.push(frame(next++)); next < N ? setTimeout(work, 0) : done(frames); };

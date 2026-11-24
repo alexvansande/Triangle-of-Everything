@@ -928,7 +928,8 @@ export function createSqueeze({ pics = {} } = {}) {
     const nucleon = (name, seed) => {
       const F = PICS.frames?.[name];
       if (F?.length) { const u = S.t * (F.fps ?? SPRITE_FPS) * NUC_SPEED + seed, i = Math.floor(u), n = F.length;
-        const im = F[((i % n) + n) % n]; im._next = F[(((i + 1) % n) + n) % n]; im._f = u - i; return im; }
+        if (F.at) { const im = F.at(u); if (im) { im._next = null; return im; } }   // (a video render: its own picture each frame)
+        const im = F[((i % n) + n) % n]; if (!im) return picReady(name) ? PICS[name] : null; im._next = F[(((i + 1) % n) + n) % n]; im._f = u - i; return im; }
       return picReady(name) ? PICS[name] : null;
     };
     const drawNucleon = (im, d) => {

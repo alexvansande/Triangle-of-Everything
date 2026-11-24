@@ -65,7 +65,7 @@ export default {
   backing: "Promises to Keep",
   sound: [
     { at: "comes into play", fx: "ignite", offset: 0.2 },
-    { at: "called a supernova", fx: "boom", offset: 0.3 },
+    { at: "in a supernova", fx: "boom", offset: 0.3 },
     { at: "a black hole", fx: "drop", atEnd: true, offset: -0.2 },
   ],
 
@@ -75,15 +75,15 @@ export default {
     { at: "delicate dance", cam: { obj: "Human", span: 4.6, glide: true }, dur: 2.5, clear: true, hl: [WATER, { obj: "Human" }] },
     { at: "fundamental forces", hl: [WATER, ...GRAV_AT(3.6, false), ...EM_AT(6.2, false)] },
     // the chemical bonds: a few atoms on black, settling at their distance, until "…the electromagnetic force"
-    { at: "at atomic level", hold: 999, hl: [BONDS] },
+    { at: "at the atomic level", hold: 999, hl: [BONDS] },
     { at: "electromagnetic force", offset: 0.3, cam: { obj: "Human", span: 6 }, dur: 0.05, clear: true, hl: [WATER, { obj: "Human", label: "held by chemical bonds" }, ...EM_AT(6.2)] },
     { at: "so if you plot", cam: { r: 3.0, m: 9.3, span: 13, glide: true }, hl: [WATER] },
-    { at: "around the diagonal", hl: [{ line: "water", label: "the diagonal" }] },
+    { at: "one diagonal", hl: [{ line: "water", label: "the diagonal" }] },
     // one slow pan up the line, wide, the two forces held on the screen: gravity named on "crush", electromagnetism on
     // "unlike electromagnetism" (3.8 s on), then the round worlds
     { at: "make something big", cam: { r: ON_LINE(10.5), m: 10.5, span: 8 }, dur: 1.6, clear: true, hl: [WATER, ...GRAV_SCREEN(1.2), ...EM_SCREEN(4.0)] },
     { at: "crush under", cam: { r: ON_LINE(20.5), m: 20.5, span: 8, glide: true }, dur: 10, ease: "gentle" },
-    { at: "looks like spheres", cam: { r: 8.2, m: 25.4, span: 5, glide: true }, dur: 1.6, clear: true, hl: [ROUND_GRAV, { obj: "Ceres", label: "Ceres · round", delay: 0.2 }, { obj: "Earth", label: "shaped by gravity", delay: 0.6 }, { obj: "Moon", label: false, delay: 0.6 }] },
+    { at: "gravity dominates", cam: { r: 8.2, m: 25.4, span: 5, glide: true }, dur: 1.6, clear: true, hl: [ROUND_GRAV, { obj: "Ceres", label: "Ceres · round", delay: 0.2 }, { obj: "Earth", label: "shaped by gravity", delay: 0.6 }, { obj: "Moon", label: false, delay: 0.6 }] },
     // the giant planets' column
     { at: "beyond jupiter", cam: G(9.85, 30.9, 2.4), dur: 2.2, clear: true, hl: [{ obj: "Jupiter", label: "Jupiter", place: "left" }] },
     { at: "any bigger", hl: [{ obj: "Jupiter", label: false, place: "left" }, ...BD, COLUMN] },
@@ -95,32 +95,34 @@ export default {
     // no cut into fusion: the bare nuclei slide to fusion's opening, gravity's arrows doubling on "add even more mass"
     { at: "add even more", hold: 999, hl: [{ morph: true, instant: true }] },
     // fusion: the protons, the strong force's reach, the push, the fours captured, the burst, the balance
-    ...[["a new force", "start"], ["reaches no longer", "reach"], ["gravity squeezes", "push"], ["captures them", "capture"], ["burst of energy", "energy"], ["counterbalance", "balance"], ["that's fusion", "fusion"]]
+    ...[["a new force", "start"], ["reaches no further", "reach"], ["inside a star", "push"], ["captures them", "capture"], ["burst of energy", "energy"], ["holds gravity back", "balance"], ["that's fusion", "fusion"]]
       .map(([at, phase], i) => ({ at, hold: 999, hl: [{ fusionSim: { phase, P: FUSION_P }, instant: true, out: phase === "fusion" ? 1.6 : 0.6 }] })),
     // the star running out, close on the chart (one cut, no flight): the main sequence, the fire going out, the supernova
-    { at: "a new balance", cam: { r: 11.1, m: 33.2, span: 3.0, glide: true }, dur: 0.05, clear: true, hl: [MS, { obj: "Sun", label: "fusing hydrogen" }] },
-    { at: "once it runs out", cam: { r: 11.85, m: 33.4, span: 3.6, glide: true }, hl: [{ swing: [{ obj: "Sun" }, { obj: "Red Giant" }], period: 1.2, core: true }, { obj: "Red Giant", label: "out of hydrogen", delay: 0.6 }] },
-    { at: "catastrophic core collapse", cam: { r: 12.7, m: 35.0, span: 5 }, dur: 1.5, clear: true, hl: [HIGH, { obj: "Crab Nebula", label: "supernova", delay: 0.6 }, { obj: "PSR J0030+0451", label: "the core", delay: 1.2 }] },
+    { at: "that balance is the main", cam: { r: 11.1, m: 33.2, span: 3.0, glide: true }, dur: 0.05, clear: true, hl: [MS, { obj: "Sun", label: "fusing hydrogen" }] },
+    { at: "when hydrogen runs out", cam: { r: 11.85, m: 33.4, span: 3.6, glide: true }, hl: [{ swing: [{ obj: "Sun" }, { obj: "Red Giant" }], period: 1.2, core: true }, { obj: "Red Giant", label: "out of hydrogen", delay: 0.6 }] },
+    { at: "massive star collapses", cam: { r: 12.7, m: 35.0, span: 5 }, dur: 1.5, clear: true, hl: [HIGH, { obj: "Crab Nebula", label: "supernova", delay: 0.6 }, { obj: "PSR J0030+0451", label: "the core", delay: 1.2 }] },
     // the weak force: the cores turn to neutrons, which settle into their grid; then straight on, the zoom out to the star
     { at: "a new player enters", hold: 16, hl: [{ squeeze: WEAK }] },
     { at: "the result is a neutron star", cam: { obj: "PSR J0030+0451", span: 3.4 }, dur: 0.05, clear: true, hold: 999,
       hl: [{ p10: { sim: { at: "a new player enters", ...WEAK } }, instant: true, out: 1.0 }] },
 
     // ── The black hole ──
-    { at: "in order to escape", cam: { obj: "PSR J0030+0451", span: 3.4 }, dur: 0.05, clear: true, hl: [{ obj: "PSR J0030+0451", label: "neutron star" }] },
+    { at: "to escape the gravity", cam: { obj: "PSR J0030+0451", span: 3.4 }, dur: 0.05, clear: true, hl: [{ obj: "PSR J0030+0451", label: "neutron star" }] },
     { at: "kilometers per second", hl: [{ obj: "PSR J0030+0451", label: "escape: over 100,000 km/s" }] },
-    { at: "speed limit on everything", hl: [{ obj: "PSR J0030+0451", label: "neutron star" }] },
+    { at: "has a speed limit", hl: [{ obj: "PSR J0030+0451", label: "neutron star" }] },
     { at: "speed of light", hl: [{ obj: "PSR J0030+0451", label: "nothing goes faster than light" }] },
-    { at: "escape velocity", cam: { r: 8.6, m: 33.7, span: 8 }, dur: 3, clear: true, hl: [NS, { obj: "Stellar BH", label: "?", delay: 0.6 }] },
+    { at: "so dense that", cam: { r: 8.6, m: 33.7, span: 8 }, dur: 3, clear: true, hl: [NS, { obj: "Stellar BH", label: "?", delay: 0.6 }] },
     { at: "not even light", hl: [NS, { obj: "Stellar BH", label: "not even light gets out" }] },
-    { at: "strangest objects", hl: [NS, { obj: "Stellar BH", label: "a black hole" }, SCHW] },
+    { at: "where gravity is unescapable", hl: [NS, { obj: "Stellar BH", label: "a black hole" }, SCHW] },
 
     // ── The ones we know, and the ending ──
-    { at: "all the black holes we know", cam: { obj: "Stellar BH", span: 10 }, dur: 2, clear: true, hl: [SCHW, { obj: "Stellar BH", label: "from dying stars" }] },
-    // the ending: the whole chart, most of the matter on the black-hole line, the rest, ordinary matter, the survivors
-    { at: "delicate balance", cam: { r: 6, m: 24, span: 46 }, dur: 6, ease: "gentle", clear: true, hl: [{ line: "triangle" }] },
-    { at: "into black holes", hl: [{ line: "triangle" }, { ...SCHW, label: "most of the matter?" }] },
-    { at: "ordinary matter", hl: [{ line: "triangle" }, SCHW, { line: "water", label: "ordinary matter" }, { obj: "Milky Way", label: false, delay: 0.4 }, { obj: "Human", label: false, delay: 0.7 }] },
-    { at: "lucky few survivors", hl: [{ line: "triangle" }, SCHW, { line: "water", label: "the lucky few survivors" }, { obj: "Milky Way", label: false }, { obj: "Human", label: false }] },
+    { at: "we know dying stars", cam: { obj: "Stellar BH", span: 10 }, dur: 2, clear: true, hl: [SCHW, { obj: "Stellar BH", label: "from dying stars" }] },
+    // the ending (rec79, one dark-matter sentence): the whole chart, the black-hole line as maybe the dark matter, most of
+    // the matter on it, the rest, the delicate equilibrium, the survivors
+    { at: "the big bang might", cam: { r: 6, m: 24, span: 46 }, dur: 6, ease: "gentle", clear: true, hl: [{ line: "triangle" }] },
+    { at: "the dark matter that", hl: [{ line: "triangle" }, { ...SCHW, label: "dark matter?" }] },
+    { at: "dominated most of", hl: [{ line: "triangle" }, { ...SCHW, label: "most of the matter?" }] },
+    { at: "everything else that makes", hl: [{ line: "triangle" }, SCHW, { line: "water", label: "everything else" }, { obj: "Milky Way", label: false, delay: 0.4 }, { obj: "Human", label: false, delay: 0.7 }] },
+    { at: "few lucky survivors", hl: [{ line: "triangle" }, SCHW, { line: "water", label: "the lucky few survivors" }, { obj: "Milky Way", label: false }, { obj: "Human", label: false }] },
   ],
 };
