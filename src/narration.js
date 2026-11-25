@@ -24,7 +24,7 @@
 import { blackHoleFilter } from "./black-hole-palette.js";
 import * as d3 from "d3";
 import { iconUrls } from "./assets.js";
-import { drawHorizons, drawCenter, drawOwn, drawCosmos, drawCrush, drawFuse, drawWeak, drawDeut, drawSqueeze, drawDiamonds, drawEdge, drawObservable, edgePending, diagramsPending, drawAtoms, atomsPending, nucleonFrames } from "./narr-diagrams.js";
+import { drawHorizons, drawCenter, drawOwn, drawCosmos, drawCrush, drawFuse, drawWeak, drawDeut, drawSqueeze, drawDiamonds, drawEdge, drawObservable, edgePending, diagramsPending, drawAtoms, drawUraniumFlight, atomsPending, nucleonFrames } from "./narr-diagrams.js";
 import { drawCatalogue, cataloguePending } from "./narr-catalogue.js";
 import { drawP10, p10Pending, drawStar as drawNeutronStar } from "./narr-p10.js";
 import {
@@ -2389,10 +2389,47 @@ export async function startNarration(app) {
   // it's just a black hole … just put a black circle on it"). { escape: { phase } } cues: start (the dive in, then the slow
   // zoom out, a ring coming in at each distance), limit (back in), dense (the squeeze), c (light: the burst, the black
   // disk), hole (its name). A star of 1.4 suns, 12 km across its radius; v = √(2GM/r).
+  let _escIntro;
+  const escapeIntro = () => _escIntro ??= (cues.flatMap(c => c.hl || []).find(q => q.escape?.intro)?.escape.intro ?? 0);
+  function drawEscapeIntro(ctx, W, H, t, dpr, u) {
+    const css = (v) => v * dpr, cx = W / 2, cy = H / 2, lerp = (a, b, x) => a + (b - a) * x, lg = (a, b, x) => Math.exp(lerp(Math.log(a), Math.log(b), x));
+    const sm = (x) => smooth(clamp01(x));
+    ctx.save();
+    for (let i = 0; i < 140; i++) { const a = Math.sin(i * 127.1) * 43758.5, b = Math.sin(i * 311.7) * 24634.6, x = (a - Math.floor(a)) * W, y = (b - Math.floor(b)) * H;
+      ctx.fillStyle = `rgba(200,215,255,${(0.15 + 0.35 * ((a * 7) % 1 + 1) % 1) * sm(u / 0.5)})`; ctx.fillRect(x, y, css(1.1), css(1.1)); }
+    // the world in km, the star at the origin; screen y down, so the atom's way out, up and to the right, is (0.8, −0.6)
+    // (the atom by the surface while the camera pulls back onto the star, then it flies off: "then the uranium flies out")
+    const fly = Math.max(0, (u - 0.55) / 0.45), d = [0.8, -0.6], dist = 18 + 8 * u + 520 * fly * fly, p = [d[0] * dist, d[1] * dist];
+    const follow = 1 - sm(u / 0.55), c = [p[0] * follow, p[1] * follow];
+    const kp = css(lg(40, 6, sm(u)));   // px a km: from close on the atom to the scene's first view (6 px a km)
+    const X = (q) => cx + (q[0] - c[0]) * kp, Y = (q) => cy + (q[1] - c[1]) * kp;
+    // the star, coming in from the corner
+    drawNeutronStar(ctx, W, H, 12 * kp, 1, t, X([0, 0]), Y([0, 0]));
+    // the atom: where the battery left it, shrinking as we pull back, a streak behind it toward the star
+    const S = Math.min(W / 3, H * 0.62) * 0.98, size0 = S * 1.3 * 1.2, size = lg(size0, css(30), sm(u / 0.55));
+    const ax = X(p), ay = Y(p) + (H * 0.42 - cy) * (1 - sm(u / 0.3));
+    const len = size * (0.9 + 1.2 * u) + css(40) * u + css(260) * fly, bx = ax - d[0] * len, by = ay - d[1] * len;
+    const g = ctx.createLinearGradient(ax, ay, bx, by); g.addColorStop(0, "rgba(255,226,140,0.55)"); g.addColorStop(1, "rgba(255,226,140,0)");
+    ctx.strokeStyle = g; ctx.lineCap = "round";
+    for (const [off, w] of [[0, 0.32], [0.22, 0.1], [-0.22, 0.1], [0.34, 0.05], [-0.34, 0.05]]) {
+      const nx = -d[1] * size * off, ny = d[0] * size * off; ctx.lineWidth = Math.max(css(1.5), size * w);
+      ctx.beginPath(); ctx.moveTo(ax + nx, ay + ny); ctx.lineTo(bx + nx * 0.4, by + ny * 0.4); ctx.stroke(); }
+    const since = t - (ATOMS_T.start ?? t);
+    drawUraniumFlight(ctx, W, H, t, since, 2.4 * u * u, ax, ay, size, 1 - sm(u / 0.15));
+    ctx.restore();
+  }
   function drawEscape(ctx, W, H, t, dpr) {
-    const T = ESCAPE_T, t0 = T.start; if (t0 == null) return;
+    const T = ESCAPE_T; if (T.start == null) return;
     const GM = 1.4 * 1.32712e20, C = 299792.458, vAt = (km) => Math.sqrt(2 * GM / (km * 1000)) / 1000, RS = 2 * GM / (C * 1000) ** 2 / 1000;
     const R0 = 12, lerp = (a, b, u) => a + (b - a) * u, lg = (a, b, u) => Math.exp(lerp(Math.log(a), Math.log(b), u));
+    // the opening from the uranium battery (escape: { phase: "start", intro: s }; the author, 2026-11-25, long 5:40: no
+    // flash of the chart, "keep the uranium atom in the center rotating with a trail as if it's moving very fast then we zoom
+    // out the neutron star from the corner until it's centered in the screen and then the uranium flies out. As if we were
+    // following the atom flying out of the star and now we start seeing the orbital velocities"): the camera on the atom,
+    // the star huge in the lower-left corner, then the camera eases back onto the star, out to the scene's first view, and
+    // the atom flies off up and to the right; the rest of the scene starts when it ends
+    const INTRO = escapeIntro(), t0 = T.start + INTRO;
+    if (INTRO > 0 && t < t0) { drawEscapeIntro(ctx, W, H, t, dpr, (t - T.start) / INTRO); return; }
     const tL = T.limit ?? t0 + 11, tD = T.dense ?? tL + 4.6, tC = T.c ?? tD + 2.8, tH = T.hole;
     const css = (v) => v * dpr, cx = W / 2, cy = H / 2;   // (the middle, where the zoom out lands its star)
     // the view, CSS px a km: in from the chart's dot, out slowly as the rings come in, back in on the limit, a little more in the squeeze

@@ -103,7 +103,7 @@ EDL = [
  ("rec75", "line", 875.33, 883.23),  # So this line called the Schwarzschild radius is the limit of how small anything of any given mass can be, nothing can exist above it.
  ("rec75", "slope", 885.25, 893.93),  # And black holes don't actually have a size, there are singularity, but they do have an event horizon, the point in which light cannot escape.
  ("rec75", "slope", 894.43, 897.35),  # And that event horizon is dependent on the mass.
- ("rec75", "slope", 909.31, 915.93, {"s": 904.5, "e": 908.15}),   # So it creates this diagonal, a one-to-one, 45 degrees slope.   (the third try, 15:04: the last restarts four times, "so it creates this, so it creates this slope for…")
+ ("rec75", "slope", 909.31, 915.93, {"s": 904.5, "e": 908.3}),   # (e 908.15 clipped "slope": the author, 2026-11-25, "the word slope seems to cut short"; patched into audio.m4a from the raw, the next gap 0.15 s shorter)   # So it creates this diagonal, a one-to-one, 45 degrees slope.   (the third try, 15:04: the last restarts four times, "so it creates this, so it creates this slope for…")
  #  # So it creates this 45 degrees slope.
  ("rec75", "known", 918.09, 923.45),  # Squeeze the sun into a black hole and it would be about six kilometers wide. The earth would be the size of a marble.
  ("rec75", "known", 924.33, 930.91),  # The black holes we know of form in the collapsing core of dying stars or grow by swallowing gas and merging with other black holes.

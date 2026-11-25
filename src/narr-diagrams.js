@@ -135,10 +135,12 @@ function protonDice() {
   const L = (() => { const v = [-0.45, -0.6, 0.66], n = Math.hypot(...v); return v.map(q => q / n); })();
   const Hh = (() => { const v = [L[0], L[1], L[2] + 1], n = Math.hypot(...v); return v.map(q => q / n); })();
   function frame(fi) {
-    const k = Math.floor(fi / STEP), v = (fi % STEP) / STEP, roll = ease(Math.min(1, v / 0.55));
-    const P0 = perms[k], P1 = perms[(k + 1) % perms.length], mix = ease(Math.min(1, Math.max(0, (v - 0.45) / 0.12)));
+    // (in the videos a steady roll with the colours kept, no roll-and-hold and no trades: the author, 2026-11-25, "proton
+    // is still stepping"; the app keeps its die)
+    const k = Math.floor(fi / STEP), v = (fi % STEP) / STEP, roll = RENDER_FRAMES ? v : ease(Math.min(1, v / 0.55));
+    const P0 = RENDER_FRAMES ? perms[0] : perms[k], P1 = RENDER_FRAMES ? P0 : perms[(k + 1) % perms.length], mix = RENDER_FRAMES ? 0 : ease(Math.min(1, Math.max(0, (v - 0.45) / 0.12)));
     const M = rot(1.05 + 0.3 * Math.sin(fi / N * TAU * 2), 0.45 * Math.sin(fi / N * TAU), (k + roll) * TAU / 3);
-    const flash = Math.max(0, 1 - Math.abs(v - 0.5) / 0.28), [fa, fb] = swaps[k % 3];
+    const flash = RENDER_FRAMES ? 0 : Math.max(0, 1 - Math.abs(v - 0.5) / 0.28), [fa, fb] = swaps[k % 3];
     const img = new ImageData(PX, PX), d = img.data, Rb = 1 + LOBE;
     for (let py = 0; py < PX; py++) for (let px = 0; px < PX; px++) {
       const X = ((px + 0.5) / PX * 2 - 1) * SC, Y = ((py + 0.5) / PX * 2 - 1) * SC, rr = X * X + Y * Y;
@@ -1233,6 +1235,23 @@ function atomViews() {
   return _atomViews;
 }
 export const atomsPending = () => { const a = atomViews(); return a || _atomsFailed ? 0 : 1; };
+// uranium alone, where the battery left it, for the escape scene's opening (the author, 2026-11-25, long 5:40: "keep the
+// uranium atom in the center rotating with a trail as if it's moving very fast then we zoom out the neutron star from the
+// corner until it's centered in the screen and then the uranium flies out"): the same view, turning on from the battery's
+// spin (since: seconds since the atoms' cue; extraYaw added), at x, y, size; the battery's words fading by labelA
+export function drawUraniumFlight(ctx, W, H, t, since, extraYaw, x, y, size, labelA) {
+  const A = atomViews(); if (!A) return;
+  const v = A.views[2];
+  v.yaw = v.yaw0 + 0.35 * since + extraYaw; v.pitch = v.pitch0 + 0.35 * Math.sin(0.5 * since + 2 * 1.7);
+  v.update(t, HOPF_OPTS);
+  A.renderer.resize(Math.min(1024, Math.max(64, Math.ceil(size / 64) * 64)));
+  ctx.globalAlpha = 1; A.renderer.render(v, HOPF_OPTS, [ctx, x - size / 2, y - size / 2, size, size]);
+  if (labelA > 0.01) {
+    const S = Math.min(W / 3, H * 0.62) * 0.98, fs = Math.min(W, H) * 0.045, ly = H * 0.42 + S * 0.6 + fs * 1.4;
+    ctx.globalAlpha = labelA; text(ctx, "ENERGY BATTERY", W / 2, ly, fs * 1.1, "#ffd54a"); text(ctx, "collide stars to charge", W / 2, ly + fs * 1.15, fs * 0.7, "#d8dde8");
+  }
+  ctx.globalAlpha = 1;
+}
 export function drawAtoms(ctx, W, H, o, t) {
   const A = atomViews(); if (!A) return;
   const start = o.start ?? t, bat = o.battery ?? Infinity, since = t - start;

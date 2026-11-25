@@ -30,6 +30,12 @@ const ALIAS = {
   "the milky way": ["our milky way"],
   "but how small": ["actually how small"],
 };
+// the dark-matter areas' labels moved off their hatching for the wide frame (the author, 2026-11-25, long 10:31: "label
+// covers hashed area"; they were placed for the Short's tall frame): human injuries to the right of its area, the crystals
+// to the left of theirs, clear of the source line under them
+const WIDE_LABELS = { "ruled out by a lack of\nrandom human injuries": [13, 3.4], "ruled out by\nancient crystals": [-17, 0.8] };
+// (and each survey's source line lifted to the top edge: it sat on the survey's "ruled out by" label, the author, 2026-11-25, 8:54)
+const wideLabels = (c) => c.hl ? { ...c, hl: c.hl.map(q => WIDE_LABELS[q.label] ? { ...q, labelAt: WIDE_LABELS[q.label] } : q.title && q.small && q.y === 0.12 ? { ...q, y: 0.04 } : q) } : c;
 const alias = (c) => { const at = [].concat(c.at ?? []); const x = at.flatMap(a => ALIAS[a] ?? []); return x.length ? { ...c, at: [...at, ...x] } : c; };
 const from = (cues, at) => cues.slice(cues.findIndex(c => [].concat(c.at).includes(at)));
 
@@ -45,9 +51,15 @@ const UP = (m, span = 4.6) => ({ r: ON_LINE(m), m, span, glide: true });
 const COLUMN = { trend: [[9.84, 29.9], [9.84, 32.4]], color: "#ffd54f" };
 const G = (r, m, span = 1.7) => ({ r, m, span });
 const BD = [{ obj: "Y Brown Dwarf", label: false }, { obj: "T Brown Dwarf", label: false }];
+// (two ways, living stars and dead ones, and the red giants between: the author, 2026-11-25, long, "this bifurcation here
+// happens: we only show one arrow … Show two arrows and the labels will be living stars and dead stars (and if it fits
+// adds the label dying stars to the red giants)")
 const FORK = [
   { arrow: true, from: { obj: "L Brown Dwarf" }, to: { obj: "Sun" }, color: "#ffd54f" },
-  { obj: "White Dwarf", label: "dead stars' cores", place: "right", delay: 0.8 },
+  { arrow: true, from: { obj: "L Brown Dwarf" }, to: { obj: "White Dwarf" }, color: "#e0e0e0", delay: 0.4 },
+  { obj: "Sun", label: "living stars", place: "right", delay: 0.4 },
+  { obj: "White Dwarf", label: "dead stars", place: "left", delay: 0.8 },
+  { obj: "Red Giant", label: "dying stars", place: "right", delay: 1.2 },
 ];
 const MS = { line: "mainsequence", label: "main sequence" };
 // where things turn round: just under Mimas, the smallest round moon (the author, 2026-11-20, 2:35: "place the horizontal
@@ -115,12 +127,12 @@ const SCENE = {
   iconBoost: { from: 21.2, k: 0.6, slugs: { "laniakea-galaxy-supercluster": 0.55 } },
   icons: "all",
   forceIcons: ["Sun", "L Brown Dwarf", "T Brown Dwarf", "Y Brown Dwarf", "Ton 618"],
-  captionFixes: { hair: "here", nucleon: "nucleus", nebulas: "nebulae", shard: "chart", weight: "weigh", store: "star", "store's": "star's", rhenium: "uranium", depth: "death" },
+  captionFixes: { true: "two", balance: "balances", hair: "here", nucleon: "nucleus", nebulas: "nebulae", shard: "chart", weight: "weigh", store: "star", "store's": "star's", rhenium: "uranium", depth: "death" },
 
   backing: "Immersed",
   sound: [
     { at: "something magical happens", fx: "ignite", offset: 0.3 },
-    { at: "goes haywire", fx: "boom", offset: 0.2 },
+    { at: "catastrophic core collapse", fx: "boom", offset: 0.2 },   // (the boom on the supernova itself, not on "goes haywire": the author, 2026-11-25)
     { at: "become a black hole", fx: "drop", atEnd: true, offset: -0.3 },
     { at: "pool big enough", fx: "bubble", offset: 0.2 },
   ],
@@ -218,12 +230,12 @@ const SCENE = {
     { at: "called the main sequence", cam: { r: 11.0, m: 33.15, span: 3.5, glide: true }, hl: [{ obj: "Sun" }, MS, { obj: "Sirius A", delay: 0.4 }] },
     { at: "most of their lives", cam: { r: 11.1, m: 33.2, span: 3.0, glide: true }, hl: [MS, { obj: "Sun", label: "billions of years" }, { obj: "Sirius A", delay: 0.3 }, { obj: "Vega", delay: 0.6 }] },
     { at: "once it runs out", cam: { r: 11.3, m: 33.25, span: 2.8, glide: true }, hl: [{ line: "mainsequence" }, { obj: "Sun", label: "out of hydrogen" }] },
-    { at: "goes haywire", cam: { r: 11.85, m: 33.4, span: 3.6, glide: true }, hl: [{ swing: [{ obj: "Sun" }, { obj: "Red Giant" }], period: 1.2, core: true }, { obj: "Red Giant", label: "the fire goes out", delay: 1 }] },
+    { at: "goes haywire", cam: { r: 11.85, m: 33.4, span: 3.6, glide: true }, hl: [{ obj: "Sun" }, { arrow: true, from: { obj: "Sun" }, to: { obj: "Red Giant" }, color: "#ff8a50" }, { obj: "Red Giant", label: "the fire goes out", delay: 1 }] },   // (the swelling circle moved to the supernova: the author, 2026-11-25)
     // how stars end: the small ones (the white dwarf and the nebula), the big ones (the supernova), then the weak force
     // (closer, and higher, so the super-Jupiters' column is out of the frame: the author, 2026-11-20, 4:30)
     { at: "small stars", cam: { r: 12.7, m: 35.0, span: 5 }, dur: 3, clear: true, hl: [{ ...LOW, from: "Sun" }, { obj: "White Dwarf", label: "the core left", place: "left", delay: 0.8 }, { obj: "Planetary Nebula", label: "a nebula", delay: 1.6 }] },
     { at: "more massive stars", hl: [HIGH, { obj: "Crab Nebula", label: "supernova", delay: 0.8 }] },
-    { at: "catastrophic core collapse", hl: [HIGH, { obj: "Crab Nebula", label: "supernova" }, { obj: "PSR J0030+0451", label: "the core", delay: 0.8 }] },
+    { at: "catastrophic core collapse", hl: [HIGH, { swing: [{ obj: "Crab Nebula" }, { obj: "Crab Nebula" }], period: 1.2, core: true }, { obj: "Crab Nebula", label: "supernova" }, { obj: "PSR J0030+0451", label: "the core", delay: 0.8 }] },   // (the swelling circle and its boom here only: the author, 2026-11-25, "only on the proper catastrophic core collapse")
     // the weak force, the lab's mode 3, its first ring clenching on "squeeze a proton"; the neutrons settle into a hexagonal
     // grid as soon as the last core has turned to neutrons (hexAt; the author, 2026-11-22, and 2026-11-23: "as soon as the
     // cores transform into all neutrons")
@@ -244,7 +256,7 @@ const SCENE = {
     // to the long video", and later "it deserves it on the neutron star and orbital part"): the neutron star's model close
     // from "they are thrown out … they escape", its escape speed ring by ring as we pull out with dots in orbit on each, back
     // in on the speed limit with the rings kept, squeezed and shaking till its escape speed is light's, a flash, a black disk
-    { at: "they are thrown out", cam: { obj: "PSR J0030+0451", span: 3.4 }, dur: 0.05, clear: true, hold: 999, hl: [{ escape: { phase: "start" } }] },
+    { at: "they are thrown out", cam: { obj: "PSR J0030+0451", span: 3.4 }, dur: 0.05, clear: true, hold: 999, hl: [{ escape: { phase: "start", intro: 3.2 }, instant: true }] },   // (instant, and the uranium flying out of the star first: no flash of the chart, the author, 2026-11-25, 5:40)
     ...[["works as a universal", "limit"], ["universal speed limit", "light"], ["if you add even more", "dense"], ["will be faster than", "c"], ["strangest of objects", "hole"]]
       .map(([at, phase]) => ({ at, hold: 999, hl: [{ escape: { phase }, instant: true, out: phase === "hole" ? 0.8 : 0.6 }] })),
     { at: "so far our", cam: SO_FAR, dur: 2.6, ease: "gentle", icons: false, forceIcons: [], clear: true, hl: [] },
@@ -254,7 +266,8 @@ const SCENE = {
     { at: "jupiter planets", cam: { r: 9.6, m: 30.6, span: 4.4 }, dur: 1.8, hl: [OV_TERR, OV_GIANTS, OV_COLUMN] },
     { at: "living stars", cam: { r: 10.7, m: 32.8, span: 5 }, dur: 1.8, hl: [OV_COLUMN, OV_STARS] },
     { at: "where stars go to die", cam: { r: 12.6, m: 34, span: 15 }, dur: 4, hl: [OV_STARS, ...CYCLE] },
-    { at: "cemetery of dead stars", cam: { r: 8.6, m: 33.7, span: 8 }, dur: 3, clear: true, icons: true, forceIcons: null,
+    { at: "cemetery of dead stars", cam: { r: 7.6, m: 33.8, span: 5 },   // (closer, Jupiter out of the frame: the author, 2026-11-25)
+      dur: 3, clear: true, icons: true, forceIcons: null,
       hl: [WD, NS, SBH, { ellipse: [7.45, 33.75, 2.3, 1.15], rot: 0, label: "dead stars", place: "above", color: "#e0e0e0", delay: 1.4 }] },
     { at: "white dwarfs", hl: [{ obj: "White Dwarf", place: "left" }, NS, SBH] },
     { at: "neutron stars", hl: [WD, { obj: "PSR J0030+0451", label: "neutron star", place: "right" }, SBH] },
@@ -273,7 +286,7 @@ const SCENE = {
     // ── The slope, the black holes we know, how small (the Black Hole Slope's shots) ──
     ...from(S4A.cues, "don't actually have a size").filter(c => ![].concat(c.at).includes("according to relativity")).map(alias),
     // ── The smallest black holes and dark matter (the Smallest Black Holes' shots) ──
-    ...(() => { const L = from(S4B.cues, "with enough pressure").map(alias), i = L.findIndex(c => [].concat(c.at).some(a => /invisible/.test(a)));
+    ...(() => { const L = from(S4B.cues, "with enough pressure").map(alias).map(wideLabels), i = L.findIndex(c => [].concat(c.at).some(a => /invisible/.test(a)));
       return [...L.slice(0, i), WINDOW_NS, ...L.slice(i)]; })(),
   ],
 };
