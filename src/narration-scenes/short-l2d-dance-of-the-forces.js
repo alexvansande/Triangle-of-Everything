@@ -66,20 +66,18 @@ export default {
   poster: { at: 3, cues: [{ t: 0, cam: { r: 6, m: 22, span: 30 }, dur: 0.1, drift: 0, icons: false, labels: false, hl: [
     { line: "triangle", draw: 0.01 },
     { line: "water", draw: 0.01 },
-    { ...SCHW, label: "gravity wins", size: 34, labelAt: [-0.6, 24.9], instant: true },
+    // the labels along the lines (2026-11-25, the author: electromagnetism and gravity "aligned with the density line", each
+    // with a second line saying what it does; beyond the black-hole line, along it, "gravity is inescapable here")
+    { line: "water", labelOnly: true, label: "electromagnetism\nkeeps atoms apart", labelColor: "#4fc3f7", size: 23, labelAt: [ON_LINE(14.8), 14.8], labelOffset: 12, instant: true },
+    { line: "water", labelOnly: true, label: "gravity\ncrushes things together", labelColor: "#ffab40", size: 23, labelAt: [ON_LINE(10.5), 10.5], labelOffset: -84, instant: true },
+    { ...SCHW, label: "gravity is\ninescapable here", size: 23, labelAt: [0.2, 28.0], labelOffset: 14, instant: true },
     { obj: "Human", label: false, instant: true }, { obj: "Earth", label: false, instant: true }, { obj: "Sun", label: false, instant: true }, { obj: "PSR J0030+0451", label: false, instant: true },
-    // the forces' arrows as in the video (2026-11-25, the author: "eletromagnetism arrows points rightward on the density
-    // line, gravity points leftward (like on the video) and the strong force points to the fusion point and the weak force
-    // points to neutron stars"), bigger for a thumbnail
-    ...[8.6, 10.4].map(m => ({ arrow: true, solid: true, width: 8, color: "#4fc3f7", from: { r: ON_LINE(m) - 8, m }, to: { r: ON_LINE(m) - 0.15, m }, padEnd: 0, draw: 0.01 })),
-    ...[24.6, 26.4].map(m => ({ arrow: true, solid: true, width: 8, color: "#ffab40", from: { r: ON_LINE(m) + 8, m }, to: { r: ON_LINE(m) + 0.15, m }, padEnd: 0, draw: 0.01 })),
-    { arrow: true, solid: true, width: 6, color: "#ffe066", from: { r: 13.6, m: 22.2 }, via: [[19.6, 29.4]], to: { r: 11.6, m: 33.05 }, pad: 4, draw: 0.01 },
-    { arrow: true, solid: true, width: 6, color: "#c9a7ff", from: { r: 1.3, m: 32.3 }, to: { r: 6.75, m: 33.4 }, padEnd: 10, draw: 0.01 },
-    { text: "electromagnetism", at: [8.5, 4.8], size: 30, color: "#4fc3f7", instant: true },
-    { text: "gravity", at: [13, 27.8], size: 30, color: "#ffab40", instant: true },
-    { text: "the strong\nforce", at: [14.5, 20.8], size: 27, color: "#ffe066", instant: true },
-    { text: "the weak\nforce", at: [-3.6, 31.9], size: 27, color: "#c9a7ff", instant: true },
-    { text: "What holds\neverything\ntogether?", at: [2, 41], size: 46, color: "#ffffff", instant: true },
+    ...[3.2, 5].map(m => ({ arrow: true, solid: true, width: 8, color: "#4fc3f7", from: { r: ON_LINE(m) - 8, m }, to: { r: ON_LINE(m) - 0.15, m }, padEnd: 0, draw: 0.01 })),
+    ...[21.6, 23.4].map(m => ({ arrow: true, solid: true, width: 8, color: "#ffab40", from: { r: ON_LINE(m) + 8, m }, to: { r: ON_LINE(m) + 0.15, m }, padEnd: 0, draw: 0.01 })),
+    { arrow: true, solid: true, width: 6, color: "#ffe066", from: { r: 13.0, m: 30.4 }, via: [[12.3, 31.5]], to: { r: 11.4, m: 32.4 }, pad: 2, draw: 0.01 },
+    { arrow: true, solid: true, width: 6, color: "#c9a7ff", from: { r: -1.0, m: 40.6 }, to: { r: 6.75, m: 33.4 }, padEnd: 10, draw: 0.01 },
+    { text: "the strong force\ncreates\nnew atoms", at: [13.2, 27.5], size: 23, color: "#ffe066", instant: true },
+    { text: "the weak force\ncreates new nuclei", at: [-0.2, 43], size: 23, color: "#c9a7ff", instant: true },
   ] }] },
 
   backing: "Promises to Keep",
