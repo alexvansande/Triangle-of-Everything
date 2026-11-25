@@ -50,7 +50,9 @@ export default {
     { text: "dead\nstars", at: [8.4, 30.6], size: 28, instant: true },
     { text: "stars", at: [12.52, 31.08], size: 28, instant: true },
     { text: "dying\nstars", at: [14.56, 35.6], size: 28, instant: true },
-    { text: "star\nnurseries", at: [17.9, 37.6], size: 28, instant: true }] }] },
+    { text: "star\nnurseries", at: [17.9, 37.6], size: 28, instant: true },
+    // the title on it (the author, 2026-11-25: "it would be more impactful if it contained the title")
+    { text: "The Life and\nDeath of Stars", at: [13.6, 27.2], size: 46, color: "#ffd54f", instant: true }] }] },
 
   // background music (Kevin MacLeod, CC BY 4.0: video/music/CREDITS.md)
   backing: "Immersed",
