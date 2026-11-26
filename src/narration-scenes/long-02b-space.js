@@ -11,7 +11,7 @@ const CYCLE = [LOW, HIGH, { path: ["nebula-to-nursery", "remnant-to-nursery"] }]
 const T = (text, at, size, color) => ({ text, at, size, ...(color ? { color } : {}), instant: true });
 
 export default {
-  posterWide: { at: 3, set: { iconSize: 34 }, cues: [{ t: 0, cam: { r: 11.0, m: 33.85, span: 19 }, dur: 0.1, drift: 0, hl: [
+  posterWide: { at: 3, set: { iconSize: 34 }, cues: [{ t: 0, cam: { r: 11.0, m: 33.85, span: 19 }, dur: 0.1, drift: 0, bg: { to: 1, dur: 0.01 }, hl: [
     ...CYCLE.map(h => ({ ...h, draw: 0.01 })),
     { side: "left", of: "schwarzschild" },
     { ...SCHW, label: "nothing can exist above this", size: 11, labelAt: [5.4, 33.6], labelOffset: 12, instant: true },

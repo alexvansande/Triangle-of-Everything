@@ -4,7 +4,8 @@
 //   node scripts/narration-poster.mjs --wide short-02-up-the-line   # 1920×1080, the scene's posterWide
 // Output: video/thumbnails/<take>.jpg, or <take>-wide.jpg (what scripts/youtube-publish.py uploads:
 // the wide one for a video over 3:00, which YouTube doesn't count as a Short). Needs the dev
-// server (BASE, default http://localhost:5184) and Google Chrome (CHROME).
+// server (BASE, default http://localhost:5184) and Google Chrome (CHROME). EXTRA adds to the page's query (EXTRA="&trails=0.02":
+// fainter dot trails in the fractal background, which pile into a white smear on a still).
 import fs from "node:fs";
 import path from "node:path";
 import { CLOCK_SHIM } from "./narration-clock.mjs";
@@ -26,7 +27,7 @@ for (const take of process.argv.slice(2).filter(a => !a.startsWith("--"))) {
   // the renderer's clock: the shot is the frame a render would draw at that t (a real-time page on a
   // slow machine piles up the dots' trails, 2026-11-01)
   await p.evaluateOnNewDocument(CLOCK_SHIM);
-  await p.goto(`${BASE}/?narrate=${take}&render=1&captions=0&stage=none&poster=${WIDE ? "wide" : 1}`, { waitUntil: "load", timeout: 180000 });
+  await p.goto(`${BASE}/?narrate=${take}&render=1&captions=0&stage=none&poster=${WIDE ? "wide" : 1}${process.env.EXTRA || ""}`, { waitUntil: "load", timeout: 180000 });
   await p.waitForFunction("window.__narr", { timeout: 60000 });
   const scene = await p.evaluate("window.__narrPoster");
   const at = scene?.at ?? 5;
