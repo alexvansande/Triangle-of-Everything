@@ -21,5 +21,6 @@ export default {
     T("dead stars", [8.2, 32.75], 9, "#e0e0e0"),
     { obj: "Stellar BH", label: false, instant: true },
     T("black holes", [8.1, 34.45], 9, "#ff5a6e"),
+    T("quasi-stars", [8.65, 31.45], 9, "#ffd54f"),
   ] }] },
 };
