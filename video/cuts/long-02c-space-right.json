@@ -16,6 +16,10 @@
           62.82
         ],
         [
+          107.7,
+          109.95
+        ],
+        [
           127.4,
           130.2
         ],
@@ -65,5 +69,6 @@
     }
   ],
   "_music": "One piece after another, no changes at the joins: Dreamer, then Soaring to the credits (part one plays Immersed, Fresh Air and Mesmerize).",
-  "_drop": "False starts and restarts cut (take seconds), found by scripts/narration-verbatim.py: Whisper smoothed them away (the author, 2026-11-22)"
+  "_drop": "False starts and restarts cut (take seconds), found by scripts/narration-verbatim.py: Whisper smoothed them away (the author, 2026-11-22)",
+  "_drop_2026_11_26": "\"See, here's the speed of light again\" cut (take 107.7-109.95: the author, 2026-11-26)"
 }

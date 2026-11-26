@@ -169,3 +169,6 @@ long-02b-space
 # 2026-11-26 (the author, happy with both drafts): tonight full quality with motion blur, Hexagon's tiles paused from 23:45:
 # the powers-of-ten zoom (its source /Users/avsa/Dev/Triangle as it is, the 09:44 draft's fixes: blobs everywhere, the Moon on
 # its orbit at 20x, the grey nucleus, atoms as balls, the shaded hydrogen), then long video 2 part one. Then both get scheduled
+# 2026-11-26, afternoon (the author): The Outer Limit (long-02c-space-right) as a draft tonight before the others (by hand at
+# 23:00: output/videos/narration-overnight.sh.outer-draft, the nightly waits for it): one galaxy at a time, "See, here's the
+# speed of light again" cut, the zoom from the night sky out fixed (it sat on the CMB: timeline-05d.js's end mark)

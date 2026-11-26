@@ -2780,6 +2780,9 @@ function drawObjects() {
       // a picture a video forces on shows, whatever the memory decided before it was forced
       // (video 2's cow lost its picture a few seconds into "most animals", 2026-10-30)
       if (_iconForce?.has(o.name) && shownIcons.has(o)) o._showDot = o._showIcon = true;
+      // and one a video hides goes, whatever the memory decided before it was hidden (the Milky Way stayed on at "Andromeda"
+      // in long-02c-space-right, the author, 2026-11-26: "when we show milky way, hide andromeda and vice versa")
+      if (_iconHide?.has(o.name)) o._showIcon = false;
       if (o._showIcon) o._icoR = icoR(o);
     } else _objectVisibility.decisions.set(o.slug, { dot:o._showDot, icon:o._showIcon });
   }

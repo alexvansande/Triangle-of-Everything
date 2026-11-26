@@ -1158,6 +1158,29 @@ fact check: `video/sources/2026-11-18/NOTES.md`.
   refused…"; "The moon you're looking at is merely a second ago" (*"…is merely a second old"*); "how we move to more
   larger and massive objects".
 
+### Part two, The Outer Limit (`long-02c-space-right`, rec76): to re-record (the author, 2026-11-26)
+Cut out now: "See, here's the speed of light again." Two passages to record, each whole, so it drops into the cut:
+
+- **The intro** (now it opens with "Remember the supernova remnants…", which leans on part one; "more larger", "Ebola"
+  for "a nebula"). As said, to "the atmosphere of the moon":
+  "Remember the supernova remnants and the nebulas that were left behind when the stars died? They're all further right
+  on our map. So let's explore that area. Notice how we move to more larger and massive objects. We're also in the
+  density of emptier and emptier space. That's because the bigger something is, the less dense it is. A lot of the stars
+  are less dense than water, and some are even less dense than air. When a star is about to die, it grows into a red
+  giant, its outer layers drift off into a nebula, or it explodes as a supernova, and these are often less dense than
+  the atmosphere of the moon."
+  A version to record (yours to reword): *"In the last video we followed the stars to their deaths, up to the black-hole
+  line, the upper limit of our chart. The nebulae and supernova remnants they left behind are all further right on our
+  map, so let's explore that side. As we move right we find larger and more massive things, and emptier and emptier
+  space, because the bigger something is, the less dense it is. A lot of the stars are less dense than water, and some
+  are even less dense than air. When a star is about to die it swells into a red giant and its outer layers drift off
+  into a nebula, or it explodes as a supernova, and these are often less dense than the atmosphere of the Moon."*
+- **"…that we just saw recently"** (part one is another video now). As said: "Now, if we add up everything we know
+  exists inside this bubble, it will end up on the Schwarzschild radius, the black hole line, the other edge of our
+  chart that we just saw recently. What does it mean?"
+  To record: *"Now, if we add up everything we know exists inside this bubble, it lands right on the Schwarzschild
+  radius: the black-hole line, the upper limit of our chart, from the last video. What does that mean?"*
+
 ### The forces Short from this take
 Its own opening (rec75 3:13–3:52, the last tries joined: "If you try to map every single thing that exists in a chart
 of mass and size, you see that most objects will fall in this diagonal band. What's special about it?"), then the dance

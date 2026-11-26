@@ -60,7 +60,10 @@ export default {
     { at: "far right on our map", alts: true, hl: [{ obj: "Planetary Nebula", label: false }, { obj: "Crab Nebula", label: false }] },
     // (its rightmost edge keeps our universe's dot hidden, as the Cosmic Event Horizon's own edge shot did: that one and
     // its "that's the Hubble sphere" fall on the same words here, so they're left out below)
-    ...from(S5A.cues, "largest objects").map(alias).map(c => has(c, "second edge") ? { ...c, hideIcons: ["Our Universe"] } : c),
+    // (one galaxy at a time: Andromeda hidden while the Milky Way is named, the Milky Way at "Andromeda" (5a's cue); the
+    // author, 2026-11-26: "when we show milky way, hide andromeda and vice versa")
+    ...from(S5A.cues, "largest objects").map(alias).map(c => has(c, "second edge") ? { ...c, hideIcons: ["Our Universe"] }
+      : has(c, "a galaxy is really") ? { ...c, hideIcons: [...c.hideIcons, "Andromeda (M31)", "Andromeda"] } : c),
     // the Cosmic Event Horizon from the speed of light on (its opening, the largest anything can be, is 5a's here)
     // (the photo's pixels measured: a galaxy near the middle of the Hubble Deep Field and two neighbours, the author's
     // note, rec76 5:04)
