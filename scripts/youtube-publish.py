@@ -75,7 +75,9 @@ def description(v):
     body = "\n\n".join(paras)
     # the incompetech credit (track, author, source, licence), in the same "label: link" form as
     # the description's other links (the author, 2026-10-30)
-    credit = (f'Music: {" and ".join(f'"{t}"' for t in tracks)} by Kevin MacLeod: https://incompetech.com\n'
+    names = [f'"{t}"' for t in tracks]
+    names = " and ".join(names) if len(names) < 3 else ", ".join(names[:-1]) + " and " + names[-1]
+    credit = (f'Music: {names} by Kevin MacLeod: https://incompetech.com\n'
               "Licensed under Creative Commons Attribution 4.0: https://creativecommons.org/licenses/by/4.0/")
     full = v.get("fullVideo", MANIFEST_DEFAULTS.get("fullVideo"))
     watch = f"\n\nWatch the full video: {full}" if full else ""
@@ -93,10 +95,11 @@ def photo_credits(take):
         m = re.match(r"\| ([a-z0-9-]+)(?: \(\.mp4\))? \| (.*?) \| (.*?) \|", line)
         if m and m[3] != "Ours":
             rows[m[1]] = (re.sub(r"\s+", " ", re.sub(r",\s*uploader .*", "", m[2])).strip(), m[3])
-    f = os.path.join(ROOT, "src", "narration-scenes", f"{take}.js")
-    if not os.path.exists(f):   # a take cut from another's scene (short-02a-things plays short-02-up-the-line's)
-        scene_of = load(os.path.join(ROOT, "public", "narration", take, "words.json"), {}).get("scene", take)
-        f = os.path.join(ROOT, "src", "narration-scenes", f"{scene_of}.js")
+    # the scene the take plays (words.json "scene"): a take cut from another's scene (short-02a-things plays
+    # short-02-up-the-line's), or one whose own scene file holds only its thumbnail (long-02b-space plays long-02b-opening)
+    scene_of = load(os.path.join(ROOT, "public", "narration", take, "words.json"), {}).get("scene", take)
+    f = os.path.join(ROOT, "src", "narration-scenes", f"{scene_of}.js")
+    if not os.path.exists(f): f = os.path.join(ROOT, "src", "narration-scenes", f"{take}.js")
     scene = open(f).read()
     used = [n for n in rows if re.search(r"[\"'/]" + re.escape(n) + r"[\"'.]", scene)]
     if not used:

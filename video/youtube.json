@@ -119,6 +119,17 @@
       "blurb": "Everything in the universe is a delicate dance between four fundamental forces. Electromagnetism holds atoms at their distance, gravity crushes anything big enough, the strong force makes the stars shine, and the weak force turns a dying star's core into a neutron star. Squeeze enough mass into a small enough space and nothing, not even light, gets out. That's a black hole.",
       "music": "Promises to Keep",
       "publishAt": "2026-12-01T06:00:00-03:00"
+    },
+    {
+      "take": "long-02b-space",
+      "title": "The Triangle of Everything: The Upper Limit",
+      "blurb": "The Triangle of Everything is a map of every single thing, sorted by mass and size, and it has an upper limit. Everything in the universe is a delicate dance between four fundamental forces, and when gravity wins, you get a black hole. Follow the stars from birth to death, up to the black-hole line, then down to the smallest black holes, which might still be out there as the dark matter.",
+      "music": [
+        "Immersed",
+        "Fresh Air",
+        "Mesmerize"
+      ],
+      "publishAt": "2026-12-04T06:00:00-03:00"
     }
   ]
 }
