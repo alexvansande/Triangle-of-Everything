@@ -22,6 +22,14 @@ const ALIAS = {
 const alias = (c) => { const at = [].concat(c.at ?? []); const x = at.flatMap(a => ALIAS[a] ?? []); return x.length ? { ...c, at: [...x, ...at] } : c; };
 const has = (c, at) => [].concat(c.at).includes(at);
 
+// the 16:9 frame (the author, 2026-11-27, on the draft): "at 4:40 there's a bad transition between two identical cosmic
+// event horizon objects" — the chart's picture of the observable universe started at 2.57×, measured for the Short's
+// 540-px stage, about three quarters of the diagram's sphere here, so two spheres showed; grown to the sphere's size in
+// this frame (GROW), and "at 4:59 add a slow fade when we move to the next scene": the night sky fades in over the chart
+const GROW = 3.5, SKY_FADE = 1.5;
+const wide = (c) => c.dolly?.obj === "Observable Universe" ? { ...c, dolly: { ...c.dolly, grow: GROW } }
+  : c.zoom?.show && has(c, "you certainly know") ? { ...c, zoom: { ...c.zoom, fade: SKY_FADE } } : c;
+
 // the intro: one slow glide over the chart, the diagonal, the dead stars and the black-hole line, then right to the stars
 const INTRO = [
   { t: 0, cam: { r: 7.0, m: 21.0, span: 32 }, dur: 0.05, hl: [] },
@@ -46,6 +54,6 @@ export default {
   cues: [
     ...INTRO,
     // rec76's opening (the nebulae remembered) isn't in this take: its shots start at the massive objects
-    ...R.cues.filter(c => !has(c, "remember the supernova") && ![].concat(c.at).includes("far right on our map")).map(alias),
+    ...R.cues.filter(c => !has(c, "remember the supernova") && ![].concat(c.at).includes("far right on our map")).map(alias).map(wide),
   ],
 };
