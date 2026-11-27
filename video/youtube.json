@@ -130,6 +130,22 @@
         "Mesmerize"
       ],
       "publishAt": "2026-12-04T06:00:00-03:00"
+    },
+    {
+      "take": "short-00-powers-of-ten",
+      "title": "From the Oldest Light to the Planck Scale",
+      "blurb": "A zoom from the oldest light there is, the microwave background, through superclusters, the Milky Way, the Sun, a giant sequoia, a ladybug and an amoeba's DNA, down to atoms, quarks and the Planck scale, where relativity and quantum mechanics meet and our math breaks down.\n\nAfter the proton, everything you see is an abstract simulation made with Lenia, a continuous version of the Game of Life. It isn't meant to represent anything physical.",
+      "music": "Dreamer",
+      "publishAt": "2026-12-11T06:00:00-03:00",
+      "images": [
+        "Hubble eXtreme Deep Field: NASA, ESA, G. Illingworth, D. Magee, P. Oesch, R. Bouwens and the HUDF09 team (Public domain)",
+        "Large and Small Magellanic Clouds: ESO/VMC Survey (CC BY 4.0)",
+        "Andromeda: NASA, ESA, Digitized Sky Survey 2, Davide De Martin (CC BY 4.0)",
+        "Triangulum: ESO (CC BY 4.0)",
+        "Earth: Blue Marble Next Generation and Earth at Night, NASA Earth Observatory (Public domain)",
+        "Sentinel-2 cloudless 2016 by EOX IT Services GmbH, contains modified Copernicus Sentinel data 2016 (CC BY 4.0)",
+        "Aerial photos: NAIP, USDA Farm Service Agency / USGS The National Map (Public domain)"
+      ]
     }
   ]
 }

@@ -81,7 +81,8 @@ def description(v):
               "Licensed under Creative Commons Attribution 4.0: https://creativecommons.org/licenses/by/4.0/")
     full = v.get("fullVideo", MANIFEST_DEFAULTS.get("fullVideo"))
     watch = f"\n\nWatch the full video: {full}" if full else ""
-    images = photo_credits(v["take"])
+    # a take with no scene file (the zoom, rendered from the powers-of-ten tool) lists its images in youtube.json
+    images = ("Images\n" + "\n".join(v["images"])) if v.get("images") else photo_credits(v["take"])
     # the music credit closes the Links section (the file's last paragraph), no blank line between
     return f'{v["blurb"]}{watch}\n\n{body.strip()}\n{credit}\n' + (f"\n{images}\n" if images else "")
 
@@ -100,6 +101,8 @@ def photo_credits(take):
     scene_of = load(os.path.join(ROOT, "public", "narration", take, "words.json"), {}).get("scene", take)
     f = os.path.join(ROOT, "src", "narration-scenes", f"{scene_of}.js")
     if not os.path.exists(f): f = os.path.join(ROOT, "src", "narration-scenes", f"{take}.js")
+    if not os.path.exists(f):
+        return ""
     scene = open(f).read()
     used = [n for n in rows if re.search(r"[\"'/]" + re.escape(n) + r"[\"'.]", scene)]
     if not used:
