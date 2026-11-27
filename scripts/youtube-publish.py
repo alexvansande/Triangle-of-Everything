@@ -103,7 +103,13 @@ def photo_credits(take):
     if not os.path.exists(f): f = os.path.join(ROOT, "src", "narration-scenes", f"{take}.js")
     if not os.path.exists(f):
         return ""
-    scene = open(f).read()
+    # the scene and every scene it imports (long-02c-outer plays long-02b-right's shots, which come from the Shorts')
+    scene, todo, seen = "", [f], set()
+    while todo:
+        g = todo.pop()
+        if g in seen or not os.path.exists(g): continue
+        seen.add(g); src = open(g).read(); scene += src
+        todo += [os.path.join(os.path.dirname(g), m) for m in re.findall(r'import \w+ from "\./([\w.-]+\.js)"', src)]
     used = [n for n in rows if re.search(r"[\"'/]" + re.escape(n) + r"[\"'.]", scene)]
     if not used:
         return ""
