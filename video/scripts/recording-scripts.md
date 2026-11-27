@@ -1158,28 +1158,27 @@ fact check: `video/sources/2026-11-18/NOTES.md`.
   refused…"; "The moon you're looking at is merely a second ago" (*"…is merely a second old"*); "how we move to more
   larger and massive objects".
 
-### Part two, The Outer Limit (`long-02c-space-right`, rec76): to re-record (the author, 2026-11-26)
-Cut out now: "See, here's the speed of light again." Two passages to record, each whole, so it drops into the cut:
+### Part two, The Outer Limit (`long-02c-space-right`): rec80, re-recorded whole (2026-11-27)
+The author re-recorded all of part two ("Outer limit take one", rec80) with a new intro; the cut is now
+`video/long-02c-outer/edl.py`, 7:30 (rec76's cut and its re-record list are in git history). As cut now:
 
-- **The intro** (now it opens with "Remember the supernova remnants…", which leans on part one; "more larger", "Ebola"
-  for "a nebula"). As said, to "the atmosphere of the moon":
-  "Remember the supernova remnants and the nebulas that were left behind when the stars died? They're all further right
-  on our map. So let's explore that area. Notice how we move to more larger and massive objects. We're also in the
-  density of emptier and emptier space. That's because the bigger something is, the less dense it is. A lot of the stars
-  are less dense than water, and some are even less dense than air. When a star is about to die, it grows into a red
-  giant, its outer layers drift off into a nebula, or it explodes as a supernova, and these are often less dense than
-  the atmosphere of the moon."
-  A version to record (yours to reword): *"In the last video we followed the stars to their deaths, up to the black-hole
-  line, the upper limit of our chart. The nebulae and supernova remnants they left behind are all further right on our
-  map, so let's explore that side. As we move right we find larger and more massive things, and emptier and emptier
-  space, because the bigger something is, the less dense it is. A lot of the stars are less dense than water, and some
-  are even less dense than air. When a star is about to die it swells into a red giant and its outer layers drift off
-  into a nebula, or it explodes as a supernova, and these are often less dense than the atmosphere of the Moon."*
-- **"…that we just saw recently"** (part one is another video now). As said: "Now, if we add up everything we know
-  exists inside this bubble, it will end up on the Schwarzschild radius, the black hole line, the other edge of our
-  chart that we just saw recently. What does it mean?"
-  To record: *"Now, if we add up everything we know exists inside this bubble, it lands right on the Schwarzschild
-  radius: the black-hole line, the upper limit of our chart, from the last video. What does that mean?"*
+"You can make a map of every single object that has ever existed in the universe, by plotting them in a chart of mass
+and size. The resulting image will be a density graph, which tells you a million stories. And in this series of
+videos, I'm telling some of them one by one. Like this density diagonal, which is about ordinary matter, or these dense
+objects here, created when a star dies. Our chart is limited on the top by relativity, and nothing can exist above this
+line. Today we are moving to the right, and we're meeting the outer limit of the triangle of everything." Then the right
+of the chart as before (rec76's wording, reworded in places), with the Sun and planets now: "The light that the sun
+emitted when you started watching this video is arriving at you right now. Some of that light will reach Mars, bounce
+back and come back to you. That reflected light is less than half an hour old. Jupiter, just a little bit above that."
+
+To re-record (fact check, video/sources/2026-11-27/NOTES.md):
+- **The Sun line** plays at 5:09, and sunlight takes 8 min 20 s: the light arriving then left the Sun three minutes
+  before the viewer pressed play. As said: "The light that the sun emitted when you started watching this video is
+  arriving at you right now." To record: *"The sunlight reaching you right now left the Sun about eight minutes ago, a
+  few minutes before you started watching this video."*
+- Optional: "Any signal sent from the far side of that filament was sent to us when the dinosaurs were still roaming
+  around" → *"Any signal sent from its heart was sent when the first dinosaurs were roaming around."*; "In most cases,
+  they are older than the country you're watching this from" → *"In many cases…"*.
 
 ### The forces Short from this take
 Its own opening (rec75 3:13–3:52, the last tries joined: "If you try to map every single thing that exists in a chart
